@@ -10,7 +10,7 @@ class Syndication
 		'tiny_url' => '',
 		'cms_url'  => '',
 		'cms_id'   => '',
-		'cms_key'  => '',
+		'api_key'  => '',
 		'timeout'  => '',
 	);
 
@@ -54,7 +54,7 @@ class Syndication
        		'tiny_url' => 'http://ctacdev.com:8082/',
             'cms_url'  => 'http://ctacdev.com:8090/CMS_Manager/api/v1/resources',
             'cms_id'   => 'drupal_cms_1',
-            'cms_key'  => 'sha256',
+            'api_key'  => 'TEST_CMS1', // 'TEST_CMS2'
             'timeout'  => 60
         );
 	}
@@ -895,6 +895,43 @@ class Syndication
         }
     }
 
+
+    function getAllSubscriptions()
+    {
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['cms_url']}/subscriptions");
+            $status = intval($result['http']['http_code']);
+
+            $response = $result['content'];
+            $response['meta']['message']['status'] = $status;
+
+            if        ( $status>=200 && $status<=299 )
+            {
+                $response['success']                         = true;
+            } else if ( $status>=400 && $status<=499 ) {
+                $response['success']                         = false;
+                $response['meta']['message']['errorCode']    = $status;
+                $response['meta']['message']['errorMessage'] = $this->httpStatusMessage($status);
+                $response['meta']['message']['errorDetail']  = 'Failed to Understand Subscription Lookup. Request Error.';
+            } else if ( $status>=500 && $status<=599 ) {
+                $response = $this->empty_json_response;
+                $response['success']                         = false;
+                $response['meta']['message']['errorCode']    = $status;
+                $response['meta']['message']['errorMessage'] = $this->httpStatusMessage($status);
+                $response['meta']['message']['errorDetail']  = 'Failed to Process Subscription Lookup. Server Error.';
+            }
+            return  $response;
+        } catch ( Exception $e ) {
+            $response = $this->empty_json_response;
+            $response['success']                         = false;
+            $response['meta']['message']['errorCode']    = $e->getCode();
+            $response['meta']['message']['errorMessage'] = $e->getMessage();
+            $response['meta']['message']['errorDetail']  = 'API Exception';
+            return $response;
+        }
+    }
+
 	function publish( $url, $collection )
 	{
 	    /// syndication will always return metadata for one content item
@@ -1147,9 +1184,11 @@ class Syndication
                     break;
 	        }
 	    }
+
+	    /// does syndication also need to check my key for update pushes?
 	    //if ( substr( $url, 0, strlen($this->api['cms_url']) ) == $this->api['cms_url'] )
 	    //{
-            $request_headers[] = 'Authorization: CMS_Manager '. base64_encode($this->api['cms_key']);
+            $request_headers[] = 'Authorization: syndication_api_key '. $this->api['api_key'];
 	    //}
 
 	    /// does the path end in a prefix ? if so, that is the response format
