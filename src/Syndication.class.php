@@ -1,18 +1,16 @@
 <?php
 
-/// this class should be framework agnostic : transferable between drupal and wordpress
-
 class Syndication
 {
     /// these are not hardcoded - they are read in from somewhere
-	var $api = array(
-		'url'      => '',
-		'tiny_url' => '',
-		'cms_url'  => '',
-		'cms_id'   => '',
-		'api_key'  => '',
-		'timeout'  => '',
-	);
+    var $api = array(
+      'url'      => '',
+      'tiny_url' => '',
+      'cms_url'  => '',
+      'cms_id'   => '',
+      'api_key'  => '',
+      'timeout'  => '',
+    );
 
     var $param_restrictions = array(
         'pagination' => array(
@@ -98,11 +96,11 @@ class Syndication
 	}
 
     /// pagination on full list only
-    function getAllOrganizations ($params)
+    function getAllOrganizations ($params=array())
     {
         try
         {
-            $params   = $this->restrictParams($params,'pagination');
+            $params = $this->restrictParams($params,'pagination');
             $result = $this->apiCall('get',"{$this->api['url']}/organizations.json",$params);
             $status = intval($result['http']['http_code']);
 
@@ -127,7 +125,7 @@ class Syndication
 
         } catch ( Exception $e ) {
             $response = $this->empty_json_response;
-			$response['success']                         = false;
+			      $response['success']                         = false;
             $response['meta']['message']['status']       = $e->getCode();
             $response['meta']['message']['errorCode']    = $e->getCode();
             $response['meta']['message']['errorMessage'] = $e->getMessage();
@@ -167,7 +165,7 @@ class Syndication
             return $response;
         } catch ( Exception $e ) {
             $response = $this->empty_json_response;
-			$response['success']                         = false;
+            $response['success']                         = false;
             $response['meta']['message']['status']       = $e->getCode();
             $response['meta']['message']['errorCode']    = $e->getCode();
             $response['meta']['message']['errorMessage'] = $e->getMessage();
@@ -449,7 +447,7 @@ class Syndication
             $response['meta']['message']['errorDetail']  = 'API Exception';
             return $response;
         }
-    }
+  }
 	function getThumbnailById ( $id, $params=array() )
 	{
         try
@@ -825,39 +823,36 @@ class Syndication
 	{
 		try
 		{
-			$result = $this->apiCall('post',"{$this->api['cms_url']}/subscriptions/{$syndication_id}",array(
-			    'cmsId'  => $this->api['cms_id'],
-			    'cmsKey' => $this->api['cms_key'],
-			));
+			$result = $this->apiCall('post',"{$this->api['cms_url']}/subscriptions/{$syndication_id}");
 			$status = intval($result['http']['http_code']);
 
-            $response = $this->empty_json_response;
-			$response['meta']['message']['status'] = $status;
+      $response = $this->empty_json_response;
+      $response['meta']['message']['status'] = $status;
 
-			if        ( $status>=200 && $status<=299 )
-            {
-                $response['success']                         = true;
-            } else if ( $status>=400 && $status<=499 ) {
-                $response['success']                         = false;
-                $response['meta']['message']['errorCode']    = $status;
-                $response['meta']['message']['errorMessage'] = $this->httpStatusMessage($status);
-                $response['meta']['message']['errorDetail']  = 'Failed to Subscribe. Request Error.';
- 			} else if ( $status>=500 && $status<=599 ) {
-                $response['success']                         = false;
-                $response['meta']['message']['errorCode']    = $status;
-                $response['meta']['message']['errorMessage'] = $this->httpStatusMessage($status);
-                $response['meta']['message']['errorDetail']  = 'Failed to Subscribe. Server Error.';
-  			}
-			return  $response;
-		} catch ( Exception $e ) {
-			$response = $this->empty_json_response;
-            $response['success']                         = false;
-			$response['meta']['message']['errorCode']    = $e->getCode();
-			$response['meta']['message']['errorMessage'] = $e->getMessage();
-			$response['meta']['message']['errorDetail']  = 'API Exception';
-      		return $response;
-		}
-	}
+      if        ( $status>=200 && $status<=299 )
+      {
+        $response['success']                         = true;
+      } else if ( $status>=400 && $status<=499 ) {
+        $response['success']                         = false;
+        $response['meta']['message']['errorCode']    = $status;
+        $response['meta']['message']['errorMessage'] = $this->httpStatusMessage($status);
+        $response['meta']['message']['errorDetail']  = 'Failed to Subscribe. Request Error.';
+      } else if ( $status>=500 && $status<=599 ) {
+        $response['success']                         = false;
+        $response['meta']['message']['errorCode']    = $status;
+        $response['meta']['message']['errorMessage'] = $this->httpStatusMessage($status);
+        $response['meta']['message']['errorDetail']  = 'Failed to Subscribe. Server Error.';
+      }
+      return  $response;
+    } catch ( Exception $e ) {
+      $response = $this->empty_json_response;
+      $response['success']                         = false;
+      $response['meta']['message']['errorCode']    = $e->getCode();
+      $response['meta']['message']['errorMessage'] = $e->getMessage();
+      $response['meta']['message']['errorDetail']  = 'API Exception';
+      return $response;
+    }
+  }
 
     function unSubscribe( $syndication_id )
     {
@@ -1151,120 +1146,135 @@ class Syndication
         return isset($messages[$status])? $messages[$status] : "Unknown";
     }
 
-    /// returns fixed hash
-    // {meta,pagination,result}
-	function apiCall( $http_type, $url, $params=array(), $response_format=null )
-	{
-	    if ( empty($response_format) )
-	    {
-	        $response_format = $this->guessFormatFromUrl($url);
-	    }
+    function apiCall( $http_type, $url, $params=array(), $response_format=null )
+    {
+      if ( empty($response_format) )
+      {
+        $response_format = $this->guessFormatFromUrl($url);
+      }
 
-        /// our request format type
-	    $request_headers =  array('Content-Type: text/xml; charset=UTF-8');
-	    /// ask for a specific format type of response
-	    if ( !empty($response_format) )
-	    {
-	        switch( $response_format )
-	        {
-                case 'html':
-                    $request_headers[] = 'Accept: text/html; charset=UTF-8';
-                    break;
-	            case 'json':
-                    $request_headers[] = 'Accept: application/json; charset=UTF-8';
-                    break;
-                case 'text':
-                    $request_headers[] = 'Accept: text/plain; charset=UTF-8';
-                    break;
-                case 'image':
-                    $request_headers[] = 'Accept: image/*;';
-                    break;
-                case 'jpg':
-                    $request_headers[] = 'Accept: image/jpeg;';
-                    break;
-	        }
-	    }
+      /// our request format type
+      $request_headers =  array('Content-Type: text/xml; charset=UTF-8');
+      /// ask for a specific format type of response
+      if ( !empty($response_format) )
+      {
+        switch( $response_format )
+        {
+          case 'html':
+            $request_headers[] = 'Accept: text/html; charset=UTF-8';
+            break;
+          case 'json':
+            $request_headers[] = 'Accept: application/json; charset=UTF-8';
+            break;
+          case 'text':
+            $request_headers[] = 'Accept: text/plain; charset=UTF-8';
+            break;
+          case 'image':
+            $request_headers[] = 'Accept: image/*;';
+            break;
+          case 'jpg':
+            $request_headers[] = 'Accept: image/jpeg;';
+            break;
+        }
+      }
 
-	    /// does syndication also need to check my key for update pushes?
-	    //if ( substr( $url, 0, strlen($this->api['cms_url']) ) == $this->api['cms_url'] )
-	    //{
-            $request_headers[] = 'Authorization: syndication_api_key '. $this->api['api_key'];
-	    //}
+      /// does syndication also need to check my key for update pushes?
+      //if ( substr( $url, 0, strlen($this->api['cms_url']) ) == $this->api['cms_url'] )
+      //{
+      $request_headers[] = 'Authorization: syndication_api_key '. $this->api['api_key'];
+      //}
 
-	    /// does the path end in a prefix ? if so, that is the response format
-		$http_params = http_build_query( $params, '', '&' );
-		$curl = curl_init();
+      /// does the path end in a prefix ? if so, that is the response format
+      $http_params = http_build_query( $params, '', '&' );
+      $curl = curl_init();
 
-		// 'Accept: application/json'
-		curl_setopt($curl, CURLOPT_HTTPHEADER,     $request_headers);
-		curl_setopt($curl, CURLOPT_USERAGENT,      'Syndication-Client/php-drupal v1'); // Useragent string to use for request
-		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
-		curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+      // 'Accept: application/json'
+      curl_setopt($curl, CURLOPT_HTTPHEADER,     $request_headers);
+      curl_setopt($curl, CURLOPT_USERAGENT,      'Syndication-Client/php-drupal v1'); // Useragent string to use for request
+      curl_setopt($curl, CURLOPT_FOLLOWLOCATION, 1);
+      curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
-		/**/ /// timeouts
-		curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
-		curl_setopt($curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
-		/**/	
+      /**/ /// timeouts
+      curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
+      curl_setopt($curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
+      /**/	
 
-		/** /// forces new connections
-		curl_setopt($curl, CURLOPT_FORBID_REUSE,  true);
-		curl_setopt($curl, CURLOPT_FRESH_CONNECT, true);
-		curl_setopt($curl, CURLOPT_MAXCONNECTS,   1);
-		/**/	
+      /** /// forces new connections
+      curl_setopt($curl, CURLOPT_FORBID_REUSE,  true);
+      curl_setopt($curl, CURLOPT_FRESH_CONNECT, true);
+      curl_setopt($curl, CURLOPT_MAXCONNECTS,   1);
+      /**/	
 
-		switch ( strtolower($http_type) )
-		{
-			case 'post':
-				curl_setopt( $curl, CURLOPT_POST,       true    );
-				curl_setopt( $curl, CURLOPT_POSTFIELDS, $params );
-				break;
-			case 'put':
-				curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT"        );
-				curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
-				break;
-			case 'delete':
-				curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "DELETE" );
-				curl_setopt( $curl, CURLOPT_POSTFIELDS,    $params );
-				break;
-			case 'get':
-			default:
-				curl_setopt( $curl, CURLOPT_HTTPGET, true );
-				$url .= (strpos($url,'?')===FALSE?'?':'') . $http_params; 
-				break;
-		}
-		curl_setopt( $curl, CURLOPT_URL, $url );
+      switch ( strtolower($http_type) )
+      {
+        case 'post':
+          curl_setopt( $curl, CURLOPT_POST,       true    );
+          curl_setopt( $curl, CURLOPT_POSTFIELDS, $params );
+          break;
+        case 'put':
+          curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT"        );
+          curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
+          break;
+        case 'delete':
+          curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "DELETE" );
+          curl_setopt( $curl, CURLOPT_POSTFIELDS,    $params );
+          break;
+        case 'get':
+        default:
+          curl_setopt( $curl, CURLOPT_HTTPGET, true );
+          $url .= (strpos($url,'?')===FALSE?'?':'') . $http_params; 
+          break;
+      }
+      curl_setopt( $curl, CURLOPT_URL, $url );
 
-		$content = curl_exec($curl);
-        $http    = curl_getinfo($curl);
+      $content = curl_exec($curl);
+      $http    = curl_getinfo($curl);
 
-		if ($content === false) {
-		    curl_close($curl);
-		    throw new Exception('Syndication: No Response: '. $http['http_code'], $http['http_code'] );
-		    return null;
-		}
-		curl_close($curl);
+      if ($content === false) 
+      {
+        curl_close($curl);
+        throw new Exception('Syndication: No Response: '. $http['http_code'], $http['http_code'] );
+        return null;
+      }
+      curl_close($curl);
 
-	    if ( empty($response_format) )
-	    {
-	        $response_format = $this->guessFormatFromResponse($http);
-	    }
+      if ( empty($response_format) )
+      {
+        $response_format = $this->guessFormatFromResponse($http);
+      }
 
-        $response = array(
-            'http'    => $http,
-            'content' => $content,
-        );
+      $response = array(
+        'http'    => $http,
+        'content' => $content,
+      );
 
-		/// test result content-type for JSON / HTML / IMG
-		if( $response_format=='json' )
-		{
-            $decoded = json_decode($content,true);
-            /// clean up data - require 'results' as an array
-            if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
+      /// test result content-type for JSON / HTML / IMG
+      if( $response_format=='json' )
+      {
+        $decoded = json_decode($content,true);
+        /// clean up data - array with single null value is really empty
+        if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
+        {
+          $decoded['results'] = array();
+          /// our paginations counts may be wrong
+          if ( isset($content['meta'] && isset($content['meta']['pagination'] )
+          {
+            /// no results means no count
+            $content['meta']['pagination']['count'] = 0;
+            /// if the count was misreported
+            /// and we are looking at the beginning of the list, then the total might be wrong
+            if ( $content['meta']['pagination']['total']==1 && $content['meta']['pagination']['offset']<1 )
             {
-                $decoded['results'] = array();
+              $content['meta']['pagination']['total'] = 0;
             }
-            $response['content'] = $decoded;
-	    }
-	    return $response;
-	}
+            /// if there is really one legit record, but we have asked for a far-away offset (>1)
+            /// a total of 1 might be correct, and we still could have a misreported 1 count of the resultset
+          }
+        }
+        /// clean up data - require 'results' as an array always
+        $decoded['results'] = (array)$decoded['results'];
+        $response['content'] = $decoded;
+      }
+      return $response;
+    }
 }
