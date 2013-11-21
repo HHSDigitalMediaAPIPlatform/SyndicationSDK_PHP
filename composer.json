@@ -3,5 +3,13 @@
   "version": "0.1",
   "require-dev": {
     "phpunit/phpunit": "3.7.*"
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "phpunit tests/"
+    ],
+    "post-package-install": [
+      "bin/push_to_drupal_module.sh"  
+    ]
   }
 }
