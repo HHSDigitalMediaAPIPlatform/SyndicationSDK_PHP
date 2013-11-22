@@ -34,6 +34,32 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     return $synd;
   }
  
+  public function testPublish ()
+  {
+    $synd       = new Syndication();
+    $sourceUri  = 'http://'. gethostbyname(trim(`hostname`)) .':3001';
+    $sourceUri .= '/single.html';
+    $params = array(
+        'mt'            => 'Html', 
+        'name'          => 'TestName', 
+        'sourceUri'     => $sourceUri, 
+        'dateAuthored'  => gmdate('Y-m-d\TH:i:s\Z'), 
+        'dateUpdated'   => gmdate('Y-m-d\TH:i:s\Z'),
+        'language'      => '1',   
+        'organization'  => '1'
+    );
+    $resp = $synd->publish($params);
+    $this->assertNotEmpty($resp);
+    $this->assertArrayHasKey( 'meta',    $resp,         'Response requires "meta" key'); 
+    $this->assertArrayHasKey( 'status',  $resp['meta'], 'Response requires "status" key'); 
+    $this->assertEquals(      '200',     $resp['meta']['status'] );
+    $this->assertArrayHasKey( 'results', $resp,                   'Response requires has "results" key '); 
+    $this->assertEquals(      1,         count($resp['results']), 'Results should only have one result');
+    $this->assertArrayHasKey( 0,         $resp['results'],        'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey( 'id',      $resp['results'][0],     'Results[0] requires "id" key'); 
+    $this->assertTrue(        is_numeric($resp['results'][0]['id']), 'Results[0][id] is numeric');
+  }
+
   /**
    * @depends testInitialization
    */

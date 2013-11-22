@@ -12,7 +12,7 @@ class Syndication
       'timeout'  => '',
     );
 
-    var $param_restrictions = array(
+    var $params_allowed = array(
         'pagination' => array(
             'max', 'offset', 'sort', 'order'
         ),
@@ -29,7 +29,21 @@ class Syndication
         ),
         'requests_post' => array(
             'requestedUrl', 'contactEmail', 'requesterNote'
+        ),
+        'publish' => array(
+            'mt', 'name', 'sourceUri', 'dateAuthored', 'dateUpdated', 'language', 'organization', 
+            'description', 'liscenseInfo', 'externalGuid', 'hash', 'duration', 'seoText', 'width', 'height', 'format', 'altText', 'code'
         )
+    );
+    var $params_required = array(
+      'required' => array(
+        'always' => array( 'mt', 'name', 'sourceUri', 'dateAuthored', 'dateUpdated', 'language', 'organization' ),
+        'audio'  => array( 'duration' ),
+        'video'  => array( 'duration', 'width', 'height', 'altText' ),
+        'widget' => array( 'width', 'height', 'code' ),
+        'image'       => array( 'width', 'height', 'format', 'altText' ),
+        'infographic' => array( 'width', 'height', 'format', 'altText' ),
+      )
     );
 
     var $empty_response_message = array(
@@ -290,22 +304,22 @@ class Syndication
         }
  	  }
 
-	  function subscribe( $syndication_id )
+	  function subscribe( $id )
 	  {
         try
 	 	    {
-			      $result = $this->apiCall('post',"{$this->api['cms_url']}/subscriptions/{$syndication_id}",array(),'json');
+			      $result = $this->apiCall('post',"{$this->api['cms_url']}/subscriptions/{$id}",array(),'json');
             return $this->createResponse($result,'Subscribe','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
    }
 
-    function unSubscribe( $syndication_id )
+    function unSubscribe( $id )
     {
         try
 	 	    {
-            $result = $this->apiCall('delete',"{$this->api['cms_url']}/subscriptions/{$syndication_id}",array(),'json');
+            $result = $this->apiCall('delete',"{$this->api['cms_url']}/subscriptions/{$id}",array(),'json');
             return $this->createResponse($result,'Un-Subscribe','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -317,36 +331,57 @@ class Syndication
     {
         try
 	 	    {
-            $result = $this->apiCall('get',"{$this->api['cms_url']}/subscriptions",array(),'json');
+            $result = $this->apiCall('get',"{$this->api['cms_url']}/subscriptions.json",array(),'json');
             return $this->createResponse($result,'get My Subscriptions');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
 
-	  function publish( $url, $createCollection )
+    function getSubscriptionById( $id )
+    {
+        try
+	 	    {
+            $result = $this->apiCall('get',"{$this->api['cms_url']}/subscriptions/{$id}",array(),'json');
+            return $this->createResponse($result,'get My Subscriptions');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
+
+    function getCmsMetadata()
+    {
+        try
+	 	    {
+            $result = $this->apiCall('get',"{$this->api['cms_url']}/cms/{$this->api['cms_id']}",array(),'json');
+            return $this->createResponse($result,'get My CMS Information');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
+
+	  function publish( $params )
 	  {
 	      /// syndication will always return metadata for one content item
 	      /// if publishing a collection, we get collection item, which contains list of any sub-items also generated
 		    try
         {
-            $result = $this->apiCall('post',"{$this->api['url']}/media",array(
-                'sourceUrl'        => $url,
-                'createCollection' => empty($createCollection)?'0':'1',
-            ));
+            $params = $this->restrictParams($params,'publish');
+            $query = http_build_query($params);
+            $result = $this->apiCall('post',"{$this->api['url']}/media?".$query,array(),'json');
             return $this->createResponse($result,'Publish');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
 
-	  function unPublish( $syndication_id )
+	  function unPublish( $id )
 	  {
 	      /// syndication will always return metadata for one content item
 	      /// if publishing a collection, we get collection item, which contains list of any sub-items also generated
 		    try
 	 	    {
-            $result = $this->apiCall('delete',"{$this->api['url']}/media/{$syndication_id}");
+            $result = $this->apiCall('delete',"{$this->api['url']}/media/{$id}");
             return $this->createResponse($result,'Un-Publish','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -364,24 +399,46 @@ class Syndication
         }
 	  }
 
-
+    /* vv do i even need to use these two ? */
     function restrictParams( $params )
     {
+        $allowed_fields = array();
         $args     = func_get_args();
         $last_arg = func_num_args()-1;
         if ( $last_arg == 1 )
         {
-            $all_restrictions = (array)$args[1];
+            if ( isset($this->params_allowed[$args[1]]) ) 
+            {
+                $allowed_fields = $this->params_allowed[$args[1]];
+            }
         } else {
-            $all_restrictions = array();
+            $allowed_fields = array();
             for ( $a=1; $a<=$last_arg; $a++ )
             {
-                $all_restrictions = array_merge( $all_restrictions, $this->param_restrictions[$args[$a]] );
+                if ( isset($this->params_allowed[$args[$a]]) ) 
+                {
+                  $allowed_fields = array_merge( $allowed_fields, $this->params_allowed[$args[$a]] );
+                }
             }
         }
-        $restricted = array_intersect_key( $params, array_flip($all_restrictions) );
-        return $restricted;
+        if ( empty($allowed_fields) ) { return $params; }
+        $allowed = array_intersect_key( $params, array_flip($allowed_fields) );
+        return $allowed;
     }
+    function hasRequiredParams( $params, $mt )
+    {
+        if ( !empty($this->params_required[$mt]) ) 
+        {
+          $required_fields = $this->params_required[$mt];
+          foreach ( $required_fields as $field )
+          {
+            if ( !isset($params[$field]) ) { return false; } 
+          }
+        }
+        return true;
+    }
+    /* ^^ do i even need to use these two ? */
+
     function guessFormatFromUrl($url)
     {
         $simple_url = "/^(?:(?P<scheme>[^:\/?#]+):\/\/)(?:(?P<userinfo>[^\/@]*)@)?(?P<host>[^\/?#]*)(?P<path>[^?#]*?(?:\.(?P<format>[^\.?#]*))?)?(?:\?(?P<query>[^#]*))?(?:#(?P<fragment>.*))?$/i";
@@ -400,6 +457,8 @@ class Syndication
         if ( stripos($response['content_type'],'html')       !== false ) { return 'html';  }
         if ( stripos($response['content_type'],'text')       !== false ) { return 'text';  }
         if ( stripos($response['content_type'],'javascript') !== false ) { return 'js';    }
+        /// last ditch effort to guess json
+        if ( is_string($response['content']) && $response['content']{0} == '{' ) { return 'json';  }
         return 'raw';
     }
     function httpStatusMessage( $status )
@@ -676,7 +735,7 @@ class Syndication
         // any xss cleaning ? 
       } else if ( $response_format=='json' ) {
         $decoded = json_decode($content,true);
-        /** BEGIN BS **/
+        /** BEGIN BS ** /
         /// clean up data - array with single null value is really empty
         if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
         {
@@ -699,9 +758,16 @@ class Syndication
             /// a total of 1 might be correct, and we still could have a misreported 1 count of the resultset
           }
         }
+        $decoded['results'] = (array)$decoded['results'];
         /** END BS **/
         /// clean up data - require 'results' as an array always
-        $decoded['results'] = (array)$decoded['results'];
+        if ( isset($decoded['results']) )
+        {
+            if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
+            {
+                $decoded['results'] = array();
+            }
+        }
         $api_response['content'] = $decoded;
       }
       return $api_response;

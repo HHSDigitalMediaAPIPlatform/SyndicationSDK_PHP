@@ -5,10 +5,10 @@
     "phpunit/phpunit": "3.7.*"
   },
   "scripts": {
-    "post-install-cmd": [
+    "pre-install-cmd": [
       "phpunit tests/"
     ],
-    "post-package-install": [
+    "post-install-cmd": [
       "bin/push_to_drupal_module.sh"  
     ]
   }
