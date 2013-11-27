@@ -2,3 +2,4 @@ vendor/
 *.swp
 *.DS_Store
 *.out
+.idea/
