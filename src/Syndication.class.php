@@ -97,7 +97,6 @@ class Syndication
     {
         try
         {
-            $params = $this->restrictParams($params,'pagination');
             $result = $this->apiCall('get',"{$this->api['url']}/organizations.json",$params);
             return $this->createResponse($result,'get All Organizations');
         } catch ( Exception $e ) {
@@ -187,13 +186,25 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-
-    function getMetadataByTagId ( $id )
+    
+    function searchResources( $query )
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/tags/{$id}/media.json");
-            return $this->createResponse($result,'get MetaData','Tag Id');
+            $params = array( 'q' => $query );
+            $result = $this->apiCall('get',"{$this->api['url']}/",$params,'json');
+            return $this->createResponse($result,'search Resources','Search Criteria');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
+    function getMetadata ( $params=array() )
+    {
+        try
+        {
+            if ( empty($params['mt']) ) { $params['mt'] = 'Html'; } /// temp restriction
+            $result = $this->apiCall('get',"{$this->api['url']}/media.json",$params);
+            return $this->createResponse($result,'search MetaData','Search Criteria');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
@@ -204,18 +215,6 @@ class Syndication
         {
             $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}.json");
             return $this->createResponse($result,'get MetaData','Id');
-        } catch ( Exception $e ) {
-            return $this->createResponse($e,'API Call');
-        }
-    }
-    function getMetadata ( $params=array() )
-    {
-        try
-        {
-            $params = $this->restrictParams($params,'pagination','media_search');
-            if ( empty($params['mt']) ) { $params['mt'] = 'Html'; } /// temp restriction
-            $result = $this->apiCall('get',"{$this->api['url']}/media.json",$params);
-            return $this->createResponse($result,'search MetaData','Search Criteria');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
@@ -231,6 +230,16 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
+    function getMetadataByTagId ( $id )
+    {
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['url']}/tags/{$id}/media.json");
+            return $this->createResponse($result,'get MetaData','Tag Id');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
 
     function publish ( $params )
     {
@@ -238,9 +247,12 @@ class Syndication
         /// if publishing a collection, we get collection item, which contains list of any sub-items also generated
         try
         {
-            $params = $this->restrictParams($params,'publish');
-            $query = http_build_query($params);
-            $result = $this->apiCall('post',"{$this->api['url']}/media?".$query,array(),'json');
+            $type_path = $params['mt'];
+            // dirty pluralization
+            if( !in_array($type_path,array('SocialMedia','Audio')) ) { $type_path .= 's'; }
+            $type_path{0} = strtolower($type_path{0});
+            //$query = http_build_query($params);
+            $result = $this->apiCall('post',"{$this->api['url']}/media/$type_path",$params,'json');
             return $this->createResponse($result,'Publish');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -325,7 +337,6 @@ class Syndication
     {
         try
         {
-            $params = $this->restrictParams($params,'image');
             $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/preview.jpg");
             return $this->createResponse($result,'get Content Preview','Id');
         } catch ( Exception $e ) {
@@ -336,7 +347,6 @@ class Syndication
     {
         try
         {
-            $params = $this->restrictParams($params,'image');
             $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/thumbnail.jpg");
             return $this->createResponse($result,'get Content Thumbnail','Id');
         } catch ( Exception $e ) {
@@ -377,7 +387,6 @@ class Syndication
     {
         try
         {
-            $params = $this->restrictParams($params,'youtubeIframe');
             $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/youtubeIframe",$params);
             return $this->createResponse($result,'get YouTube IFrame','Id');
         } catch ( Exception $e ) {
@@ -386,46 +395,6 @@ class Syndication
     }
 
     /// INTERNAL FUNCTIONS
-
-    /* vv do i even need to use these two ? */
-    function restrictParams ( $params )
-    {
-        $allowed_fields = array();
-        $args     = func_get_args();
-        $last_arg = func_num_args()-1;
-        if ( $last_arg == 1 )
-        {
-            if ( isset($this->params_allowed[$args[1]]) )
-            {
-                $allowed_fields = $this->params_allowed[$args[1]];
-            }
-        } else {
-            $allowed_fields = array();
-            for ( $a=1; $a<=$last_arg; $a++ )
-            {
-                if ( isset($this->params_allowed[$args[$a]]) )
-                {
-                    $allowed_fields = array_merge( $allowed_fields, $this->params_allowed[$args[$a]] );
-                }
-            }
-        }
-        if ( empty($allowed_fields) ) { return $params; }
-        $allowed = array_intersect_key( $params, array_flip($allowed_fields) );
-        return $allowed;
-    }
-    function hasRequiredParams ( $params, $mt )
-    {
-        if ( !empty($this->params_required[$mt]) )
-        {
-            $required_fields = $this->params_required[$mt];
-            foreach ( $required_fields as $field )
-            {
-                if ( !isset($params[$field]) ) { return false; }
-            }
-        }
-        return true;
-    }
-    /* ^^ do i even need to use these two ? */
 
     function guessFormatFromUrl ($url)
     {
@@ -684,6 +653,9 @@ class Syndication
                 break;
         }
         curl_setopt( $curl, CURLOPT_URL, $url );
+
+//curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
+//curl_setopt( $curl, CURLOPT_STDERR,  fopen("php://stderr","w") );
 
         $content = curl_exec($curl);
         $http    = curl_getinfo($curl);

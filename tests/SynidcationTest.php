@@ -6,37 +6,40 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   public function testInitialization ()
   {
-    $synd = new Syndication(array(
+    $syndication = new Syndication(array(
             'url'      => 'http://localhost:3000/Syndication/api/v1/resources',
         		'tiny_url' => 'http://localhost:3000/',
             'cms_url'  => 'http://localhost:3000/CMS_Manager/api/v1/resources',
             'cms_id'   => 'drupal_cms_1',
-            'api_key'  => 'TEST_CMS1', // 'TEST_CMS2'
+            'api_key'  => 'TEST_CMS1',
             'timeout'  => 60
     ));
-    $this->assertInstanceOf('Syndication',$synd);
-    return $synd;
+    $this->assertInstanceOf('Syndication',$syndication);
+    return $syndication;
   }
 
   /**
    * @depends testInitialization
    */
-  public function testApiCall ( $synd )
+  public function testApiCall ( Syndication $syndication )
   {
-    //$synd = new Syndication();
-    $resp = $synd->apiCall('get','http://localhost:3000/200');
+    //$syndication = new Syndication();
+    $resp = $syndication->apiCall('get','http://localhost:3000/200');
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'content',   $resp, 'Good Response has "content" key holding actual response content'); 
     $this->assertArrayHasKey( 'format',    $resp, 'Good Response has "format" key holding content format, if known'); 
     $this->assertArrayHasKey( 'http',      $resp, 'Good Response has "http" key holding curl_info'); 
     $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good Response has "http_code" key holding http status code'); 
     $this->assertEquals('200',$resp['http']['http_code']);
-    return $synd;
+    return $syndication;
   }
- 
-  public function testPublish ()
+  
+  /**
+   * @depends testApiCall
+   */
+  public function testPublishHtml ( Syndication $syndication )
   {
-    $synd       = new Syndication();
+    //$syndication       = new Syndication();
     $sourceUri  = 'http://'. gethostbyname(trim(`hostname`)) .':3001';
     $sourceUri .= '/single.html';
     $params = array(
@@ -48,7 +51,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
         'language'      => '1',   
         'organization'  => '1'
     );
-    $resp = $synd->publish($params);
+    $resp = $syndication->publish($params);
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',    $resp,         'Response requires "meta" key'); 
     $this->assertArrayHasKey( 'status',  $resp['meta'], 'Response requires "status" key'); 
@@ -61,12 +64,43 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   }
 
   /**
+   * @depends testApiCall
+   */
+  public function testPublishImage ( Syndication $syndication )
+  {
+    //$syndication       = new Syndication();
+    $sourceUri  = 'http://'. gethostbyname(trim(`hostname`)) .':3001';
+    $sourceUri .= '/single.img';
+    $params = array(
+        'mt'            => 'Html', 
+        'name'          => 'TestName', 
+        'sourceUri'     => $sourceUri, 
+        'dateAuthored'  => gmdate('Y-m-d\TH:i:s\Z'), 
+        'dateUpdated'   => gmdate('Y-m-d\TH:i:s\Z'),
+        'language'      => '1',   
+        'organization'  => '1'
+    );
+    $resp = $syndication->publish($params);
+    $this->assertNotEmpty($resp);
+    $this->assertArrayHasKey( 'meta',    $resp,         'Response requires "meta" key'); 
+    $this->assertArrayHasKey( 'status',  $resp['meta'], 'Response requires "status" key'); 
+    $this->assertEquals(      '200',     $resp['meta']['status'] );
+    $this->assertArrayHasKey( 'results', $resp,                   'Response requires has "results" key '); 
+    $this->assertEquals(      1,         count($resp['results']), 'Results should only have one result');
+    $this->assertArrayHasKey( 0,         $resp['results'],        'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey( 'id',      $resp['results'][0],     'Results[0] requires "id" key'); 
+    $this->assertTrue(        is_numeric($resp['results'][0]['id']), 'Results[0][id] is numeric');
+  }
+
+
+
+  /**
    * @depends testInitialization
    */
-  public function testSubscribe ( $synd )
+  public function testSubscribe ( Syndication $syndication )
   {
-    //$synd = new Syndication();
-    $resp = $synd->subscribe(201);
+    //$syndication = new Syndication();
+    $resp = $syndication->subscribe(201);
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',    $resp,         'Response requires "meta" key'); 
     $this->assertArrayHasKey( 'status',  $resp['meta'], 'Response requires "status" key'); 
@@ -81,10 +115,10 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   /**
    * @depends testInitialization
    */
-  public function testGetAllMediaTypes ( $synd )
+  public function testGetAllMediaTypes ( Syndication $syndication )
   {
-    //$synd = new Syndication();
-    $resp = $synd->getAllMediaTypes();
+    //$syndication = new Syndication();
+    $resp = $syndication->getAllMediaTypes();
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',   $resp,         'Good Response has "meta" key '); 
     $this->assertArrayHasKey( 'status', $resp['meta'], 'Good Response has "status" key holding http status code'); 
@@ -99,10 +133,10 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   /**
    * @depends testInitialization
    */
-  public function testGetAllOrganizations ( $synd )
+  public function testGetAllOrganizations ( Syndication $syndication )
   {
-    //$synd = new Syndication();
-    $resp = $synd->getAllOrganizations();
+    //$syndication = new Syndication();
+    $resp = $syndication->getAllOrganizations();
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',   $resp,         'Good Response has "meta" key '); 
     $this->assertArrayHasKey( 'status', $resp['meta'], 'Good Response has "status" key holding http status code'); 
@@ -112,10 +146,10 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   /**
    * @depends testInitialization
    */
-  public function testGetOrganizationById ( $synd )
+  public function testGetOrganizationById ( Syndication $syndication )
   {
-    //$synd = new Syndication();
-    $resp = $synd->getOrganizationById(1);
+    //$syndication = new Syndication();
+    $resp = $syndication->getOrganizationById(1);
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',   $resp,         'Good Response has "meta" key '); 
     $this->assertArrayHasKey( 'status', $resp['meta'], 'Good Response has "status" key holding http status code'); 
@@ -126,7 +160,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(1,count($resp['results']),'Should only return one result');
     $this->assertEquals('1',$resp['results'][0]['id'],'Should return Id 1');
     
-    $resp = $synd->getOrganizationById('missing');
+    $resp = $syndication->getOrganizationById('missing');
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',   $resp,         'Good Response has "meta" key '); 
     $this->assertArrayHasKey( 'status', $resp['meta'], 'Good Response has "status" key holding http status code'); 
@@ -137,10 +171,10 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   /**
    * @depends testInitialization
    */
-  public function testGetAllLanguages ( $synd )
+  public function testGetAllLanguages ( Syndication $syndication )
   {
-    //$synd = new Syndication();
-    $resp = $synd->getAllLanguages();
+    //$syndication = new Syndication();
+    $resp = $syndication->getAllLanguages();
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',   $resp,         'Good Response has "meta" key '); 
     $this->assertArrayHasKey( 'status', $resp['meta'], 'Good Response has "status" key holding http status code'); 
@@ -150,10 +184,10 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   /**
    * @depends testInitialization
    */
-  public function testGetLanguageById ( $synd )
+  public function testGetLanguageById ( Syndication $syndication )
   {
-    //$synd = new Syndication();
-    $resp = $synd->getLanguageById(1);
+    //$syndication = new Syndication();
+    $resp = $syndication->getLanguageById(1);
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',   $resp,         'Good Response has "meta" key '); 
     $this->assertArrayHasKey( 'status', $resp['meta'], 'Good Response has "status" key holding http status code'); 
@@ -164,7 +198,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(1,count($resp['results']),'Should only return one result');
     $this->assertEquals('1',$resp['results'][0]['id'],'Should return Id 1');
     
-    $resp = $synd->getLanguageById('missing');
+    $resp = $syndication->getLanguageById('missing');
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'meta',   $resp,         'Good Response has "meta" key '); 
     $this->assertArrayHasKey( 'status', $resp['meta'], 'Good Response has "status" key holding http status code'); 
