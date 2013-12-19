@@ -1,5 +1,8 @@
 <?php
+ini_set('display_errors',1);error_reporting(E_ALL);
+
 require('src/Syndication.class.php');
+
 
 class SyndicationTest extends PHPUnit_Framework_TestCase
 {
@@ -17,13 +20,30 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $this->assertInstanceOf('Syndication',$syndication);
     return $syndication;
   }
-
+  
   /**
    * @depends testInitialization
    */
+  public function testCurlOutgoingRequest ( Syndication $syndication )
+  {
+
+    $type    = 'post'; 
+    $url     = 'http://ctacdev.com:8090/Syndication/api/v1/resources/media/1.json';
+    $params  = array('a'=>'1');    
+    $headers = array();
+    $format  = 'json';
+
+    $content_length = strlen( http_build_query( $params, '', '&' ) );
+    
+    $res = $syndication->apiCall( $type, $url, $params, $headers, $format );
+    $this->assertNotEmpty($res);
+  }
+
+  /**
+   * @depends testInitialization
+   * /
   public function testApiCall ( Syndication $syndication )
   {
-    //$syndication = new Syndication();
     $resp = $syndication->apiCall('get','http://localhost:3000/200');
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'content',   $resp, 'Good Response has "content" key holding actual response content'); 
@@ -36,7 +56,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   
   /**
    * @depends testApiCall
-   */
+   * /
   public function testPublishHtml ( Syndication $syndication )
   {
     //$syndication       = new Syndication();
@@ -65,7 +85,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testApiCall
-   */
+   * /
   public function testPublishImage ( Syndication $syndication )
   {
     //$syndication       = new Syndication();
@@ -96,7 +116,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testInitialization
-   */
+   * /
   public function testSubscribe ( Syndication $syndication )
   {
     //$syndication = new Syndication();
@@ -114,7 +134,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testInitialization
-   */
+   * /
   public function testGetAllMediaTypes ( Syndication $syndication )
   {
     //$syndication = new Syndication();
@@ -132,7 +152,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testInitialization
-   */
+   * /
   public function testGetAllOrganizations ( Syndication $syndication )
   {
     //$syndication = new Syndication();
@@ -145,7 +165,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testInitialization
-   */
+   * /
   public function testGetOrganizationById ( Syndication $syndication )
   {
     //$syndication = new Syndication();
@@ -170,7 +190,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testInitialization
-   */
+   * /
   public function testGetAllLanguages ( Syndication $syndication )
   {
     //$syndication = new Syndication();
@@ -183,7 +203,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testInitialization
-   */
+   * /
   public function testGetLanguageById ( Syndication $syndication )
   {
     //$syndication = new Syndication();
@@ -205,7 +225,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $this->assertEquals('200',$resp['meta']['status']);
     $this->assertEquals(0,count($resp['results']),'Should have zero results');
   }
-
+  /* */
 }
 
 ?>

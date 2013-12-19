@@ -1,5 +1,45 @@
 <?php
+/**
+ * @package Syndication\SDK\PHP
+ */ 
 
+/**
+ * SyndicationResponse() 
+ * 
+ * @author Dan Narkiewicz <dnarkiewicz@ctacorp.com> 
+ */
+class SyndicationResponse()
+{
+  var $format  = null;
+  var $status  = null;
+  var $message = array();
+  var $results = array();
+  var $success = null;
+
+  /**
+   * Constructor for Response 
+   * 
+   * @access protected
+   * 
+   * @return self
+   */
+  function __construct()
+  {
+    $this->format  = null;
+    $this->status  = null;
+    $this->message = array();
+    $this->results = array();
+    $this->success = null;
+  }
+}
+
+
+
+/**
+ * Syndication 
+ * 
+ * @author Dan Narkiewicz <dnarkiewicz@ctacorp.com> 
+ */
 class Syndication
 {
     /// these are not hardcoded - they are read in from somewhere
@@ -12,55 +52,20 @@ class Syndication
         'timeout'  => '',
     );
 
-    var $params_allowed = array(
-        'pagination' => array(
-            'max', 'offset', 'sort', 'order'
-        ),
-        'media_search' => array(
-            'mt', 'name', 'description', 'licenseInfo', 'sourceUri', 'dateAuthored', 'dateUpdated',
-            'languageId', 'languageName', 'languageCode', 'hash', 'organizationId', 'organizationName',
-            'organizationAbv', 'tagIds'
-        ),
-        'youtubeiframe' => array(
-            'callback'
-        ),
-        'image' => array(
-            'imageFloat', 'imageMargin'
-        ),
-        'requests_post' => array(
-            'requestedUrl', 'contactEmail', 'requesterNote'
-        ),
-        'publish' => array(
-            'mt', 'name', 'sourceUri', 'dateAuthored', 'dateUpdated', 'language', 'organization',
-            'description', 'liscenseInfo', 'externalGuid', 'hash', 'duration', 'seoText', 'width', 'height', 'format', 'altText', 'code'
-        )
-    );
-    var $params_required = array(
-        'required' => array(
-            'always' => array( 'mt', 'name', 'sourceUri', 'dateAuthored', 'dateUpdated', 'language', 'organization' ),
-            'audio'  => array( 'duration' ),
-            'video'  => array( 'duration', 'width', 'height', 'altText' ),
-            'widget' => array( 'width', 'height', 'code' ),
-            'image'       => array( 'width', 'height', 'format', 'altText' ),
-            'infographic' => array( 'width', 'height', 'format', 'altText' ),
-        )
-    );
-
     var $empty_response_message = array(
         'errorMessage' => null,
         'errorDetail'  => null,
         'errorCode'    => null,
     );
-    var $empty_response = array(
-        'meta'    => array(
-            'format'  => null,
-            'status'  => null,
-            'message' => array()
-        ),
-        'results' => null,
-        'success' => null,
-    );
-
+    
+    /**
+     * Constructor for Syndication interface
+     * 
+     * @param mixed $api mixed if array: settings. if string: config file path. 
+     * @access protected
+     * 
+     * @return void
+     */
     function __construct ( $api=null )
     {
         if ( is_array($api) )
@@ -82,6 +87,13 @@ class Syndication
 
     /// API FUNCTIONS
 
+    /**
+     * Gets a list of all MediaType Names [string]
+     * 
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
     function getAllMediaTypes ()
     {
         try
@@ -93,6 +105,15 @@ class Syndication
         }
     }
 
+    /**
+     * Gets a list of Organizations [{ id:long, name:string, abv:string, url:string }]
+     * 
+     * @param array $params { max:int, offset:int, sort:string, order:string }
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
     function getAllOrganizations ( $params=array() )
     {
         try
@@ -103,7 +124,15 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getOrganizationById ( $id )
+    /**
+     * Gets a single Organization { id:long, name:string, abv:string, url:string }  
+     * 
+     * @param mixed $id Numeric Id of the organization 
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getOrganizationByOrganizationId ( $id )
     {
         try
         {
@@ -114,17 +143,35 @@ class Syndication
         }
     }
 
-    function getAllCampaigns ()
+    /**
+     * Gets a list of all Campaigns [{ id:long, name:string, description:string, startDate:date, endDate:date, organization:organization }]  
+     * 
+     * @param array $params { max:int, offset:int, sort:string, order:string }
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getAllCampaigns ( $params=array() )
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/campaigns.json");
+            $result = $this->apiCall('get',"{$this->api['url']}/campaigns.json",$params);
             return $this->createResponse($result,'get All Campaigns');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
-    function getCampaignById ( $id )
+    /**
+     * Gets a single Campaign { id:long, name:string, description:string, startDate:date, endDate:date, organization:organization }  
+     * 
+     * @param mixed $id Numeric Id of the campaign 
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getCampaignByCampaignId ( $id )
     {
         try
         {
@@ -135,17 +182,35 @@ class Syndication
         }
     }
 
-    function getAllLanguages ()
+    /**
+     * Gets a list of all Languages [{ id:long, name:string, value:string }]  
+     * 
+     * @param array $params { max:int, offset:int, sort:string, order:string }
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getAllLanguages ( $params=array() )
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/languages.json");
+            $result = $this->apiCall('get',"{$this->api['url']}/languages.json",$params);
             return $this->createResponse($result,'get All Languages');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
-    function getLanguageById ( $id )
+    /**
+     * Gets a single Language { id:long, name:string, value:string }  
+     * 
+     * @param mixed $id Numeric Id of the language 
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getLanguageByLanguageId ( $id )
     {
         try
         {
@@ -156,17 +221,35 @@ class Syndication
         }
     }
 
-    function getAllTags ()
+    /**
+     * Gets a list of all Tags [{ id:long, name:string }]  
+     * 
+     * @param array $params { sort:string, order:string }
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getAllTags ( $params )
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/tags.json");
+            $result = $this->apiCall('get',"{$this->api['url']}/tags.json",$params);
             return $this->createResponse($result,'get All Tags');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
-    function getTagById ( $id )
+    /**
+     * Gets a single Tag { id:long, name:string, value:string }  
+     * 
+     * @param mixed $id Numeric Id of the tag 
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getTagByTagId ( $id )
     {
         try
         {
@@ -176,7 +259,16 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getRelatedTagsById ( $id )
+    /**
+     * Gets a list of Tags related to a specific Tag [{ id:long, name:string, value:string }]
+     * 
+     * @param mixed $id Numeric Id of the tag 
+     *  
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function getRelatedTagsByTagId ( $id )
     {
         try
         {
@@ -187,29 +279,34 @@ class Syndication
         }
     }
     
-    function searchResources( $query )
+    /**
+     * Gets a list of Media MetaData [{ id:long, name:string, description:string, licenseInfo:string, sourceUri:string, dateAuthored:date, dateUpdated:date, language:language, active:boolean, externalGuid:string, hash:string, organization:organization }] 
+     * Makes a different API call depending on $query. 
+     * 
+     * @param mixed $query if string, send as query to all-column text search. if array, send as per-column search params. 
+     *      { max:int, offset:int, sort:string, order:string, mediaType:string, nameContains:string, descriptionContains:string, licenseInfoContains:string, sourceUri:string, sourceUriContains:string, dateAuthored:string, authoredSinceDate:string, authoredBeforeDate:string, authoredInRange:string, updatedSinceDate:string, updatedBeforeDate:string, updatedInRange:long, languageName:string, languageValue:string, hash:string, hashContains:string, organizationId:long, organizationName:string, organizationNameContains:string, organizationAbv:string, organizationAbvContains:string, tagIds:csv_string, restrictToSet:csv_string }
+     * 
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
+    function searchMediaMetadata( $query )
     {
         try
         {
-            $params = array( 'q' => $query );
-            $result = $this->apiCall('get',"{$this->api['url']}/",$params,'json');
+            if ( is_array($query) )
+            {
+              $result = $this->apiCall('get',"{$this->api['url']}/media.json",$query);
+            } else {  
+              $params = array( 'q' => $query );
+              $result = $this->apiCall('get',"{$this->api['url']}/",$params,'json');
+            }
             return $this->createResponse($result,'search Resources','Search Criteria');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
-    function getMetadata ( $params=array() )
-    {
-        try
-        {
-            if ( empty($params['mt']) ) { $params['mt'] = 'Html'; } /// temp restriction
-            $result = $this->apiCall('get',"{$this->api['url']}/media.json",$params);
-            return $this->createResponse($result,'search MetaData','Search Criteria');
-        } catch ( Exception $e ) {
-            return $this->createResponse($e,'API Call');
-        }
-    }
-    function getMetadataById ( $id )
+    function getMediaMetadataByMediaId ( $id )
     {
         try
         {
@@ -219,7 +316,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getMetadataByUrl ( $url )
+    function getMediaMetadataByMediaUrl ( $url )
     {
         try
         {
@@ -230,7 +327,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getMetadataByTagId ( $id )
+    function getMediaMetadataByTagId ( $id )
     {
         try
         {
@@ -258,7 +355,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function unPublish ( $id )
+    function unPublishByMediaId ( $id )
     {
         /// syndication will always return metadata for one content item
         /// if publishing a collection, we get collection item, which contains list of any sub-items also generated
@@ -271,7 +368,7 @@ class Syndication
         }
     }
 
-    function subscribe ( $id )
+    function subscribeByMediaId ( $id )
     {
         try
         {
@@ -281,7 +378,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function unSubscribe ( $id )
+    function unSubscribeByMediaId ( $id )
     {
         try
         {
@@ -292,7 +389,7 @@ class Syndication
         }
     }
 
-    function getCmsMetadata ()
+    function getCmsMetadataByCmsId ()
     {
         try
         {
@@ -312,7 +409,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getSubscriptionById ( $id )
+    function getSubscriptionByCmsId ( $id )
     {
         try
         {
@@ -323,7 +420,7 @@ class Syndication
         }
     }
 
-    function getContentById ( $id )
+    function getContentByMediaId ( $id )
     {
         try
         {
@@ -333,7 +430,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getPreviewById ( $id, $params=array() )
+    function getPreviewByMediaId ( $id, $params=array() )
     {
         try
         {
@@ -343,7 +440,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getThumbnailById ( $id, $params=array() )
+    function getThumbnailByMediaId ( $id, $params=array() )
     {
         try
         {
@@ -353,7 +450,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getEmbeddedHtmlById ( $id )
+    function getEmbeddedHtmlByMediaId ( $id )
     {
         try
         {
@@ -363,7 +460,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getSnippetCodeById ( $id )
+    function getSnippetCodeByMediaId ( $id )
     {
         try
         {
@@ -373,7 +470,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getYoutubeMetadataById ( $id )
+    function getYoutubeMetadataByMediaId ( $id )
     {
         try
         {
@@ -383,7 +480,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getYoutubeIframeById ( $id, $params=array() )
+    function getYoutubeIframeByMediaId ( $id, $params=array() )
     {
         try
         {
@@ -577,7 +674,10 @@ class Syndication
         }
 
         /// our request format type
-        $request_headers =  array('Content-Type: text/xml; charset=UTF-8');
+        //$request_headers =  array('Content-Type: text/xml; charset=UTF-8');
+        $request_headers = array('Content-Type: application/x-www-form-urlencoded');
+        //$request_headers = array();
+
         /// ask for a specific format type of response
         if ( !empty($response_format) )
         {
@@ -601,61 +701,7 @@ class Syndication
             }
         }
 
-        /// does syndication also need to check my key for update pushes?
-        //if ( substr( $url, 0, strlen($this->api['cms_url']) ) == $this->api['cms_url'] )
-        //{
-        $request_headers[] = 'Authorization: syndication_api_key '. $this->api['api_key'];
-        //}
-
-        /// does the path end in a prefix ? if so, that is the response format
-        $http_params = http_build_query( $params, '', '&' );
-        $curl = curl_init();
-
-        // 'Accept: application/json'
-        curl_setopt($curl, CURLOPT_HTTPHEADER,     $request_headers);
-        curl_setopt($curl, CURLOPT_USERAGENT,      'Syndication-Client/php-drupal v1'); // Useragent string to use for request
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true );
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true );
-        if ( $response_format=='image' )
-        {
-            curl_setopt($curl, CURLOPT_HEADER,         false );
-            curl_setopt($curl, CURLOPT_BINARYTRANSFER, true  );
-        }
-
-        /**/ /// timeouts
-        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
-        curl_setopt($curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
-        /**/
-
-        /** /// forces new connections
-        curl_setopt($curl, CURLOPT_FORBID_REUSE,  true );
-        curl_setopt($curl, CURLOPT_FRESH_CONNECT, true );
-        curl_setopt($curl, CURLOPT_MAXCONNECTS,   1);
-        /**/
-
-        switch ( strtolower($http_type) )
-        {
-            case 'post':
-                curl_setopt( $curl, CURLOPT_POST,       true    );
-                curl_setopt( $curl, CURLOPT_POSTFIELDS, $params );
-                break;
-            case 'put':
-                curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PUT"        );
-                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
-                break;
-            case 'delete':
-                curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "DELETE" );
-                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $params  );
-                break;
-            case 'get':
-            default:
-                curl_setopt( $curl, CURLOPT_HTTPGET, true ); $url .= (strpos($url,'?')===FALSE?'?':'') . $http_params;
-                break;
-        }
-        curl_setopt( $curl, CURLOPT_URL, $url );
-
-//curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
-//curl_setopt( $curl, CURLOPT_STDERR,  fopen("php://stderr","w") );
+        $curl = $this->apiBuildCurlRequest( $http_type, $url, $params, $request_headers, $response_format ); 
 
         $content = curl_exec($curl);
         $http    = curl_getinfo($curl);
@@ -695,32 +741,6 @@ class Syndication
             // any xss cleaning ?
         } else if ( $response_format=='json' ) {
             $decoded = json_decode($content,true);
-            /** BEGIN BS ** /
-            /// clean up data - array with single null value is really empty
-            if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
-            {
-            $decoded['results'] = array();
-            if ( isset($content['meta']) && isset($content['meta']['pagination']) )
-            {
-            /// no results means no count
-            $content['meta']['pagination']['count'] = 0;
-            /// if the count was misreported
-            /// and we are looking at the beginning of the list, then the total might be wrong
-            /// really i might get an empty set with a positive total if i have asked for an offset greater than total
-            if ( $content['meta']['pagination']['total'] && $content['meta']['pagination']['offset']<$content['meta']['pagination']['total'] )
-            {
-            /// empty set is allowed
-            } else {
-            /// empty set is not allowed, we will only get empty set if total set is empty
-            $content['meta']['pagination']['total'] = 0;
-            }
-            /// if there is really one legit record, but we have asked for a far-away offset (>1)
-            /// a total of 1 might be correct, and we still could have a misreported 1 count of the resultset
-            }
-            }
-            $decoded['results'] = (array)$decoded['results'];
-            /** END BS **/
-            /// clean up data - require 'results' as an array always
             if ( isset($decoded['results']) )
             {
                 if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
@@ -732,4 +752,90 @@ class Syndication
         }
         return $api_response;
     }
+
+    function apiBuildCurlRequest( $http_type, $url, $params=array(), $headers=array(), $response_format='' )
+    {
+        $http_params = http_build_query( $params, '', '&' );
+       
+        $headers[] = "Date: ".gmdate("D, d M Y H:i:s", time())." GMT";
+        //$headers[] = 'Content-Type: text/xml; charset=UTF-8';
+
+        $curl = curl_init();
+
+        curl_setopt($curl, CURLOPT_USERAGENT,      'Syndication-Client/php-drupal v1'); // Useragent string to use for request
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true );
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true );
+        if ( $response_format=='image' )
+        {
+            curl_setopt($curl, CURLOPT_HEADER,         false );
+            curl_setopt($curl, CURLOPT_BINARYTRANSFER, true  );
+        }
+
+        switch ( strtolower($http_type) )
+        {
+            case 'post':
+                //curl_setopt( $curl, CURLOPT_POST,       true    );
+                curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'POST'    );
+                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
+                $headers[] = 'Content-length: '.strlen($http_params);
+                break;
+            case 'put':
+                curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'PUT'        );
+                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
+                $headers[] = 'Content-length: '.strlen($http_params);
+                break;
+            case 'delete':
+                curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'DELETE' );
+                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params  );
+                $headers[] = 'Content-length: '.strlen($http_params);
+                break;
+            case 'get':
+            default:
+                curl_setopt( $curl, CURLOPT_HTTPGET, true ); 
+                $url .= (strpos($url,'?')===FALSE?'?':'&') . $http_params;
+                $headers[] = 'Content-length: 0';
+                break;
+        }
+        curl_setopt( $curl, CURLOPT_HTTPHEADER,     $headers);
+
+        curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
+        curl_setopt( $curl, CURLOPT_STDERR,  STDOUT );
+        curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
+        curl_setopt( $curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
+        /** /// forces new connections
+        curl_setopt( $curl, CURLOPT_FORBID_REUSE,  true );
+        curl_setopt( $curl, CURLOPT_FRESH_CONNECT, true );
+        curl_setopt( $curl, CURLOPT_MAXCONNECTS,   1);
+        /**/
+        curl_setopt( $curl, CURLOPT_URL, $url );
+
+        return $curl;
+    }
+
+    function generateApiKey( $http_type, $url, $params=array(), $headers=array() )
+    {
+      $canonicalizedHeaders  = ''; //"ordered and scrubbed headers: date,content-type,content-length";
+      $desiredHeaders = array('date','content-type','content-length');
+      foreach ( $headers as $header )
+      {
+        $pos = strpos(':',$header);
+        if ( $pos )
+        {
+          $name  = strtolower(substr($header,0,$pos));
+          if ( in_array($name,$desiredHeaders) )
+          {
+            $value = substr($header,$pos+1);
+            $h = $name . str_replace(array('\n','\r'),' ',$value)
+            $h = $name . str_replace(array('\n','\r'),' ',$value)
+          }       
+        }      
+      }
+      $canonicalizedResource = "path of request: no host, no query"; 
+      $hashedData    = "hash up the body of the request";
+      $requestData   = "get wrapped up: date,content-type,method";
+      $signingString = "concat stuff we just got";
+      $computedHash  = "hash signing string";
+      $authHeader    = "header Authentication: syndication_api_key {$secret}:{$computedHash}";  
+    }
+
 }
