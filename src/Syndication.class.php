@@ -4,11 +4,12 @@
  */ 
 
 /**
- * SyndicationResponse() 
+ * SyndicationResponse 
  * 
  * @author Dan Narkiewicz <dnarkiewicz@ctacorp.com> 
+ * @package Syndication\SDK\PHP
  */
-class SyndicationResponse()
+class SyndicationResponse
 {
   var $format  = null;
   var $status  = null;
@@ -39,6 +40,7 @@ class SyndicationResponse()
  * Syndication 
  * 
  * @author Dan Narkiewicz <dnarkiewicz@ctacorp.com> 
+ * @package Syndication\SDK\PHP
  */
 class Syndication
 {
@@ -283,14 +285,14 @@ class Syndication
      * Gets a list of Media MetaData [{ id:long, name:string, description:string, licenseInfo:string, sourceUri:string, dateAuthored:date, dateUpdated:date, language:language, active:boolean, externalGuid:string, hash:string, organization:organization }] 
      * Makes a different API call depending on $query. 
      * 
-     * @param mixed $query if string, send as query to all-column text search. if array, send as per-column search params. 
+     * @param mixed $query if string, send as query to all-column text search. if array, send as per-column search params 
      *      { max:int, offset:int, sort:string, order:string, mediaType:string, nameContains:string, descriptionContains:string, licenseInfoContains:string, sourceUri:string, sourceUriContains:string, dateAuthored:string, authoredSinceDate:string, authoredBeforeDate:string, authoredInRange:string, updatedSinceDate:string, updatedBeforeDate:string, updatedInRange:long, languageName:string, languageValue:string, hash:string, hashContains:string, organizationId:long, organizationName:string, organizationNameContains:string, organizationAbv:string, organizationAbvContains:string, tagIds:csv_string, restrictToSet:csv_string }
      * 
      * @access public
      * 
      * @return SyndicationResponse
      */
-    function searchMediaMetadata( $query )
+    function searchMedia( $query )
     {
         try
         {
@@ -306,6 +308,13 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
+    /**
+     * Gets a single Media MetaData [{ id:long, name:string, description:string, licenseInfo:string, sourceUri:string, dateAuthored:date, dateUpdated:date, language:language, active:boolean, externalGuid:string, hash:string, organization:organization }] 
+     * 
+     * @param mixed $id Numeric Id of the Media Item 
+     * 
+     * @return SyndicationResponse
+     */
     function getMediaMetadataByMediaId ( $id )
     {
         try
@@ -316,17 +325,31 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getMediaMetadataByMediaUrl ( $url )
+    /**
+     * Gets a single Media MetaData [{ id:long, name:string, description:string, licenseInfo:string, sourceUri:string, dateAuthored:date, dateUpdated:date, language:language, active:boolean, externalGuid:string, hash:string, organization:organization }] 
+     * 
+     * @param string $url Url of the media source 
+     * 
+     * @return SyndicationResponse
+     */
+    function getMediaMetadataByMediaUrl ( $source_url )
     {
         try
         {
-            $params = array( 'sourceUri' => $url );
+            $params = array( 'sourceUri' => $source_url );
             $result = $this->apiCall('get',"{$this->api['url']}/media.json",$params);
             return $this->createResponse($result,'get MetaData','Url');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
+    /**
+     * Gets a list of Media MetaData [{ id:long, name:string, description:string, licenseInfo:string, sourceUri:string, dateAuthored:date, dateUpdated:date, language:language, active:boolean, externalGuid:string, hash:string, organization:organization }] 
+     * 
+     * @param mixed $id Numeric Id of a Tag 
+     * 
+     * @return SyndicationResponse
+     */
     function getMediaMetadataByTagId ( $id )
     {
         try
@@ -338,10 +361,19 @@ class Syndication
         }
     }
 
+    
+    /**
+     * Publish a new piece of Media content 
+     * 
+     * @param mixed $params params { name:string, sourceUri:string, dateAuthored:date, dateUpdated:date, language:string, organization:string, ... } 
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
     function publish ( $params )
     {
         /// syndication will always return metadata for one content item
-        /// if publishing a collection, we get collection item, which contains list of any sub-items also generated
+        /// if publishing a collection, we get single collection item, which contains a list of any sub-items also generated
         try
         {
             $type_path = $params['mt'];
@@ -355,6 +387,14 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
+    /**
+     * UnPublish a piece of Media content by Id 
+     * 
+     * @param mixed $id id Numeric Id of a Media item 
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
     function unPublishByMediaId ( $id )
     {
         /// syndication will always return metadata for one content item
@@ -368,6 +408,14 @@ class Syndication
         }
     }
 
+    /**
+     * Subscribe to piece of Media content by Id 
+     * 
+     * @param mixed $id id Numeric Id of a Media item 
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
     function subscribeByMediaId ( $id )
     {
         try
@@ -378,6 +426,14 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
+    /**
+     * UnSubscribe to piece of Media content by Id 
+     * 
+     * @param mixed $id id Numeric Id of a Media item 
+     * @access public
+     * 
+     * @return SyndicationResponse
+     */
     function unSubscribeByMediaId ( $id )
     {
         try
@@ -388,7 +444,13 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-
+    /**
+     * Gets a single CMS's MetaData 
+     * 
+     * @param mixed $id Numeric Id of the CMS 
+     * 
+     * @return SyndicationResponse
+     */
     function getCmsMetadataByCmsId ()
     {
         try
@@ -399,7 +461,12 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getAllSubscriptions ()
+    /**
+     * Gets all subscriptions belonging to the CMS identified by APIKEY
+     * 
+     * @return SyndicationResponse
+     */
+    function getAllMySubscriptions ()
     {
         try
         {
@@ -409,7 +476,14 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getSubscriptionByCmsId ( $id )
+    /**
+     * Gets a single Subscription
+     * 
+     * @param mixed $id Numeric Id of the Subscription 
+     * 
+     * @return SyndicationResponse
+     */
+    function getSubscriptionBySubscriptionId ( $id )
     {
         try
         {
@@ -419,8 +493,14 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-
-    function getContentByMediaId ( $id )
+    /**
+     * Gets the source content of a single Media item
+     * 
+     * @param mixed $id Numeric Id of the Media Item 
+     * 
+     * @return SyndicationResponse
+     */
+    function getMediaContentByMediaId ( $id )
     {
         try
         {
@@ -430,7 +510,14 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getPreviewByMediaId ( $id, $params=array() )
+    /**
+     * Gets a preview image of a single Media item. Allows custom size configurations.
+     * 
+     * @param mixed $params  
+     * 
+     * @return SyndicationResponse
+     */
+    function getMediaPreviewByMediaId ( $id, $params=array() )
     {
         try
         {
@@ -440,7 +527,14 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getThumbnailByMediaId ( $id, $params=array() )
+    /**
+     * Gets a fixed size thumbnail image of a single Media item. Allows custom margin configuration.
+     * 
+     * @param mixed $params  
+     * 
+     * @return SyndicationResponse
+     */
+    function getMediaThumbnailByMediaId ( $id, $params=array() )
     {
         try
         {
@@ -450,7 +544,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getEmbeddedHtmlByMediaId ( $id )
+    function getMediaEmbeddedHtmlByMediaId ( $id )
     {
         try
         {
@@ -460,7 +554,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getSnippetCodeByMediaId ( $id )
+    function getMediaSnippetCodeByMediaId ( $id )
     {
         try
         {
@@ -470,7 +564,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getYoutubeMetadataByMediaId ( $id )
+    function getMediaYoutubeMetadataByMediaId ( $id )
     {
         try
         {
@@ -480,7 +574,7 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
-    function getYoutubeIframeByMediaId ( $id, $params=array() )
+    function getMediaYoutubeIframeByMediaId ( $id, $params=array() )
     {
         try
         {
@@ -493,10 +587,17 @@ class Syndication
 
     /// INTERNAL FUNCTIONS
 
-    function guessFormatFromUrl ($url)
+    function parseUrl($url)
     {
         $simple_url = "/^(?:(?P<scheme>[^:\/?#]+):\/\/)(?:(?P<userinfo>[^\/@]*)@)?(?P<host>[^\/?#]*)(?P<path>[^?#]*?(?:\.(?P<format>[^\.?#]*))?)?(?:\?(?P<query>[^#]*))?(?:#(?P<fragment>.*))?$/i";
-        if ( !preg_match($simple_url, $url, $url_parts) )
+        $url_parts  = array();
+        preg_match($simple_url, $url, $url_parts);
+        return $url_parts;
+    }
+    function guessFormatFromUrl ($url)
+    {
+        $url_parts = $this->parseUrl($url);
+        if ( empty($url_parts) )
         {
             return 'raw';
         }
@@ -666,7 +767,7 @@ class Syndication
         return $response;
     }
 
-    function apiCall ( $http_type, $url, $params=array(), $response_format=null )
+    function apiCall ( $http_method, $url, $params=array(), $response_format=null )
     {
         if ( empty($response_format) )
         {
@@ -674,9 +775,11 @@ class Syndication
         }
 
         /// our request format type
-        //$request_headers =  array('Content-Type: text/xml; charset=UTF-8');
-        $request_headers = array('Content-Type: application/x-www-form-urlencoded');
-        //$request_headers = array();
+        $request_headers = array(
+            //'Content-Type: text/xml; charset=UTF-8',
+            'Content-Type: application/x-www-form-urlencoded',
+            'Date: '.gmdate('D, d M Y H:i:s', time()).' GMT'
+        );
 
         /// ask for a specific format type of response
         if ( !empty($response_format) )
@@ -700,8 +803,11 @@ class Syndication
                     break;
             }
         }
+        
+        $apikey = $this->apiGenerateKey( $http_method, $url, $params, $request_headers );
+        $request_headers[] = "Authentication: syndication_api_key {$apiKey}";
 
-        $curl = $this->apiBuildCurlRequest( $http_type, $url, $params, $request_headers, $response_format ); 
+        $curl = $this->apiBuildCurlRequest( $http_method, $url, $params, $request_headers, $response_format ); 
 
         $content = curl_exec($curl);
         $http    = curl_getinfo($curl);
@@ -753,12 +859,11 @@ class Syndication
         return $api_response;
     }
 
-    function apiBuildCurlRequest( $http_type, $url, $params=array(), $headers=array(), $response_format='' )
+    function apiBuildCurlRequest( $http_method, $url, $params=array(), $headers=array(), $response_format='' )
     {
         $http_params = http_build_query( $params, '', '&' );
        
-        $headers[] = "Date: ".gmdate("D, d M Y H:i:s", time())." GMT";
-        //$headers[] = 'Content-Type: text/xml; charset=UTF-8';
+        //$headers[] = "Date: ".gmdate("D, d M Y H:i:s", time())." GMT";
 
         $curl = curl_init();
 
@@ -771,7 +876,7 @@ class Syndication
             curl_setopt($curl, CURLOPT_BINARYTRANSFER, true  );
         }
 
-        switch ( strtolower($http_type) )
+        switch ( strtolower($http_method) )
         {
             case 'post':
                 //curl_setopt( $curl, CURLOPT_POST,       true    );
@@ -812,30 +917,59 @@ class Syndication
         return $curl;
     }
 
-    function generateApiKey( $http_type, $url, $params=array(), $headers=array() )
+    function apiGenerateKey( $http_method, $url, $params, $headers )
     {
-      $canonicalizedHeaders  = ''; //"ordered and scrubbed headers: date,content-type,content-length";
+        /// need to figure out how key sharing works
+
+      // ordered and scrubbed headers: date,content-type,content-length;
+      $canonicalizedHeaders  = '';
       $desiredHeaders = array('date','content-type','content-length');
+      $headerData = array();
       foreach ( $headers as $header )
       {
         $pos = strpos(':',$header);
         if ( $pos )
         {
-          $name  = strtolower(substr($header,0,$pos));
+          $name  = strtolower(trim(substr($header,0,$pos)));
+          $value = substr($header,$pos+1);
+          $headerData[$name] = trim($value);
           if ( in_array($name,$desiredHeaders) )
           {
-            $value = substr($header,$pos+1);
-            $h = $name . str_replace(array('\n','\r'),' ',$value)
-            $h = $name . str_replace(array('\n','\r'),' ',$value)
-          }       
+            $canononicalizedHeaders = $name .':'. trim(str_replace(array('\n','\r'),' ',$value))."\n";
+          } 
         }      
       }
-      $canonicalizedResource = "path of request: no host, no query"; 
-      $hashedData    = "hash up the body of the request";
-      $requestData   = "get wrapped up: date,content-type,method";
-      $signingString = "concat stuff we just got";
-      $computedHash  = "hash signing string";
-      $authHeader    = "header Authentication: syndication_api_key {$secret}:{$computedHash}";  
-    }
+      $canonicalizedHeaders = trim($canonicalizedHeaders);
 
+      // just the clean url path
+      $url_parts = $this->parseUrl($url);
+      $canonicalizedResource = ( !empty($url_parts) && !empty($url_parts['path']) ) ? trim($url_parts['path']) : ''; 
+        
+      /// md5 of the body
+      $http_params   = http_build_query( $params, '', '&' );
+      $hashedData    = md5($http_params);
+
+      // array of: date,content-type,http method;
+      $requestData = array( 'date'         => isset($headerData['date'])         ? $headerData['date']         : '', 
+                            'content-type' => isset($headerData['content-type']) ? $headerData['content-type'] : '', 
+                            'method'       => strtoupper($http_method) ); 
+
+      // put it all together
+      $signingString = "{$requestData['method']}\n".
+                       "{$hashedData}\n".
+                       "{$requestData['content-type']}\n".
+                       "{$requestData['date']}\n".
+                       "{$canonicalizedHeaders}\n".
+                       "{$canonicalizedResource}";
+
+      /// grab keys 
+      $sharedKey     = "SHARED SECRET KEY";  
+      $myPublicKey   = "MY PUBLIC KEY";  
+      
+      /// hash up our thingy
+      $computedHash  = base64_encode(hash_hmac('sha1', $signingString, $sharedKey, true ));
+
+      /// share public key are our hash
+      return "{$myPublicKey}:{$computedHash}";
+    }
 }
