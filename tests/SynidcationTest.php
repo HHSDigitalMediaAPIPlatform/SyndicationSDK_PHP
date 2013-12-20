@@ -11,7 +11,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   {
     $syndication = new Syndication(array(
             'url'      => 'http://localhost:3000/Syndication/api/v1/resources',
-        		'tiny_url' => 'http://localhost:3000/',
+       		'tiny_url' => 'http://localhost:3000/',
             'cms_url'  => 'http://localhost:3000/CMS_Manager/api/v1/resources',
             'cms_id'   => 'drupal_cms_1',
             'api_key'  => 'TEST_CMS1',
