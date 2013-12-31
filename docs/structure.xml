@@ -1,0 +1,987 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project title="API Documentation" version="2.2.0&#10;">
+  <partials/>
+  <file path="Syndication.class.php" generated-path="Syndication.class.html" hash="7a63a1c86e945bb99202020f8b8b2e49" package="Syndication\SDK\PHP">
+    <docblock line="0">
+      <description>Syndication API SDK</description>
+      <long-description></long-description>
+      <tag name="package" line="0" description="Syndication\SDK\PHP"/>
+    </docblock>
+    <class final="false" abstract="false" namespace="" line="14" package="Syndication\SDK\PHP">
+      <extends/>
+      <name>SyndicationResponse</name>
+      <full_name>\SyndicationResponse</full_name>
+      <docblock line="14">
+        <description>SyndicationResponse</description>
+        <long-description></long-description>
+        <tag name="author" line="14" description="Dan Narkiewicz" link="mailto:dnarkiewicz@ctacorp.com"/>
+        <tag name="package" line="14" description="Syndication\SDK\PHP"/>
+      </docblock>
+      <property static="false" visibility="public" line="23" namespace="" package="Syndication\SDK\PHP">
+        <name>$format</name>
+        <default>null</default>
+        <docblock line="23">
+          <description>http-response content-type</description>
+          <long-description></long-description>
+          <tag name="var" line="23" description="" type="string" variable="">
+            <type>string</type>
+          </tag>
+          <tag name="access" line="23" description="public"/>
+        </docblock>
+      </property>
+      <property static="false" visibility="public" line="30" namespace="" package="Syndication\SDK\PHP">
+        <name>$status</name>
+        <default>null</default>
+        <docblock line="30">
+          <description>http-reponse status</description>
+          <long-description></long-description>
+          <tag name="var" line="30" description="" type="mixed" variable="">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="30" description="public"/>
+        </docblock>
+      </property>
+      <property static="false" visibility="public" line="37" namespace="" package="Syndication\SDK\PHP">
+        <name>$message</name>
+        <default>array()</default>
+        <docblock line="37">
+          <description>list of message arrays [ {errorMessage:string, errorDetail:string, errorCode:int}, .</description>
+          <long-description>.. ]</long-description>
+          <tag name="var" line="37" description="" type="array" variable="">
+            <type>array</type>
+          </tag>
+          <tag name="access" line="37" description="public"/>
+        </docblock>
+      </property>
+      <property static="false" visibility="public" line="44" namespace="" package="Syndication\SDK\PHP">
+        <name>$results</name>
+        <default>array()</default>
+        <docblock line="44">
+          <description>list of result data</description>
+          <long-description></long-description>
+          <tag name="var" line="44" description="" type="array" variable="">
+            <type>array</type>
+          </tag>
+          <tag name="access" line="44" description="public"/>
+        </docblock>
+      </property>
+      <property static="false" visibility="public" line="51" namespace="" package="Syndication\SDK\PHP">
+        <name>$success</name>
+        <default>null</default>
+        <docblock line="51">
+          <description>success of requested operation, not of http-request</description>
+          <long-description></long-description>
+          <tag name="var" line="51" description="" type="boolean" variable="">
+            <type>boolean</type>
+          </tag>
+          <tag name="access" line="51" description="public"/>
+        </docblock>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="60" package="Syndication\SDK\PHP">
+        <name>__construct</name>
+        <full_name>\SyndicationResponse::__construct()</full_name>
+        <docblock line="60">
+          <description>Constructor for Response</description>
+          <long-description></long-description>
+          <tag name="access" line="60" description="protected"/>
+          <tag name="return" line="60" description="" type="\SyndicationResponse">
+            <type>\SyndicationResponse</type>
+          </tag>
+          <tag name="fluent" description="This method is part of a fluent interface and will return the same instance"/>
+        </docblock>
+      </method>
+    </class>
+    <class final="false" abstract="false" namespace="" line="78" package="Syndication\SDK\PHP">
+      <extends/>
+      <name>Syndication</name>
+      <full_name>\Syndication</full_name>
+      <docblock line="78">
+        <description>Syndication</description>
+        <long-description></long-description>
+        <tag name="author" line="78" description="Dan Narkiewicz" link="mailto:dnarkiewicz@ctacorp.com"/>
+        <tag name="package" line="78" description="Syndication\SDK\PHP"/>
+      </docblock>
+      <property static="false" visibility="public" line="94" namespace="" package="Syndication\SDK\PHP">
+        <name>$api</name>
+        <default>array('url' =&gt; '', 'tiny_url' =&gt; '', 'cms_url' =&gt; '', 'cms_id' =&gt; '', 'api_key' =&gt; '', 'timeout' =&gt; '')</default>
+        <docblock line="94">
+          <description>api setting for outgoing calls</description>
+          <long-description></long-description>
+          <tag name="var" line="94" description="" type="array" variable="">
+            <type>array</type>
+          </tag>
+          <tag name="array" line="94" description="format&#10;    url      : string&#10;    tinu_url : string&#10;    cms_url  : string&#10;    cms_id   : string&#10;    api_key  : string&#10;    timeout  : integer"/>
+          <tag name="access" line="94" description="public"/>
+        </docblock>
+      </property>
+      <property static="false" visibility="public" line="114" namespace="" package="Syndication\SDK\PHP">
+        <name>$empty_response_message</name>
+        <default>array('errorMessage' =&gt; null, 'errorDetail' =&gt; null, 'errorCode' =&gt; null)</default>
+        <docblock line="114">
+          <description>format for server error messages</description>
+          <long-description></long-description>
+          <tag name="var" line="114" description="" type="array" variable="">
+            <type>array</type>
+          </tag>
+          <tag name="array" line="114" description="format&#10;    errorMessage : string&#10;    errorDetail  : string&#10;    errorCode    : string"/>
+          <tag name="access" line="114" description="public"/>
+        </docblock>
+      </property>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="128" package="Syndication\SDK\PHP">
+        <name>__construct</name>
+        <full_name>\Syndication::__construct()</full_name>
+        <docblock line="128">
+          <description>Constructor for Syndication interface</description>
+          <long-description></long-description>
+          <tag name="param" line="128" description="&lt;p&gt;if array, settings. if string, config file path.&lt;/p&gt;" type="mixed" variable="$api">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="128" description="protected"/>
+          <tag name="return" line="128" description="" type="void">
+            <type>void</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$api</name>
+          <default>null</default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="157" package="Syndication\SDK\PHP">
+        <name>getAllMediaTypes</name>
+        <full_name>\Syndication::getAllMediaTypes()</full_name>
+        <docblock line="157">
+          <description>Gets a list of all MediaType Names</description>
+          <long-description></long-description>
+          <tag name="access" line="157" description="public"/>
+          <tag name="return" line="157" description="-&gt;results[]&#10;     string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="184" package="Syndication\SDK\PHP">
+        <name>getAllOrganizations</name>
+        <full_name>\Syndication::getAllOrganizations()</full_name>
+        <docblock line="184">
+          <description>Gets a list of Organizations</description>
+          <long-description></long-description>
+          <tag name="param" line="184" description="&lt;p&gt;options&#10;     max    : int&#10;     offset : int&#10;     sort   : string&#10;     order  : string&lt;/p&gt;" type="array" variable="$params">
+            <type>array</type>
+          </tag>
+          <tag name="access" line="184" description="public"/>
+          <tag name="return" line="184" description="-&gt;results[]&#10;     id   : int&#10;     name : string&#10;     abv  : string&#10;     url  : string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>array</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="206" package="Syndication\SDK\PHP">
+        <name>getOrganizationByOrganizationId</name>
+        <full_name>\Syndication::getOrganizationByOrganizationId()</full_name>
+        <docblock line="206">
+          <description>Gets a single Organization</description>
+          <long-description></long-description>
+          <tag name="param" line="206" description="&lt;p&gt;Numeric Id of the organization&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="206" description="public"/>
+          <tag name="return" line="206" description="-&gt;results[]&#10;     id   : int&#10;     name : string&#10;     abv  : string&#10;     url  : string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="235" package="Syndication\SDK\PHP">
+        <name>getAllCampaigns</name>
+        <full_name>\Syndication::getAllCampaigns()</full_name>
+        <docblock line="235">
+          <description>Gets a list of all Campaigns</description>
+          <long-description></long-description>
+          <tag name="param" line="235" description="&lt;p&gt;options&#10;     max    : int&#10;     offset : int&#10;     sort   : string&#10;     order  : string&lt;/p&gt;" type="array" variable="$params">
+            <type>array</type>
+          </tag>
+          <tag name="access" line="235" description="public"/>
+          <tag name="return" line="235" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     startDate    : date&#10;     endDate      : date&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>array</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="259" package="Syndication\SDK\PHP">
+        <name>getCampaignByCampaignId</name>
+        <full_name>\Syndication::getCampaignByCampaignId()</full_name>
+        <docblock line="259">
+          <description>Gets a single Campaign</description>
+          <long-description></long-description>
+          <tag name="param" line="259" description="&lt;p&gt;Numeric Id of the campaign&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="259" description="public"/>
+          <tag name="return" line="259" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     startDate    : date&#10;     endDate      : date&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="285" package="Syndication\SDK\PHP">
+        <name>getAllLanguages</name>
+        <full_name>\Syndication::getAllLanguages()</full_name>
+        <docblock line="285">
+          <description>Gets a list of all Languages</description>
+          <long-description></long-description>
+          <tag name="param" line="285" description="&lt;p&gt;options&#10;     max    : int&#10;     offset : int&#10;     sort   : string&#10;     order  : string&lt;/p&gt;" type="array" variable="$params">
+            <type>array</type>
+          </tag>
+          <tag name="access" line="285" description="public"/>
+          <tag name="return" line="285" description="-&gt;results[]&#10;     id    : int&#10;     name  : string&#10;     value : string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>array</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="306" package="Syndication\SDK\PHP">
+        <name>getLanguageByLanguageId</name>
+        <full_name>\Syndication::getLanguageByLanguageId()</full_name>
+        <docblock line="306">
+          <description>Gets a single Language</description>
+          <long-description></long-description>
+          <tag name="param" line="306" description="&lt;p&gt;Numeric Id of the language&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="306" description="public"/>
+          <tag name="return" line="306" description="-&gt;results[]&#10;     id    : int&#10;     name  : string&#10;     value : string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="328" package="Syndication\SDK\PHP">
+        <name>getAllTags</name>
+        <full_name>\Syndication::getAllTags()</full_name>
+        <docblock line="328">
+          <description>Gets a list of all Tags</description>
+          <long-description></long-description>
+          <tag name="param" line="328" description="&lt;p&gt;options&#10;     sort  : string&#10;     order : string&lt;/p&gt;" type="array" variable="$params">
+            <type>array</type>
+          </tag>
+          <tag name="access" line="328" description="public"/>
+          <tag name="return" line="328" description="-&gt;results[]&#10;     id   : int&#10;     name : string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default></default>
+          <type>array</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="348" package="Syndication\SDK\PHP">
+        <name>getTagByTagId</name>
+        <full_name>\Syndication::getTagByTagId()</full_name>
+        <docblock line="348">
+          <description>Gets a single Tag</description>
+          <long-description></long-description>
+          <tag name="param" line="348" description="&lt;p&gt;Numeric Id of the tag&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="348" description="public"/>
+          <tag name="return" line="348" description="-&gt;results[]&#10;     id   : int&#10;     name : string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="368" package="Syndication\SDK\PHP">
+        <name>getRelatedTagsByTagId</name>
+        <full_name>\Syndication::getRelatedTagsByTagId()</full_name>
+        <docblock line="368">
+          <description>Gets a list of Tags related to a specific Tag</description>
+          <long-description></long-description>
+          <tag name="param" line="368" description="&lt;p&gt;Numeric Id of the tag&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="368" description="public"/>
+          <tag name="return" line="368" description="-&gt;results[]&#10;     id   : int&#10;     name : string" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="428" package="Syndication\SDK\PHP">
+        <name>searchMedia</name>
+        <full_name>\Syndication::searchMedia()</full_name>
+        <docblock line="428">
+          <description>Gets a list of Media MetaData.</description>
+          <long-description>Makes a different API call depending on $query.</long-description>
+          <tag name="param" line="428" description="&lt;p&gt;if string: all-column text search. if array: per-column search params&lt;/p&gt;&#10;&lt;pre&gt;&lt;code&gt; max                      : int&#10; offset                   : int&#10; sort                     : string&#10; order                    : string&#10; mediaType                : string&#10; nameContains             : string&#10; descriptionContains      : string&#10; licenseInfoContains      : string&#10; sourceUri                : string&#10; sourceUriContains        : string&#10; dateAuthored             : string&#10; authoredSinceDate        : string&#10; authoredBeforeDate       : string&#10; authoredInRange          : string&#10; updatedSinceDate         : string&#10; updatedBeforeDate        : string&#10; updatedInRange           : int&#10; languageName             : string&#10; languageValue            : string&#10; hash                     : string&#10; hashContains             : string&#10; organizationId           : int&#10; organizationName         : string&#10; organizationNameContains : string&#10; organizationAbv          : string&#10; organizationAbvContains  : string&#10; tagIds                   : csv_string&#10; restrictToSet            : csv_string&lt;/code&gt;&lt;/pre&gt;" type="mixed" variable="$query">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="428" description="public"/>
+          <tag name="return" line="428" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     licenseInfo  : string&#10;     sourceUri    : string&#10;     dateAuthored : date(rfc3339)&#10;     dateUpdated  : date(rfc3339)&#10;     language     : language&#10;     active       : boolean&#10;     externalGuid : string&#10;     hash         : string&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$query</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="464" package="Syndication\SDK\PHP">
+        <name>getMediaMetadataByMediaId</name>
+        <full_name>\Syndication::getMediaMetadataByMediaId()</full_name>
+        <docblock line="464">
+          <description>Gets a single Media MetaData</description>
+          <long-description></long-description>
+          <tag name="param" line="464" description="&lt;p&gt;Numeric Id of the MediaItem&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="464" description="public"/>
+          <tag name="return" line="464" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     licenseInfo  : string&#10;     sourceUri    : string&#10;     dateAuthored : date(rfc3339)&#10;     dateUpdated  : date(rfc3339)&#10;     language     : language&#10;     active       : boolean&#10;     externalGuid : string&#10;     hash         : string&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="494" package="Syndication\SDK\PHP">
+        <name>getMediaMetadataByMediaUrl</name>
+        <full_name>\Syndication::getMediaMetadataByMediaUrl()</full_name>
+        <docblock line="494">
+          <description>Gets a single Media MetaData</description>
+          <long-description></long-description>
+          <tag name="param" line="494" description="&lt;p&gt;Url of the media source&lt;/p&gt;" type="string" variable="$source_url">
+            <type>string</type>
+          </tag>
+          <tag name="access" line="494" description="public"/>
+          <tag name="return" line="494" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     licenseInfo  : string&#10;     sourceUri    : string&#10;     dateAuthored : date(rfc3339)&#10;     dateUpdated  : date(rfc3339)&#10;     language     : language&#10;     active       : boolean&#10;     externalGuid : string&#10;     hash         : string&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$source_url</name>
+          <default></default>
+          <type>string</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="525" package="Syndication\SDK\PHP">
+        <name>getMediaMetadataByTagId</name>
+        <full_name>\Syndication::getMediaMetadataByTagId()</full_name>
+        <docblock line="525">
+          <description>Gets a list of Media MetaData</description>
+          <long-description></long-description>
+          <tag name="param" line="525" description="&lt;p&gt;Numeric Id of a Tag&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="525" description="public"/>
+          <tag name="return" line="525" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     licenseInfo  : string&#10;     sourceUri    : string&#10;     dateAuthored : date(rfc3339)&#10;     dateUpdated  : date(rfc3339)&#10;     language     : language&#10;     active       : boolean&#10;     externalGuid : string&#10;     hash         : string&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="563" package="Syndication\SDK\PHP">
+        <name>publish</name>
+        <full_name>\Syndication::publish()</full_name>
+        <docblock line="563">
+          <description>Publish a new piece of Media content</description>
+          <long-description></long-description>
+          <tag name="param" line="563" description="&lt;p&gt;options&#10;     name         : string&#10;     sourceUri    : string&#10;     dateAuthored : date&#10;     dateUpdated  : date&#10;     language     : string&#10;     organization : string&lt;/p&gt;" type="mixed" variable="$params">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="563" description="public"/>
+          <tag name="return" line="563" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     licenseInfo  : string&#10;     sourceUri    : string&#10;     dateAuthored : date(rfc3339)&#10;     dateUpdated  : date(rfc3339)&#10;     language     : language&#10;     active       : boolean&#10;     externalGuid : string&#10;     hash         : string&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="589" package="Syndication\SDK\PHP">
+        <name>unPublishByMediaId</name>
+        <full_name>\Syndication::unPublishByMediaId()</full_name>
+        <docblock line="589">
+          <description>UnPublish a piece of Media content by Id</description>
+          <long-description></long-description>
+          <tag name="param" line="589" description="&lt;p&gt;id Numeric Id of a Media item&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="589" description="public"/>
+          <tag name="return" line="589" description="-&gt;results[]&#10;     media metatdata ?" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="622" package="Syndication\SDK\PHP">
+        <name>subscribeByMediaId</name>
+        <full_name>\Syndication::subscribeByMediaId()</full_name>
+        <docblock line="622">
+          <description>Subscribe to piece of Media content by Id</description>
+          <long-description></long-description>
+          <tag name="param" line="622" description="&lt;p&gt;id Numeric Id of a Media item&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="622" description="public"/>
+          <tag name="return" line="622" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     licenseInfo  : string&#10;     sourceUri    : string&#10;     dateAuthored : date(rfc3339)&#10;     dateUpdated  : date(rfc3339)&#10;     language     : language&#10;     active       : boolean&#10;     externalGuid : string&#10;     hash         : string&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="652" package="Syndication\SDK\PHP">
+        <name>unSubscribeByMediaId</name>
+        <full_name>\Syndication::unSubscribeByMediaId()</full_name>
+        <docblock line="652">
+          <description>UnSubscribe to piece of Media content by Id</description>
+          <long-description></long-description>
+          <tag name="param" line="652" description="&lt;p&gt;id Numeric Id of a Media item&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="652" description="public"/>
+          <tag name="return" line="652" description="-&gt;results[]&#10;     id           : int&#10;     name         : string&#10;     description  : string&#10;     licenseInfo  : string&#10;     sourceUri    : string&#10;     dateAuthored : date(rfc3339)&#10;     dateUpdated  : date(rfc3339)&#10;     language     : language&#10;     active       : boolean&#10;     externalGuid : string&#10;     hash         : string&#10;     organization : organization" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="671" package="Syndication\SDK\PHP">
+        <name>getCmsMetadataByCmsId</name>
+        <full_name>\Syndication::getCmsMetadataByCmsId()</full_name>
+        <docblock line="671">
+          <description>Gets a single CMS's MetaData</description>
+          <long-description></long-description>
+          <tag name="param" line="671" description="&lt;p&gt;Numeric Id of the CMS&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="671" description="public"/>
+          <tag name="return" line="671" description="-&gt;results[]&#10;     cms metadata" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="688" package="Syndication\SDK\PHP">
+        <name>getAllMySubscriptions</name>
+        <full_name>\Syndication::getAllMySubscriptions()</full_name>
+        <docblock line="688">
+          <description>Gets all subscriptions belonging to the CMS identified by APIKEY</description>
+          <long-description></long-description>
+          <tag name="access" line="688" description="public"/>
+          <tag name="return" line="688" description="-&gt;results[]&#10;     subscription metadata" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="707" package="Syndication\SDK\PHP">
+        <name>getSubscriptionBySubscriptionId</name>
+        <full_name>\Syndication::getSubscriptionBySubscriptionId()</full_name>
+        <docblock line="707">
+          <description>Gets a single Subscription</description>
+          <long-description></long-description>
+          <tag name="param" line="707" description="&lt;p&gt;Numeric Id of the Subscription&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="707" description="public"/>
+          <tag name="return" line="707" description="-&gt;results[]&#10;     subscription metadata" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="726" package="Syndication\SDK\PHP">
+        <name>getMediaContentByMediaId</name>
+        <full_name>\Syndication::getMediaContentByMediaId()</full_name>
+        <docblock line="726">
+          <description>Gets the source content of a single Media item</description>
+          <long-description></long-description>
+          <tag name="param" line="726" description="&lt;p&gt;Numeric Id of the MediaItem&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="726" description="public"/>
+          <tag name="return" line="726" description="-&gt;results[]&#10;     mixed : string or base64 encoded data" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="748" package="Syndication\SDK\PHP">
+        <name>getMediaPreviewByMediaId</name>
+        <full_name>\Syndication::getMediaPreviewByMediaId()</full_name>
+        <docblock line="748">
+          <description>Gets a preview image of a single Media item. Allows custom size configurations.</description>
+          <long-description></long-description>
+          <tag name="param" line="748" description="&lt;p&gt;Numeric Id of the Meda Item&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="param" line="748" description="&lt;p&gt;options&#10;     id         : int&#10;     imageFloat : string&lt;/p&gt;" type="mixed" variable="$params">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="748" description="public"/>
+          <tag name="return" line="748" description="-&gt;results[]&#10;     base64 encoded jpg" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="770" package="Syndication\SDK\PHP">
+        <name>getMediaThumbnailByMediaId</name>
+        <full_name>\Syndication::getMediaThumbnailByMediaId()</full_name>
+        <docblock line="770">
+          <description>Gets a fixed size thumbnail image of a single Media item. Allows custom margin configuration.</description>
+          <long-description></long-description>
+          <tag name="param" line="770" description="&lt;p&gt;Numeric Id of MediaItem&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="param" line="770" description="&lt;p&gt;options&lt;/p&gt;&#10;&lt;pre&gt;&lt;code&gt; imageFloat  : string&#10; imageMargin : css string (int,int,int,int)&lt;/code&gt;&lt;/pre&gt;" type="mixed" variable="$params">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="770" description="public"/>
+          <tag name="return" line="770" description="-&gt;results[]&#10;     base64 encoded jpg" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="790" package="Syndication\SDK\PHP">
+        <name>getMediaEmbeddedHtmlByMediaId</name>
+        <full_name>\Syndication::getMediaEmbeddedHtmlByMediaId()</full_name>
+        <docblock line="790">
+          <description>Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format</description>
+          <long-description></long-description>
+          <tag name="param" line="790" description="&lt;p&gt;Numeric Id of MediaItem&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="param" line="790" description="&lt;p&gt;Desired return format of embedded html&lt;/p&gt;" type="string" variable="$format">
+            <type>string</type>
+          </tag>
+          <tag name="access" line="790" description="public"/>
+          <tag name="return" line="790" description="-&gt;results[]&#10;     string (html,json,xml)" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$format</name>
+          <default>'html'</default>
+          <type>string</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="810" package="Syndication\SDK\PHP">
+        <name>getMediaJavascriptEmbedTagByMediaId</name>
+        <full_name>\Syndication::getMediaJavascriptEmbedTagByMediaId()</full_name>
+        <docblock line="810">
+          <description>Get javascript code used to embed this MediaItem.</description>
+          <long-description></long-description>
+          <tag name="param" line="810" description="&lt;p&gt;Numeric Id of MediaItem&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="810" description="public"/>
+          <tag name="return" line="810" description="-&gt;results[]&#10;     html" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="829" package="Syndication\SDK\PHP">
+        <name>getMediaYoutubeMetadataByMediaId</name>
+        <full_name>\Syndication::getMediaYoutubeMetadataByMediaId()</full_name>
+        <docblock line="829">
+          <description>Gets Youtube metadata for this MediaItem.</description>
+          <long-description></long-description>
+          <tag name="param" line="829" description="&lt;p&gt;Numeric Id of MediaItem&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="829" description="public"/>
+          <tag name="return" line="829" description="-&gt;results[]&#10;     youtube metatdata" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="852" package="Syndication\SDK\PHP">
+        <name>getMediaIframeEmbeddedTagByMediaId</name>
+        <full_name>\Syndication::getMediaIframeEmbeddedTagByMediaId()</full_name>
+        <docblock line="852">
+          <description>Gets the iframe content belonging to a given MediaItem for embedding. Name is placed into the iframe's html.</description>
+          <long-description></long-description>
+          <tag name="param" line="852" description="&lt;p&gt;Numeric Id of MediaItem&lt;/p&gt;" type="mixed" variable="$id">
+            <type>mixed</type>
+          </tag>
+          <tag name="param" line="852" description="&lt;p&gt;options&#10;     width  : int&#10;     height : int&#10;     name   : string&lt;/p&gt;" type="mixed" variable="$params">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="852" description="public"/>
+          <tag name="return" line="852" description="-&gt;results[]&#10;    html" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$id</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="882" package="Syndication\SDK\PHP">
+        <name>parseUrl</name>
+        <full_name>\Syndication::parseUrl()</full_name>
+        <docblock line="882">
+          <description>Parse a URL string into array.</description>
+          <long-description>Based on RFC3986 'URI Generic Syntax' regex. Added 'Format' as the last dot expression of the path. Does not include character encoding restrictions.</long-description>
+          <tag name="param" line="882" description="&lt;p&gt;url&lt;/p&gt;" type="mixed" variable="$url">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="882" description="public"/>
+          <tag name="return" line="882" description="keys&#10;     scheme&#10;     userinfo&#10;     host&#10;     path&#10;     format&#10;     query&#10;     fragment" type="array">
+            <type>array</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$url</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="898" package="Syndication\SDK\PHP">
+        <name>guessFormatFromUrl</name>
+        <full_name>\Syndication::guessFormatFromUrl()</full_name>
+        <docblock line="898">
+          <description>Guess response format directly from the url.</description>
+          <long-description>Checks the path for a known file extension. Default for no file extension is 'raw'. Basic image types combined into 'image'.</long-description>
+          <tag name="param" line="898" description="&lt;p&gt;url&lt;/p&gt;" type="mixed" variable="$url">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="898" description="public"/>
+          <tag name="return" line="898" description="response format" type="string">
+            <type>string</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$url</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="917" package="Syndication\SDK\PHP">
+        <name>guessFormatFromResponse</name>
+        <full_name>\Syndication::guessFormatFromResponse()</full_name>
+        <docblock line="917">
+          <description>Guess response format from response headers. Defaults to 'raw'. Checks Content-Type header. If no content-type header and first character of body is '{', assume 'json'.</description>
+          <long-description></long-description>
+          <tag name="param" line="917" description="&lt;p&gt;response&lt;/p&gt;" type="mixed" variable="$response">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="917" description="public"/>
+          <tag name="return" line="917" description="format" type="string">
+            <type>string</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$response</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="936" package="Syndication\SDK\PHP">
+        <name>httpStatusMessage</name>
+        <full_name>\Syndication::httpStatusMessage()</full_name>
+        <docblock line="936">
+          <description>Decode Http Status code into string</description>
+          <long-description></long-description>
+          <tag name="param" line="936" description="&lt;p&gt;status&lt;/p&gt;" type="mixed" variable="$status">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="936" description="public"/>
+          <tag name="return" line="936" description="status message" type="string">
+            <type>string</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$status</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="1005" package="Syndication\SDK\PHP">
+        <name>createResponse</name>
+        <full_name>\Syndication::createResponse()</full_name>
+        <docblock line="1005">
+          <description>Wraps curl response or exception into a common SyndicationResponse Object.</description>
+          <long-description></long-description>
+          <tag name="param" line="1005" description="&lt;p&gt;Curl Response or Exception&lt;/p&gt;" type="mixed" variable="$from">
+            <type>mixed</type>
+          </tag>
+          <tag name="param" line="1005" description="&lt;p&gt;Devloper friendly description of what triggered response&lt;/p&gt;" type="string" variable="$action">
+            <type>string</type>
+          </tag>
+          <tag name="param" line="1005" description="&lt;p&gt;API Key used to connect&lt;/p&gt;" type="mixed" variable="$key">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="1005" description="public"/>
+          <tag name="return" line="1005" description="object&#10;     -&gt;format  : string  http response format&#10;     -&gt;status  : string  http response status&#10;     -&gt;message : array   developer friendly error messages&#10;     -&gt;results : array&#10;     -&gt;success : boolean" type="\SyndicationResponse">
+            <type link="SyndicationResponse.html">\SyndicationResponse</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$from</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$action</name>
+          <default>"Process Request"</default>
+          <type>string</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$key</name>
+          <default>null</default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="1116" package="Syndication\SDK\PHP">
+        <name>apiCall</name>
+        <full_name>\Syndication::apiCall()</full_name>
+        <docblock line="1116">
+          <description>Makes http request to a Syndication Service</description>
+          <long-description></long-description>
+          <tag name="param" line="1116" description="&lt;p&gt;http method&lt;/p&gt;" type="mixed" variable="$http_method">
+            <type>mixed</type>
+          </tag>
+          <tag name="param" line="1116" description="&lt;p&gt;url&lt;/p&gt;" type="mixed" variable="$url">
+            <type>mixed</type>
+          </tag>
+          <tag name="param" line="1116" description="&lt;p&gt;query params&lt;/p&gt;" type="array" variable="$params">
+            <type>array</type>
+          </tag>
+          <tag name="param" line="1116" description="&lt;p&gt;expected response format&lt;/p&gt;" type="mixed" variable="$response_format">
+            <type>mixed</type>
+          </tag>
+          <tag name="access" line="1116" description="public"/>
+          <tag name="return" line="1116" description="format&#10;     http    : array   curl info about request and response&#10;     content : string  response body&#10;     format  : string  response format" type="array">
+            <type>array</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$http_method</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$url</name>
+          <default></default>
+          <type>mixed</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>array</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$response_format</name>
+          <default>null</default>
+          <type>mixed</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="1220" package="Syndication\SDK\PHP">
+        <name>apiBuildCurlRequest</name>
+        <full_name>\Syndication::apiBuildCurlRequest()</full_name>
+        <docblock line="1220">
+          <description>Builds Curl Object capable of talking to Syndication Service</description>
+          <long-description></long-description>
+          <tag name="param" line="1220" description="&lt;p&gt;http request method&lt;/p&gt;" type="string" variable="$http_method">
+            <type>string</type>
+          </tag>
+          <tag name="param" line="1220" description="&lt;p&gt;url&lt;/p&gt;" type="string" variable="$url">
+            <type>string</type>
+          </tag>
+          <tag name="param" line="1220" description="&lt;p&gt;query params&lt;/p&gt;" type="array" variable="$params">
+            <type>array</type>
+          </tag>
+          <tag name="param" line="1220" description="&lt;p&gt;headers&lt;/p&gt;" type="array" variable="$headers">
+            <type>array</type>
+          </tag>
+          <tag name="param" line="1220" description="&lt;p&gt;expected http response format&lt;/p&gt;" type="string" variable="$response_format">
+            <type>string</type>
+          </tag>
+          <tag name="access" line="1220" description="public"/>
+          <tag name="return" line="1220" description="resouce handle" type="\curl">
+            <type link="curl.html">\curl</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$http_method</name>
+          <default></default>
+          <type>string</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$url</name>
+          <default></default>
+          <type>string</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default>array()</default>
+          <type>array</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$headers</name>
+          <default>array()</default>
+          <type>array</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$response_format</name>
+          <default>''</default>
+          <type>string</type>
+        </argument>
+      </method>
+      <method final="false" abstract="false" static="false" visibility="public" namespace="" line="1289" package="Syndication\SDK\PHP">
+        <name>apiGenerateKey</name>
+        <full_name>\Syndication::apiGenerateKey()</full_name>
+        <docblock line="1289">
+          <description>Generate API Key. Use public/private keys to sign as hash for this request. Used by Syndication Service to verify authenticity of request.</description>
+          <long-description></long-description>
+          <tag name="param" line="1289" description="&lt;p&gt;http request method&lt;/p&gt;" type="string" variable="$http_method">
+            <type>string</type>
+          </tag>
+          <tag name="param" line="1289" description="&lt;p&gt;url&lt;/p&gt;" type="string" variable="$url">
+            <type>string</type>
+          </tag>
+          <tag name="param" line="1289" description="&lt;p&gt;query params&lt;/p&gt;" type="array" variable="$params">
+            <type>array</type>
+          </tag>
+          <tag name="param" line="1289" description="&lt;p&gt;http request headers&lt;/p&gt;" type="array" variable="$headers">
+            <type>array</type>
+          </tag>
+          <tag name="access" line="1289" description="public"/>
+          <tag name="return" line="1289" description="Api Key" type="string">
+            <type>string</type>
+          </tag>
+        </docblock>
+        <argument line="0" by_reference="false">
+          <name>$http_method</name>
+          <default></default>
+          <type>string</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$url</name>
+          <default></default>
+          <type>string</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$params</name>
+          <default></default>
+          <type>array</type>
+        </argument>
+        <argument line="0" by_reference="false">
+          <name>$headers</name>
+          <default></default>
+          <type>array</type>
+        </argument>
+      </method>
+    </class>
+    <source>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</source>
+  </file>
+  <package name="Syndication" full_name="Syndication">
+    <package name="SDK" full_name="Syndication\SDK">
+      <package name="PHP" full_name="Syndication\SDK\PHP"/>
+    </package>
+  </package>
+  <namespace name="global" full_name="global"/>
+  <deprecated count="0"/>
+</project>

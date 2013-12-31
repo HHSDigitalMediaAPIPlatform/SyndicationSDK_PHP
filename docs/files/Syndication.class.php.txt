@@ -78,7 +78,7 @@ class SyndicationResponse
 class Syndication
 {
     /**
-     * Settings for outgoing requests
+     * api setting for outgoing calls
      *
      * @var array
      * @array format
@@ -101,7 +101,7 @@ class Syndication
     );
 
     /**
-     * Format for server error messages      
+     * format for server error messages      
      * 
      * @var array 
      * @array format
@@ -123,7 +123,7 @@ class Syndication
      * @param mixed $api if array, settings. if string, config file path. 
      * @access protected
      * 
-     * @return Syndication
+     * @return void
      */
     function __construct ( $api=null )
     {
@@ -1276,8 +1276,7 @@ class Syndication
     }
 
     /**
-     * Generate API Key.
-     * Use public/private keys to sign this request. Used by Syndication Service to verify request authenticity.  
+     * Generate API Key. Use public/private keys to sign as hash for this request. Used by Syndication Service to verify authenticity of request.  
      * 
      * @param string $http_method http request method 
      * @param string $url url 
@@ -1343,3 +1342,4 @@ class Syndication
       return "{$myPublicKey}:{$computedHash}";
     }
 }
+

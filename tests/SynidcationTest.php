@@ -41,7 +41,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   /**
    * @depends testInitialization
-   * /
+   */
   public function testApiCall ( Syndication $syndication )
   {
     $resp = $syndication->apiCall('get','http://localhost:3000/200');
