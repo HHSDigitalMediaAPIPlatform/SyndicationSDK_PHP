@@ -3,64 +3,103 @@ ini_set('display_errors',1);error_reporting(E_ALL);
 
 require('src/Syndication.class.php');
 
+class BGProcess
+{
+    public $cmd;
+    public $run;
+    public $dir;
+    public $pid;
+    public function __construct($cmd,$dir=null){$this->cmd=$cmd;$this->dir=$dir;}
+    public function start($out='/dev/null')
+    {
+        /// check if command is already running - return true and skip pid 
+        // shell_exec('ps auxwww | grep "'.$this->cmd.'"');
+        if($this->dir){$cwd=getcwd();chdir($this->dir);}
+        //$this->run=sprintf('%s > %s 2>&1 & echo $!',$this->cmd,$out);
+        $this->run=sprintf('%s > %s 2>&1 & echo $!',$this->cmd,$out);
+        $this->pid=trim(shell_exec($this->run));
+        if($this->dir){chdir($cwd);}
+    }
+    public function running(){try{$r=shell_exec(sprintf('ps %d',$this->pid));return(count(explode("\n",$r))>2);}catch(Exception $e){};return false;}
+    public function stop(){if(!$this->pid){return true;}shell_exec(sprintf('kill %d',$this->pid));return $this->running();}
+}
+
 
 class SyndicationTest extends PHPUnit_Framework_TestCase
 {
-
-  public function testInitialization ()
+  protected static $cms_port;  
+  protected static $pub_port;
+  protected static $cms_mock;  
+  protected static $pub_mock;
+  protected static $hostname;
+  protected static $syndication;   
+  
+  public function __construct()
   {
-    $syndication = new Syndication(array(
-            'url'      => 'http://localhost:3000/Syndication/api/v1/resources',
-       		'tiny_url' => 'http://localhost:3000/',
-            'cms_url'  => 'http://localhost:3000/CMS_Manager/api/v1/resources',
+    self::$cms_port = 3000;
+    self::$pub_port = 3001;
+    self::$hostname = gethostbyname(trim(`hostname`));
+
+    //self::$cms_mock = new BGProcess('npm start','../cms_manager_simulator/');
+    //self::$pub_mock = new BGProcess('php -S '.self::$hostname.':'.self::$pub_port,'./public/');
+  }
+  public static function setUpBeforeClass()
+  {
+    self::$syndication = new Syndication(array(
+            'url'      => "http://localhost:".self::$cms_port."/Syndication/api/v1/resources",
+       		'tiny_url' => "http://localhost:".self::$cms_port."/",
+            'cms_url'  => "http://localhost:".self::$cms_port."/CMS_Manager/api/v1/resources",
             'cms_id'   => 'drupal_cms_1',
             'api_key'  => 'TEST_CMS1',
             'timeout'  => 60
     ));
-    $this->assertInstanceOf('Syndication',$syndication);
-    return $syndication;
+    //self::$cms_mock->start();
+    //self::$pub_mock->start();
   }
-  
-  /**
-   * @depends testInitialization
-   */
-  public function testCurlOutgoingRequest ( Syndication $syndication )
+  public static function tearDownAfterClass()
   {
+    //self::$cms_mock->stop();
+    //self::$pub_mock->stop();
+  }
 
+  public function testInitialization ()
+  {
+    $this->assertInstanceOf('Syndication',self::$syndication);
+    //$this->assertTrue(self::$cms_mock->running(),'Mock Service is running');
+    //$this->assertTrue(self::$pub_mock->running(),'Public Server is running');
+  }
+
+  public function testCurlRequest ()
+  {
     $type    = 'post'; 
-    $url     = 'http://ctacdev.com:8090/Syndication/api/v1/resources/media/1.json';
+    $url     = 'http://'.self::$hostname.':'.self::$pub_port.'/single.html';
     $params  = array('a'=>'1');    
     $headers = array();
     $format  = 'json';
-
-    $content_length = strlen( http_build_query( $params, '', '&' ) );
     
-    $res = $syndication->apiCall( $type, $url, $params, $headers, $format );
-    $this->assertNotEmpty($res);
+    $curl = self::$syndication->apiBuildCurlRequest( $type, $url, $params, $headers, $format );
+    $this->assertNotEmpty($curl);
+    $this->assertInternalType('resource',$curl,'Must be a resource');
+    $this->assertEquals('curl',get_resource_type($curl),'Must be a curl resource');
+
+    $url     = 'http://'.self::$hostname.':'.self::$cms_port.'/200';
+    echo file_get_contents($url);
   }
 
-  /**
-   * @depends testInitialization
-   */
-  public function testApiCall ( Syndication $syndication )
+/*  
+  public function testApiCall ()
   {
-    $resp = $syndication->apiCall('get','http://localhost:3000/200');
+    $resp = self::$syndication->apiCall('get','http://'.self::$hostname.':'.self::$cms_port.'/200');
     $this->assertNotEmpty($resp);
     $this->assertArrayHasKey( 'content',   $resp, 'Good Response has "content" key holding actual response content'); 
     $this->assertArrayHasKey( 'format',    $resp, 'Good Response has "format" key holding content format, if known'); 
     $this->assertArrayHasKey( 'http',      $resp, 'Good Response has "http" key holding curl_info'); 
     $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good Response has "http_code" key holding http status code'); 
     $this->assertEquals('200',$resp['http']['http_code']);
-    return $syndication;
   }
-  
-  /**
-   * @depends testApiCall
-   * /
   public function testPublishHtml ( Syndication $syndication )
   {
-    //$syndication       = new Syndication();
-    $sourceUri  = 'http://'. gethostbyname(trim(`hostname`)) .':3001';
+    $sourceUri  = 'http://'. self::$hostname.':'.self::$cms_port;
     $sourceUri .= '/single.html';
     $params = array(
         'mt'            => 'Html', 

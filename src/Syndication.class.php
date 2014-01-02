@@ -1150,7 +1150,7 @@ class Syndication
             }
         }
         
-        $apikey = $this->apiGenerateKey( $http_method, $url, $params, $request_headers );
+        $apiKey = $this->apiGenerateKey( $http_method, $url, $params, $request_headers );
         $request_headers[] = "Authentication: syndication_api_key {$apiKey}";
 
         $curl = $this->apiBuildCurlRequest( $http_method, $url, $params, $request_headers, $response_format ); 
