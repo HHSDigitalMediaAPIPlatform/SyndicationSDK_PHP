@@ -425,7 +425,7 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function searchMedia( $query )
+    function searchMediaMetadata( $query )
     {
         try
         {
@@ -1289,7 +1289,7 @@ class Syndication
      */
     function apiGenerateKey( $http_method, $url, $params, $headers )
     {
-        /// need to figure out how key sharing works
+      /// need to figure out how key sharing works
 
       // ordered and scrubbed headers: date,content-type,content-length;
       $canonicalizedHeaders  = '';
@@ -1320,21 +1320,17 @@ class Syndication
       $hashedData    = md5($http_params);
 
       // array of: date,content-type,http method;
-      $requestData = array( 'date'         => isset($headerData['date'])         ? $headerData['date']         : '', 
-                            'content-type' => isset($headerData['content-type']) ? $headerData['content-type'] : '', 
-                            'method'       => strtoupper($http_method) ); 
+      $requestData = array( 'method' => strtoupper($http_method) ); 
 
       // put it all together
       $signingString = "{$requestData['method']}\n".
                        "{$hashedData}\n".
-                       "{$requestData['content-type']}\n".
-                       "{$requestData['date']}\n".
                        "{$canonicalizedHeaders}\n".
                        "{$canonicalizedResource}";
 
       /// grab keys 
-      $sharedKey     = "SHARED SECRET KEY";  
-      $myPublicKey   = "MY PUBLIC KEY";  
+      $sharedKey     = "SHARED SECRET KEY";  /// 512 bits: 88 base64 encoded chars
+      $myPublicKey   = "MY PUBLIC KEY";      /// 512 bits: 88 base64 encoded chars
       
       /// hash up our thingy
       $computedHash  = base64_encode(hash_hmac('sha1', $signingString, $sharedKey, true ));
