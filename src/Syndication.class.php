@@ -51,6 +51,23 @@ class SyndicationResponse
   var $success = null;
 
   /**
+   * Format for server error messages      
+   * 
+   * @var array 
+   * @array format
+   *     errorMessage : string
+   *     errorDetail  : string
+   *     errorCode    : string
+   *
+   * @access public
+   */
+  var $empty_message = array(
+            'errorMessage' => null,
+            'errorDetail'  => null,
+            'errorCode'    => null
+      );
+
+  /**
    * Constructor for Response 
    * 
    * @access protected
@@ -59,11 +76,11 @@ class SyndicationResponse
    */
   function __construct()
   {
+    $this->success = null;
     $this->format  = null;
     $this->status  = null;
     $this->message = array();
     $this->results = array();
-    $this->success = null;
   }
 }
 
@@ -100,23 +117,6 @@ class Syndication
         'timeout'  => '',
     );
 
-    /**
-     * Format for server error messages      
-     * 
-     * @var array 
-     * @array format
-     *     errorMessage : string
-     *     errorDetail  : string
-     *     errorCode    : string
-     *
-     * @access public
-     */
-    var $empty_response_message = array(
-        'errorMessage' => null,
-        'errorDetail'  => null,
-        'errorCode'    => null,
-    );
-    
     /**
      * Constructor for Syndication interface
      * 
@@ -1007,40 +1007,41 @@ class Syndication
         /// an exception was thrown
         if ( is_subclass_of($from,'Exception') )
         {
-            $response = $this->empty_response;
-            $response['success']           = false;
-            $response['meta']['status']    = $from->getCode();
-            $response['meta']['format']    = 'Exception';
-            $response['meta']['message'][] = array(
-                'errorCode'    => $from->getCode(),
-                'errorMessage' => $from->getMessage(),
-                'errorDetail'  => "{$action} Exception"
-            );
+            $response = new SyndicationResponse();
+            $response->success = false;
+            $response->status  = $from->getCode();
+            $response->format  = 'Exception';
+            $m = $response->empty_message;
+            $m['errorCode']    = $from->getCode();
+            $m['errorMessage'] = $from->getMessage();
+            $m['errorDetail']  = "{$action} Exception";
+            $response->message[] = $m;
             return $response;
 
-            /// response from server
+        /// we got a response from the server
         } else if ( is_array($from)
             && !empty($from['http'])
             && !empty($from['format']) )
         {
+            $response = new SyndicationResponse();
             $status = intval($from['http']['http_code']);
             if ( $from['format']=='json' )
             {
                 /// we require a [meta] and [results] from any json response
+                /// json results are always an array - 
                 if ( is_array($from['content']) && isset($from['content']['meta']) && isset($from['content']['results']) )
                 {
-                    $response = $from['content'];
+                    $response->results = (array)$from['content']['results'];
                 } else {
-                    $response = $this->empty_response;
-                    $response['results'] = array($from['content']);
+                    $response->results = (array)$from['content'];
                 }
 
-                $response['meta']['status'] = $status;
-                $response['meta']['format'] = 'json';
+                $response->status = $status;
+                $response->format = 'json';
 
-                if        ( $status>=200 && $status<=299 )
+                if ( $status>=200 && $status<=299 )
                 {
-                    $response['success'] = true;
+                    $response->success = true;
                 } else if ( $status>=400 && $status<=499 ) {
                     if ( $status == 401 ) {
                         $errorDetail = "Unauthorized. Check API Key.";
@@ -1049,15 +1050,15 @@ class Syndication
                     } else {
                         $errorDetail = "Failed to {$action}. Request Error.";
                     }
-                    $response['success']  = false;
-                    $response['meta']['message'][]  = array(
+                    $response->success  = false;
+                    $response->message[]  = array(
                         'errorCode'    => $status,
                         'errorMessage' => $this->httpStatusMessage($status),
                         'errorDetail'  => $errorDetail
                     );
                 } else if ( $status>=500 && $status<=599 ) {
-                    $response['success']  = false;
-                    $response['meta']['message'][]  = array(
+                    $response->success  = false;
+                    $response->message[]  = array(
                         'errorCode'    => $status,
                         'errorMessage' => $this->httpStatusMessage($status),
                         'errorDetail'  => "Failed to {$action}. Server Error."
@@ -1065,37 +1066,37 @@ class Syndication
                 }
                 return $response;
             } else if ( $from['format']=='image' ) {
-                $response = $this->empty_response;
-                $response['success'] = true;
-                $response['meta']['status'] = $status;
-                $response['meta']['format'] = 'image';
-                /// imagecreatefromstring ?
-                $response['results'] = $from['content'];
+                $response->success = true;
+                $response->status  = $status;
+                $response->format  = 'image';
+                
+                /// a single string: base64 encoded image : imagecreatefromstring?
+                $response->results = $from['content'];
                 return $response;
             } else {
-                $response = $this->empty_response;
-                $response['success'] = true;
-                $response['meta']['status'] = $status;
-                $response['meta']['format'] = $from['format'];
-                /// filter html ?
-                $response['results'] = $from['content'];
+                $response->success = true;
+                $response->status  = $status;
+                $response->format  = $from['format'];
+                /// a single string : html : filtered_html?
+                $response->results = $from['content'];
                 return $response;
             }
         }
         /// we got something weird - can't deal with this
-        $response = $this->empty_response;
-        $response['success'] = false;
+        $response = new SyndicationResponse();
+        $response->success = false;
         $status = null;
         if ( is_array($from) && !empty($from['http']) && isset($from['http']['http_status']) )
         {
             $status = $from['http']['http_status'];
         }
-        $response['meta']['message'][] = array(
+        $response->message[] = array(
             'errorCode'    => $status,
             'errorMessage' => $this->httpStatusMessage($status),
             'errorDetail'  => "Unknown response from Server."
         );
-        $response['results'] = $from;
+        /// return the raw curl response from server
+        $response->results = $from;
         return $response;
     }
 
@@ -1118,6 +1119,14 @@ class Syndication
         if ( empty($response_format) )
         {
             $response_format = $this->guessFormatFromUrl($url);
+        }
+
+        foreach ( $params as $p=>$param )
+        {
+            if ( empty($param) && $param!==0 && $param!=='0' ) 
+            {
+                unset( $params[$p] );
+            }
         }
 
         /// our request format type
@@ -1176,7 +1185,6 @@ class Syndication
             'content' => $content,
             'format'  => $response_format
         );
-
         /// test result content-type for JSON / HTML / IMG
         /// json needs to be decoded
         /// html stay as text
@@ -1262,7 +1270,7 @@ class Syndication
         curl_setopt( $curl, CURLOPT_HTTPHEADER,     $headers);
 
         curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
-        curl_setopt( $curl, CURLOPT_STDERR,  STDOUT );
+        curl_setopt( $curl, CURLOPT_STDERR,  fopen('php://stdout', 'w') );
         curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
         curl_setopt( $curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
         /** /// forces new connections
@@ -1289,7 +1297,7 @@ class Syndication
      */
     function apiGenerateKey( $http_method, $url, $params, $headers )
     {
-      /// need to figure out how key sharing works
+        /// need to figure out how key sharing works
 
       // ordered and scrubbed headers: date,content-type,content-length;
       $canonicalizedHeaders  = '';
@@ -1320,17 +1328,21 @@ class Syndication
       $hashedData    = md5($http_params);
 
       // array of: date,content-type,http method;
-      $requestData = array( 'method' => strtoupper($http_method) ); 
+      $requestData = array( 'date'         => isset($headerData['date'])         ? $headerData['date']         : '', 
+                            'content-type' => isset($headerData['content-type']) ? $headerData['content-type'] : '', 
+                            'method'       => strtoupper($http_method) ); 
 
       // put it all together
       $signingString = "{$requestData['method']}\n".
                        "{$hashedData}\n".
+                       "{$requestData['content-type']}\n".
+                       "{$requestData['date']}\n".
                        "{$canonicalizedHeaders}\n".
                        "{$canonicalizedResource}";
 
       /// grab keys 
-      $sharedKey     = "SHARED SECRET KEY";  /// 512 bits: 88 base64 encoded chars
-      $myPublicKey   = "MY PUBLIC KEY";      /// 512 bits: 88 base64 encoded chars
+      $sharedKey     = "SHARED SECRET KEY";  
+      $myPublicKey   = "MY PUBLIC KEY";  
       
       /// hash up our thingy
       $computedHash  = base64_encode(hash_hmac('sha1', $signingString, $sharedKey, true ));
