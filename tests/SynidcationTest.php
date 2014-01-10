@@ -153,10 +153,9 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $this->assertObjectHasAttribute( 'status',   $resp, 'Response requires "status" attribute'); 
     $this->assertEquals(             '400',      $resp->status );
     $this->assertObjectHasAttribute( 'messages', $resp, 'Response->meta requires "message" attribute'); 
-    $this->assertGreaterThan(        0,          count($resp->messages), 'Response->meta has a message'); 
-    $this->assertArrayHasKey(    'errorMessage', $resp->messages[0], 'Response->messages[0] requires "errorMessage" attribute'); 
-    $this->assertEquals( 'Field Constraint Violation', $resp->messages[0]['errorMessage'], 'Response->messages[0][errorMessage] is "Field Contraint Violation"'); 
-
+    $this->assertGreaterThan(        1,          count($resp->messages), 'Response->meta has a message'); 
+    $this->assertArrayHasKey(    'errorMessage', $resp->messages[1], 'Response->messages[0] requires "errorMessage" attribute'); 
+    $this->assertEquals( 'Field Constraint Violation', $resp->messages[1]['errorMessage'], 'Response->messages[0][errorMessage] is "Field Contraint Violation"'); 
   }
 
   public function testSubscribe ()
@@ -167,11 +166,9 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     /// 201 success
     $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" key'); 
     $this->assertEquals(             '201',     $resp->status );
-    $this->assertObjectHasAttribute( 'results', $resp,                        'Response requires has "results" key '); 
-    $this->assertEquals(             1,         count($resp->results),        'Results should only have one result');
-    $this->assertArrayHasKey       ( 0,         $resp->results,               'Response[results] requires "0" key'); 
-    $this->assertArrayHasKey       ( 'mediaId', $resp->results[0],            'Results[0] requires "mediaId" key'); 
-    $this->assertEquals(             '201',     $resp->results[0]['mediaId'], 'Results[0][mediaId] == 201');
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response has "results" key '); 
+    $this->assertArrayHasKey       ( 'mediaId', $resp->results,            'Results has "mediaId" key'); 
+    $this->assertEquals(             '201',     $resp->results['mediaId'], 'Results[mediaId] == 201');
     /// 401 unauthorized
     $resp = self::$syndication->subscribeById(401);
     $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" key'); 

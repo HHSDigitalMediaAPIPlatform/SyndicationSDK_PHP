@@ -651,7 +651,6 @@ class Syndication
             // dirty pluralization
             if( !in_array($type_path,array('SocialMedia','Audio')) ) { $type_path .= 's'; }
             $type_path{0} = strtolower($type_path{0});
-            //$query = http_build_query($params);
             $result = $this->apiCall('post',"{$this->api['url']}/media/$type_path",$params,'json');
             return $this->createResponse($result,'Publish');
         } catch ( Exception $e ) {
@@ -1088,6 +1087,39 @@ class Syndication
             && !empty($from['format']) )
         {
             $status = isset($from['http']['http_code']) ? intval($from['http']['http_code']) : null;
+            $response->status = $status;
+            /// SUCCESS
+            if ( $status>=200 && $status<=299 )
+            {
+                $response->success = true;
+            /// CLIENT SIDE ERROR
+            } else if ( $status>=400 && $status<=499 ) {
+                /// BAD API KEY    
+                if ( $status == 401 ) {
+                    $errorDetail = "Unauthorized. Check API Key.";
+                    /// VALID URL but specific id given does not exist 
+                } else if ( $status == 404 && !empty($item_key) ) {
+                    $errorDetail = "Failed to {$action}. {$item_key} Not Found.";
+                    /// Error in the request
+                } else {
+                    $errorDetail = "Failed to {$action}. Request Error.";
+                }
+                $response->success  = false;
+                $response->addMessage(array(
+                    'errorCode'    => $status,
+                    'errorMessage' => $this->httpStatusMessage($status),
+                    'errorDetail'  => $errorDetail
+                ));
+                /// SERVER SIDE ERROR
+            } else if ( $status>=500 && $status<=599 ) {
+                $response->success  = false;
+                $response->addMessage(array(
+                    'errorCode'    => $status,
+                    'errorMessage' => $this->httpStatusMessage($status),
+                    'errorDetail'  => "Failed to {$action}. Server Error."
+                ));
+            }
+
             if ( $from['format']=='json' )
             {
                 /// for any json response
@@ -1135,45 +1167,9 @@ class Syndication
                         $response->results = (array)$from['content'];
                     }
                 }
-
-                $response->status = $status;
                 $response->format = 'json';
-
-                /// SUCCESS
-                if ( $status>=200 && $status<=299 )
-                {
-                    $response->success = true;
-                /// CLIENT SIDE ERROR
-                } else if ( $status>=400 && $status<=499 ) {
-                    /// BAD API KEY    
-                    if ( $status == 401 ) {
-                        $errorDetail = "Unauthorized. Check API Key.";
-                    /// VALID URL but specific id given does not exist 
-                    } else if ( $status == 404 && !empty($item_key) ) {
-                        $errorDetail = "Failed to {$action}. {$item_key} Not Found.";
-                    /// Error in the request
-                    } else {
-                        $errorDetail = "Failed to {$action}. Request Error.";
-                    }
-                    $response->success  = false;
-                    $response->addMessage(array(
-                        'errorCode'    => $status,
-                        'errorMessage' => $this->httpStatusMessage($status),
-                        'errorDetail'  => $errorDetail
-                    ));
-                /// SERVER SIDE ERROR
-                } else if ( $status>=500 && $status<=599 ) {
-                    $response->success  = false;
-                    $response->addMessage(array(
-                        'errorCode'    => $status,
-                        'errorMessage' => $this->httpStatusMessage($status),
-                        'errorDetail'  => "Failed to {$action}. Server Error."
-                    ));
-                }
                 return $response;
             } else if ( $from['format']=='image' ) {
-                $response->success = true;
-                $response->status  = $status;
                 $response->format  = 'image';
                 
                 /// a single string: base64 encoded image : imagecreatefromstring?
@@ -1181,8 +1177,6 @@ class Syndication
                 return $response;
             /// unknown format
             } else {
-                $response->success = true;
-                $response->status  = $status;
                 $response->format  = $from['format'];
                 /// a single string : html : filtered_html?
                 $response->results = $from['content'];
