@@ -33,12 +33,14 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   protected static $pub_mock;
   protected static $hostname;
   protected static $syndication;   
-  
+  protected static $http_methods;  
+
   public function __construct()
   {
     self::$cms_port = 3000;
     self::$pub_port = 3001;
-    self::$hostname = gethostbyname(trim(`hostname`));
+    self::$hostname = 'localhost'; //trim(`hostname`); //gethostbyname(trim(`hostname`));
+    self::$http_methods = array('get','post','delete');
 
     //self::$cms_mock = new BGProcess('npm start','../cms_manager_simulator/');
     //self::$pub_mock = new BGProcess('php -S '.self::$hostname.':'.self::$pub_port,'./public/');
@@ -71,105 +73,124 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   public function testCurlRequest ()
   {
-    $type    = 'post'; 
+    /// must be able to generate a valid curl requests
     $url     = 'http://'.self::$hostname.':'.self::$pub_port.'/single.html';
     $params  = array('a'=>'1');    
     $headers = array();
     $format  = 'json';
     
-    $curl = self::$syndication->apiBuildCurlRequest( $type, $url, $params, $headers, $format );
-    $this->assertNotEmpty($curl);
-    $this->assertInternalType('resource',$curl,'Must be a resource');
-    $this->assertEquals('curl',get_resource_type($curl),'Must be a curl resource');
-
-    $url     = 'http://'.self::$hostname.':'.self::$cms_port.'/200';
-    echo file_get_contents($url);
+    foreach ( self::$http_methods as $http_method )
+    {
+        $curl = self::$syndication->apiBuildCurlRequest( $http_method, $url, $params, $headers, $format );
+        $this->assertNotEmpty($curl);
+        $this->assertInternalType('resource',$curl,strtoupper($http_method).' requsts must produce a resource');
+        $this->assertEquals('curl',get_resource_type($curl),strtoupper($http_method).' requests Must produce a curl resource');
+    }
   }
 
-/*  
-  public function testApiCall ()
+  public function testApiConnectivity ()
   {
-    $resp = self::$syndication->apiCall('get','http://'.self::$hostname.':'.self::$cms_port.'/200');
-    $this->assertNotEmpty($resp);
-    $this->assertArrayHasKey( 'content',   $resp, 'Good Response has "content" key holding actual response content'); 
-    $this->assertArrayHasKey( 'format',    $resp, 'Good Response has "format" key holding content format, if known'); 
-    $this->assertArrayHasKey( 'http',      $resp, 'Good Response has "http" key holding curl_info'); 
-    $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good Response has "http_code" key holding http status code'); 
-    $this->assertEquals('200',$resp['http']['http_code']);
+    foreach ( self::$http_methods as $http_method )
+    {
+        $resp = self::$syndication->apiCall($http_method,'http://'.self::$hostname.':'.self::$cms_port.'/200');
+        /// all api calls must return an api_response array
+        $this->assertNotEmpty($resp);
+        $this->assertArrayHasKey( 'content',   $resp, strtoupper($http_method).' Response has "content" key holding actual response content'); 
+        $this->assertArrayHasKey( 'format',    $resp, strtoupper($http_method).' Response has "format" key holding content format, if known'); 
+        $this->assertArrayHasKey( 'http',      $resp, strtoupper($http_method).' Response has "http" key holding curl_info');
+        /// good calls must return successful http status
+        $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good '.strtoupper($http_method).' Response has "http_code" key holding http status code'); 
+        $this->assertEquals('200',$resp['http']['http_code'], 'Good '.strtoupper($http_method).' Response has http code of 200');
+        /// bad pathed calls must return notFound http status
+        $resp = self::$syndication->apiCall(strtoupper($http_method),'http://'.self::$hostname.':'.self::$cms_port.'/404');
+        $this->assertNotEmpty($resp);
+        $this->assertArrayHasKey( 'http',      $resp, 'Bad '.strtoupper($http_method).' path Response has "http" key holding curl_info'); 
+        $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good '.strtoupper($http_method).' path Response has "http_code" key holding http status code'); 
+        $this->assertEquals('404',$resp['http']['http_code']);
+    }
   }
-  public function testPublishHtml ( Syndication $syndication )
+
+  public function testApiKey()
   {
-    $sourceUri  = 'http://'. self::$hostname.':'.self::$cms_port;
-    $sourceUri .= '/single.html';
+    /// wtf is the plan for this - 
+    /// ask mock for key? do i gen one from bin scripts or what
+    /// build a request hash with api key
+    /// see if it matches pregenerated request hash on server?
+  }
+
+  public function testPublishHtml ()
+  {
     $params = array(
-        'mt'            => 'Html', 
-        'name'          => 'TestName', 
-        'sourceUri'     => $sourceUri, 
+        'mediaType'     => 'Html', 
+        'name'          => 'return_type', 
+        'sourceUrl'     => 'http://'. self::$hostname.':'.self::$cms_port.'/single.html', 
         'dateAuthored'  => gmdate('Y-m-d\TH:i:s\Z'), 
         'dateUpdated'   => gmdate('Y-m-d\TH:i:s\Z'),
         'language'      => '1',   
         'organization'  => '1'
     );
-    $resp = $syndication->publish($params);
+
+    $params['name'] = 'success';
+    $resp = self::$syndication->publishMedia($params);
     $this->assertNotEmpty($resp);
-    $this->assertArrayHasKey( 'meta',    $resp,         'Response requires "meta" key'); 
-    $this->assertArrayHasKey( 'status',  $resp['meta'], 'Response requires "status" key'); 
-    $this->assertEquals(      '200',     $resp['meta']['status'] );
-    $this->assertArrayHasKey( 'results', $resp,                   'Response requires has "results" key '); 
-    $this->assertEquals(      1,         count($resp['results']), 'Results should only have one result');
-    $this->assertArrayHasKey( 0,         $resp['results'],        'Response[results] requires "0" key'); 
-    $this->assertArrayHasKey( 'id',      $resp['results'][0],     'Results[0] requires "id" key'); 
-    $this->assertTrue(        is_numeric($resp['results'][0]['id']), 'Results[0][id] is numeric');
+    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(             '200',     $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
+    $this->assertEquals(             1,         count($resp->results),  'Results should only have one result');
+    $this->assertArrayHasKey       ( 0,         $resp->results,         'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey       ( 'id',      $resp->results[0],      'Results[0] requires "id" key'); 
+    $this->assertTrue(             is_numeric($resp->results[0]['id']), 'Results[0][id] is numeric');
+
+    $params['name'] = 'serverError';
+    $resp = self::$syndication->publishMedia($params);
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(             '500',     $resp->status );
+
+    $params['name'] = 'invalidData';
+    $resp = self::$syndication->publishMedia($params);
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute( 'status',   $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(             '400',      $resp->status );
+    $this->assertObjectHasAttribute( 'messages', $resp, 'Response->meta requires "message" attribute'); 
+    $this->assertGreaterThan(        0,          count($resp->messages), 'Response->meta has a message'); 
+    $this->assertArrayHasKey(    'errorMessage', $resp->messages[0], 'Response->messages[0] requires "errorMessage" attribute'); 
+    $this->assertEquals( 'Field Constraint Violation', $resp->messages[0]['errorMessage'], 'Response->messages[0][errorMessage] is "Field Contraint Violation"'); 
+
   }
 
-  /**
-   * @depends testApiCall
-   * /
-  public function testPublishImage ( Syndication $syndication )
+  public function testSubscribe ()
   {
-    //$syndication       = new Syndication();
-    $sourceUri  = 'http://'. gethostbyname(trim(`hostname`)) .':3001';
-    $sourceUri .= '/single.img';
-    $params = array(
-        'mt'            => 'Html', 
-        'name'          => 'TestName', 
-        'sourceUri'     => $sourceUri, 
-        'dateAuthored'  => gmdate('Y-m-d\TH:i:s\Z'), 
-        'dateUpdated'   => gmdate('Y-m-d\TH:i:s\Z'),
-        'language'      => '1',   
-        'organization'  => '1'
-    );
-    $resp = $syndication->publish($params);
+    $resp = self::$syndication->subscribeById(201);
     $this->assertNotEmpty($resp);
-    $this->assertArrayHasKey( 'meta',    $resp,         'Response requires "meta" key'); 
-    $this->assertArrayHasKey( 'status',  $resp['meta'], 'Response requires "status" key'); 
-    $this->assertEquals(      '200',     $resp['meta']['status'] );
-    $this->assertArrayHasKey( 'results', $resp,                   'Response requires has "results" key '); 
-    $this->assertEquals(      1,         count($resp['results']), 'Results should only have one result');
-    $this->assertArrayHasKey( 0,         $resp['results'],        'Response[results] requires "0" key'); 
-    $this->assertArrayHasKey( 'id',      $resp['results'][0],     'Results[0] requires "id" key'); 
-    $this->assertTrue(        is_numeric($resp['results'][0]['id']), 'Results[0][id] is numeric');
-  }
 
-
-
-  /**
-   * @depends testInitialization
-   * /
-  public function testSubscribe ( Syndication $syndication )
-  {
-    //$syndication = new Syndication();
-    $resp = $syndication->subscribe(201);
-    $this->assertNotEmpty($resp);
-    $this->assertArrayHasKey( 'meta',    $resp,         'Response requires "meta" key'); 
-    $this->assertArrayHasKey( 'status',  $resp['meta'], 'Response requires "status" key'); 
-    $this->assertEquals(      '201',     $resp['meta']['status'] );
-    $this->assertArrayHasKey( 'results', $resp,                   'Response requires has "results" key '); 
-    $this->assertEquals(      1,         count($resp['results']), 'Results should only have one result');
-    $this->assertArrayHasKey( 0,         $resp['results'],               'Response[results] requires "0" key'); 
-    $this->assertArrayHasKey( 'mediaId', $resp['results'][0],            'Results[0] requires "mediaId" key'); 
-    $this->assertEquals(      '201',     $resp['results'][0]['mediaId'], 'Results[0][mediaId] == 201');
+    /// 201 success
+    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" key'); 
+    $this->assertEquals(             '201',     $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                        'Response requires has "results" key '); 
+    $this->assertEquals(             1,         count($resp->results),        'Results should only have one result');
+    $this->assertArrayHasKey       ( 0,         $resp->results,               'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey       ( 'mediaId', $resp->results[0],            'Results[0] requires "mediaId" key'); 
+    $this->assertEquals(             '201',     $resp->results[0]['mediaId'], 'Results[0][mediaId] == 201');
+    /// 401 unauthorized
+    $resp = self::$syndication->subscribeById(401);
+    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" key'); 
+    $this->assertEquals(             '401',     $resp->status );
+    /// 404 id not found 
+    $resp = self::$syndication->subscribeById(404);
+    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" key'); 
+    $this->assertEquals(             '404',     $resp->status );
+    /// 500 server error
+    $resp = self::$syndication->subscribeById(500);
+    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" key'); 
+    $this->assertEquals(             '500',     $resp->status );
   } 
+
+    /// what are appropriate tests - 
+    /// can I talk to server
+    /// does each api call require testing for valid and invalid results?
+
+/*
 
   /**
    * @depends testInitialization

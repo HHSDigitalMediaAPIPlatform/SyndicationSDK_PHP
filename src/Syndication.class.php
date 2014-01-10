@@ -13,42 +13,84 @@
  */
 class SyndicationResponse
 {
-
   /**
    * http-response content-type 
    * 
    * @var string
+   *
    * @access public
    */
   var $format  = null;
+
   /**
    * http-reponse status 
    * 
    * @var mixed
+   *
    * @access public
    */
   var $status  = null;
+ 
   /**
-   * list of message arrays [ {errorMessage:string, errorDetail:string, errorCode:int}, ... ] 
+   * Array of messages
    * 
    * @var array
+   * @array format
+   *    errorMessage : string
+   *    errorDetail  : mixed
+   *    errorCode    : string
+   *
    * @access public
    */
-  var $message = array();
+  var $messages = array();
+
   /**
-   * list of result data 
+   * List of result data 
    * 
    * @var array
+   *
    * @access public
    */
   var $results = array();
+
   /**
-   * success of requested operation, not of http-request
+   * Success of requested operation, not of http-request
    * 
    * @var boolean
+   *
    * @access public
    */
   var $success = null;
+
+  /**
+   * Pagination Information 
+   * 
+   * @var array
+   * @array format
+   *    count       : int
+   *    currentUrl  : string
+   *    max         : int
+   *    nextUrl     : string
+   *    offset      : int
+   *    order       : string
+   *    pageNum     : int
+   *    previousUrl : string
+   *    sort        : string
+   *    total       : int
+   *    totalPages  : int
+   *
+   * @access public
+   */
+  var $pagination = array();
+
+  /**
+   * Raw request body content. JSON is decoded. 
+   * 
+   * @var string
+   *
+   * @access public
+   */
+  var $raw = null;
 
   /**
    * Format for server error messages      
@@ -56,7 +98,7 @@ class SyndicationResponse
    * @var array 
    * @array format
    *     errorMessage : string
-   *     errorDetail  : string
+   *     errorDetail  : mixed
    *     errorCode    : string
    *
    * @access public
@@ -65,6 +107,38 @@ class SyndicationResponse
             'errorMessage' => null,
             'errorDetail'  => null,
             'errorCode'    => null
+      );
+  /*
+   * Format for pagination responses
+   *
+   * @var array
+   * @array format
+   *    count       : int
+   *    currentUrl  : string
+   *    max         : int
+   *    nextUrl     : string
+   *    offset      : int
+   *    order       : string
+   *    pageNum     : int
+   *    previousUrl : string
+   *    sort        : string
+   *    total       : int
+   *    totalPages  : int
+   *
+   * @access public
+   */
+  var $empty_pagination = array(
+            'count'       => null,
+            'currentUrl'  => null,
+            'max'         => null,
+            'nextUrl'     => null,
+            'offset'      => null,
+            'order'       => null,
+            'pageNum'     => null,
+            'previousUrl' => null,
+            'sort'        => null,
+            'total'       => null,
+            'totalPages'  => null
       );
 
   /**
@@ -76,11 +150,31 @@ class SyndicationResponse
    */
   function __construct()
   {
-    $this->success = null;
-    $this->format  = null;
-    $this->status  = null;
-    $this->message = array();
-    $this->results = array();
+    $this->success    = null;
+    $this->format     = null;
+    $this->status     = null;
+    $this->messages   = array();
+    $this->results    = array();
+    $this->pagination = $this->empty_pagination;
+    $this->raw        = null;
+  }
+
+  function addPagination( $pagination )
+  {
+    $this->pagination = array_merge($this->empty_pagination,$pagination);
+  }
+
+  function addMessage( $message )
+  {
+    if ( isset($message['errorMessage']) )
+    {
+        $this->messages[] = array_merge($this->empty_message,$message);
+    } else if ( isset($message[0]) && isset($message[0]['errorMessage']) ) {
+        foreach ( $message as $m )
+        {
+            $this->messages[] = array_merge($this->empty_message,$m);
+        }
+    }
   }
 }
 
@@ -144,6 +238,14 @@ class Syndication
         }
     }
 
+    /// CLIENT FUNCTIONS
+
+    function getClientVersion()
+    {} /// return the version of this client
+
+    function getServerVersion()
+    {} ///  poll server for what it things it's version is
+
     /// API FUNCTIONS
 
     /**
@@ -203,7 +305,7 @@ class Syndication
      *      abv  : string
      *      url  : string 
      */
-    function getOrganizationByOrganizationId ( $id )
+    function getOrganizationById ( $id )
     {
         try
         {
@@ -256,7 +358,7 @@ class Syndication
      *      endDate      : date
      *      organization : organization  
      */
-    function getCampaignByCampaignId ( $id )
+    function getCampaignById ( $id )
     {
         try
         {
@@ -303,7 +405,7 @@ class Syndication
      *      name  : string
      *      value : string
      */
-    function getLanguageByLanguageId ( $id )
+    function getLanguageById ( $id )
     {
         try
         {
@@ -315,27 +417,6 @@ class Syndication
     }
 
     /**
-     * Gets a list of all Tags 
-     * @param array $params options
-     *      sort  : string
-     *      order : string
-     *  
-     * @access public
-     * @return SyndicationResponse ->results[]
-     *      id   : int
-     *      name : string
-     */
-    function getAllTags ( $params )
-    {
-        try
-        {
-            $result = $this->apiCall('get',"{$this->api['url']}/tags.json",$params);
-            return $this->createResponse($result,'get All Tags');
-        } catch ( Exception $e ) {
-            return $this->createResponse($e,'API Call');
-        }
-    }
-    /**
      * Gets a single Tag
      * 
      * @param mixed $id Numeric Id of the tag 
@@ -345,7 +426,7 @@ class Syndication
      *      id   : int
      *      name : string
      */
-    function getTagByTagId ( $id )
+    function getTagById ( $id )
     {
         try
         {
@@ -365,7 +446,7 @@ class Syndication
      *      id   : int
      *      name : string
      */
-    function getRelatedTagsByTagId ( $id )
+    function getRelatedTagsById ( $id )
     {
         try
         {
@@ -425,7 +506,7 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function searchMediaMetadata( $query )
+    function searchMedia( $query )
     {
         try
         {
@@ -461,7 +542,7 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function getMediaMetadataByMediaId ( $id )
+    function getMediaById ( $id )
     {
         try
         {
@@ -491,7 +572,7 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function getMediaMetadataByMediaUrl ( $source_url )
+    function getMediaByUrl ( $source_url )
     {
         try
         {
@@ -522,7 +603,7 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function getMediaMetadataByTagId ( $id )
+    function getMediaByTagId ( $id )
     {
         try
         {
@@ -560,13 +641,13 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function publish ( $params )
+    function publishMedia ( $params )
     {
         /// syndication will always return metadata for one content item
         /// if publishing a collection, we get single collection item, which contains a list of any sub-items also generated
         try
         {
-            $type_path = $params['mt'];
+            $type_path = $params['mediaType'];
             // dirty pluralization
             if( !in_array($type_path,array('SocialMedia','Audio')) ) { $type_path .= 's'; }
             $type_path{0} = strtolower($type_path{0});
@@ -586,7 +667,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      media metatdata ?
      */
-    function unPublishByMediaId ( $id )
+    function unPublishMediaById ( $id )
     {
         /// syndication will always return metadata for one content item
         /// if publishing a collection, we get collection item, which contains list of any sub-items also generated
@@ -619,7 +700,7 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function subscribeByMediaId ( $id )
+    function subscribeById ( $id )
     {
         try
         {
@@ -649,7 +730,7 @@ class Syndication
      *      hash         : string
      *      organization : organization
      */
-    function unSubscribeByMediaId ( $id )
+    function unSubscribeById ( $id )
     {
         try
         {
@@ -668,7 +749,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      cms metadata
      */
-    function getCmsMetadataByCmsId ()
+    function getCmsMetaData ()
     {
         try
         {
@@ -685,30 +766,11 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      subscription metadata
      */
-    function getAllMySubscriptions ()
+    function getSubscriptions ()
     {
         try
         {
             $result = $this->apiCall('get',"{$this->api['cms_url']}/subscriptions.json",array(),'json');
-            return $this->createResponse($result,'get My Subscriptions');
-        } catch ( Exception $e ) {
-            return $this->createResponse($e,'API Call');
-        }
-    }
-    /**
-     * Gets a single Subscription
-     * 
-     * @param mixed $id Numeric Id of the Subscription 
-     * 
-     * @access public 
-     * @return SyndicationResponse ->results[]
-     *      subscription metadata
-     */
-    function getSubscriptionBySubscriptionId ( $id )
-    {
-        try
-        {
-            $result = $this->apiCall('get',"{$this->api['cms_url']}/subscriptions/{$id}",array(),'json');
             return $this->createResponse($result,'get My Subscriptions');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -723,7 +785,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      mixed : string or base64 encoded data
      */
-    function getMediaContentByMediaId ( $id )
+    function getMediaDataById ( $id )
     {
         try
         {
@@ -745,7 +807,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      base64 encoded jpg
      */
-    function getMediaPreviewByMediaId ( $id, $params=array() )
+    function getMediaPreviewById ( $id, $params=array() )
     {
         try
         {
@@ -767,7 +829,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      base64 encoded jpg
      */
-    function getMediaThumbnailByMediaId ( $id, $params=array() )
+    function getMediaThumbnailById ( $id, $params=array() )
     {
         try
         {
@@ -787,7 +849,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      string (html,json,xml)
      */
-    function getMediaEmbeddedHtmlByMediaId ( $id, $format='html' )
+    function getMediaEmbeddedHtmlById ( $id, $format='html' )
     {
         try
         {
@@ -807,7 +869,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      html
      */
-    function getMediaJavascriptEmbedTagByMediaId ( $id )
+    function getMediaJavascriptEmbedTagById ( $id )
     {
         try
         {
@@ -826,7 +888,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      youtube metatdata
      */
-    function getMediaYoutubeMetadataByMediaId ( $id )
+    function getMediaYoutubeMetadataById ( $id )
     {
         try
         {
@@ -849,7 +911,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *     html 
      */
-    function getMediaIframeEmbeddedTagByMediaId ( $id, $params=array() )
+    function getMediaIframeEmbeddedTagById ( $id, $params=array() )
     {
         try
         {
@@ -996,26 +1058,28 @@ class Syndication
      *
      * @access public
      * @return SyndicationResponse object
-     *      ->format  : string  http response format
-     *      ->status  : string  http response status
-     *      ->message : array   developer friendly error messages
-     *      ->results : array
-     *      ->success : boolean
+     *      ->format   : string  http response format
+     *      ->status   : string  http response status
+     *      ->messages : array   developer friendly error messages
+     *      ->results  : array
+     *      ->success  : boolean
      */
-    function createResponse ( $from, $action="Process Request", $key=null )
+    function createResponse ( $from, $action="Process Request", $item_key=null )
     {
+        $response = new SyndicationResponse();
+        $response->raw = $from;
+
         /// an exception was thrown
         if ( is_subclass_of($from,'Exception') )
         {
-            $response = new SyndicationResponse();
             $response->success = false;
             $response->status  = $from->getCode();
             $response->format  = 'Exception';
-            $m = $response->empty_message;
-            $m['errorCode']    = $from->getCode();
-            $m['errorMessage'] = $from->getMessage();
-            $m['errorDetail']  = "{$action} Exception";
-            $response->message[] = $m;
+            $response->addMessage(array(
+                'errorCode'    => $from->getCode(),
+                'errorMessage' => $from->getMessage(),
+                'errorDetail'  => "{$action} Exception"
+            ));
             return $response;
 
         /// we got a response from the server
@@ -1023,46 +1087,88 @@ class Syndication
             && !empty($from['http'])
             && !empty($from['format']) )
         {
-            $response = new SyndicationResponse();
-            $status = intval($from['http']['http_code']);
+            $status = isset($from['http']['http_code']) ? intval($from['http']['http_code']) : null;
             if ( $from['format']=='json' )
             {
-                /// we require a [meta] and [results] from any json response
-                /// json results are always an array - 
-                if ( is_array($from['content']) && isset($from['content']['meta']) && isset($from['content']['results']) )
+                /// for any json response
+                /// [meta] and [results] expected back from api
+                /// [meta][messages] should be consumed if found
+                /// [meta][pagination] should be consumed if found 
+                /// [message] was changed to plural, check for both for now just incase
+
+                /// look for meta
+                if ( isset($from['meta']) )
                 {
-                    $response->results = (array)$from['content']['results'];
-                } else {
-                    $response->results = (array)$from['content'];
+                    if ( isset($from['meta']['pagination']) )
+                    {
+                        $response->addPagination($from['meta']['pagination']);
+                    }
+                    if ( isset($from['meta']['messages']) )
+                    {
+                        $response->addMessage($from['content']['meta']['messages']);
+                    }
+                    if ( isset($from['meta']['message']) )
+                    {
+                        $response->addMessage($from['content']['meta']['message']);
+                    }
+                } else if ( isset($from['content']) && isset($from['content']['meta']) ) {
+                    if ( isset($from['content']['meta']['pagination']) )
+                    {
+                        $response->addPagination($from['content']['meta']['pagination']); 
+                    }
+                    if ( isset($from['content']['meta']['messages']) )
+                    {
+                        $response->addMessage($from['content']['meta']['messages']);
+                    }
+                    if ( isset($from['content']['meta']['message']) )
+                    {
+                        $response->addMessage($from['content']['meta']['message']);
+                    }
+                }
+                /// look for results
+                if ( isset($from['content']) )
+                {
+                    if ( isset($from['content']['results']) ) 
+                    {
+                        $response->results = (array)$from['content']['results'];
+                    } else {
+                        $response->results = (array)$from['content'];
+                    }
                 }
 
                 $response->status = $status;
                 $response->format = 'json';
 
+                /// SUCCESS
                 if ( $status>=200 && $status<=299 )
                 {
                     $response->success = true;
+                /// CLIENT SIDE ERROR
                 } else if ( $status>=400 && $status<=499 ) {
+                    /// BAD API KEY    
                     if ( $status == 401 ) {
                         $errorDetail = "Unauthorized. Check API Key.";
-                    } else if ( $status == 404 && !empty($key) ) {
-                        $errorDetail = "Failed to {$action}. {$key} Not Found.";
+                    /// VALID URL but specific id given does not exist 
+                    } else if ( $status == 404 && !empty($item_key) ) {
+                        $errorDetail = "Failed to {$action}. {$item_key} Not Found.";
+                    /// Error in the request
                     } else {
                         $errorDetail = "Failed to {$action}. Request Error.";
                     }
                     $response->success  = false;
-                    $response->message[]  = array(
+                    $response->addMessage(array(
                         'errorCode'    => $status,
                         'errorMessage' => $this->httpStatusMessage($status),
                         'errorDetail'  => $errorDetail
-                    );
+                    ));
+                /// SERVER SIDE ERROR
                 } else if ( $status>=500 && $status<=599 ) {
                     $response->success  = false;
-                    $response->message[]  = array(
+                    $response->addMessage(array(
                         'errorCode'    => $status,
                         'errorMessage' => $this->httpStatusMessage($status),
                         'errorDetail'  => "Failed to {$action}. Server Error."
-                    );
+                    ));
                 }
                 return $response;
             } else if ( $from['format']=='image' ) {
@@ -1073,6 +1179,7 @@ class Syndication
                 /// a single string: base64 encoded image : imagecreatefromstring?
                 $response->results = $from['content'];
                 return $response;
+            /// unknown format
             } else {
                 $response->success = true;
                 $response->status  = $status;
@@ -1083,20 +1190,17 @@ class Syndication
             }
         }
         /// we got something weird - can't deal with this
-        $response = new SyndicationResponse();
         $response->success = false;
         $status = null;
         if ( is_array($from) && !empty($from['http']) && isset($from['http']['http_status']) )
         {
             $status = $from['http']['http_status'];
         }
-        $response->message[] = array(
+        $response->addMessage(array(
             'errorCode'    => $status,
             'errorMessage' => $this->httpStatusMessage($status),
             'errorDetail'  => "Unknown response from Server."
-        );
-        /// return the raw curl response from server
-        $response->results = $from;
+        ));
         return $response;
     }
 
@@ -1247,30 +1351,43 @@ class Syndication
             case 'post':
                 //curl_setopt( $curl, CURLOPT_POST,       true    );
                 curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'POST'    );
-                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
+                if ( !empty($http_params) )
+                {
+                    curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
+                }
                 $headers[] = 'Content-length: '.strlen($http_params);
                 break;
             case 'put':
                 curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'PUT'        );
-                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
+                if ( !empty($http_params) )
+                {
+                    curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
+                }
                 $headers[] = 'Content-length: '.strlen($http_params);
                 break;
             case 'delete':
                 curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'DELETE' );
-                curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params  );
+                if ( !empty($http_params) )
+                {
+                    curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params  );
+                }
                 $headers[] = 'Content-length: '.strlen($http_params);
                 break;
             case 'get':
             default:
                 curl_setopt( $curl, CURLOPT_HTTPGET, true ); 
-                $url .= (strpos($url,'?')===FALSE?'?':'&') . $http_params;
+                if ( !empty($http_params) )
+                {
+                    $url .= (strpos($url,'?')===FALSE?'?':'&') . $http_params;
+                }
                 $headers[] = 'Content-length: 0';
                 break;
         }
         curl_setopt( $curl, CURLOPT_HTTPHEADER,     $headers);
+/// debug
+//        curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
+//        curl_setopt( $curl, CURLOPT_STDERR,  fopen('php://stdout', 'w') );
 
-        curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
-        curl_setopt( $curl, CURLOPT_STDERR,  fopen('php://stdout', 'w') );
         curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
         curl_setopt( $curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
         /** /// forces new connections
