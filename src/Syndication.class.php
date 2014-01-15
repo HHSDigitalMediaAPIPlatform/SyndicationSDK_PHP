@@ -108,7 +108,8 @@ class SyndicationResponse
             'errorDetail'  => null,
             'errorCode'    => null
       );
-  /*
+
+  /**
    * Format for pagination responses
    *
    * @var array
@@ -159,11 +160,39 @@ class SyndicationResponse
     $this->raw        = null;
   }
 
+  /**
+   * Add pagination info to response
+   * 
+   * @param array $pagination options
+   *    count       : int
+   *    currentUrl  : string
+   *    max         : int
+   *    nextUrl     : string
+   *    offset      : int
+   *    order       : string
+   *    pageNum     : int
+   *    previousUrl : string
+   *    sort        : string
+   *    total       : int
+   *    totalPages  : int
+   *
+   * @access public
+   * 
+   * @return void
+   */
   function addPagination( $pagination )
   {
     $this->pagination = array_merge($this->empty_pagination,$pagination);
   }
 
+  /**
+   * Add message to list of response messages 
+   * 
+   * @param mixed $message message 
+   * @access public
+   * 
+   * @return void
+   */
   function addMessage( $message )
   {
     if ( isset($message['errorMessage']) )
@@ -240,11 +269,25 @@ class Syndication
 
     /// CLIENT FUNCTIONS
 
+    /**
+     * Get Client Version : the version of the api this client can talk too 
+     * 
+     * @access public
+     * 
+     * @return string
+     */
     function getClientVersion()
-    {} /// return the version of this client
+    { return '3'; }
 
+    /**
+     * Get Server Version : the version of the API for the configured server 
+     * 
+     * @access public
+     * 
+     * @return string
+     */
     function getServerVersion()
-    {} ///  poll server for what it things it's version is
+    { return '3'; }
 
     /// API FUNCTIONS
 
@@ -1053,7 +1096,7 @@ class Syndication
      * 
      * @param mixed $from Curl Response or Exception 
      * @param string $action Devloper friendly description of what triggered response
-     * @param mixed $key API Key used to connect 
+     * @param mixed $api_key API Key used to connect 
      *
      * @access public
      * @return SyndicationResponse object
@@ -1063,7 +1106,7 @@ class Syndication
      *      ->results  : array
      *      ->success  : boolean
      */
-    function createResponse ( $from, $action="Process Request", $item_key=null )
+    function createResponse ( $from, $action="Process Request", $api_key=null )
     {
         $response = new SyndicationResponse();
         $response->raw = $from;
@@ -1098,8 +1141,8 @@ class Syndication
                 if ( $status == 401 ) {
                     $errorDetail = "Unauthorized. Check API Key.";
                     /// VALID URL but specific id given does not exist 
-                } else if ( $status == 404 && !empty($item_key) ) {
-                    $errorDetail = "Failed to {$action}. {$item_key} Not Found.";
+                } else if ( $status == 404 && !empty($api_key) ) {
+                    $errorDetail = "Failed to {$action}. {$api_key} Not Found.";
                     /// Error in the request
                 } else {
                     $errorDetail = "Failed to {$action}. Request Error.";
@@ -1256,15 +1299,28 @@ class Syndication
                     break;
             }
         }
+
+        /// content-length required for apiKeyGen
+        switch ( strtolower($http_method) )
+        {
+            case 'post':
+            case 'put':
+            case 'delete':
+                $request_headers[] = 'Content-Length: '.strlen(http_build_query($params,'','&'));
+                break;
+            case 'get':
+            default:
+                $request_headers[] = 'Content-Length: 0';
+                break;
+        }
         
         $apiKey = $this->apiGenerateKey( $http_method, $url, $params, $request_headers );
-        $request_headers[] = "Authentication: syndication_api_key {$apiKey}";
+        $request_headers[] = "Authorization: syndication_api_key {$apiKey}";
 
         $curl = $this->apiBuildCurlRequest( $http_method, $url, $params, $request_headers, $response_format ); 
 
         $content = curl_exec($curl);
         $http    = curl_getinfo($curl);
-
         if ($content === false)
         {
             curl_close($curl);
@@ -1298,15 +1354,21 @@ class Syndication
         } else if ( $response_format=='js'   ) {
             // any xss cleaning ?
         } else if ( $response_format=='json' ) {
-            $decoded = json_decode($content,true);
-            if ( isset($decoded['results']) )
-            {
-                if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
+            try {
+                $decoded = json_decode($content,true);
+                if ( $decoded === null ) 
                 {
-                    $decoded['results'] = array();
+                    /// bad json should return empty, or return raw unencoded values?
+                } else if ( isset($decoded['results']) ) {
+                    if ( empty($decoded['results']) || count($decoded['results'])==1 && empty($decoded['results'][0]) )
+                    {
+                        $decoded['results'] = array();
+                    }
                 }
+                $api_response['content'] = $decoded;
+            } catch ( Exception $e ) { 
+                /// bad json should return empty, or return raw unencoded values?
             }
-            $api_response['content'] = $decoded;
         }
         return $api_response;
     }
@@ -1327,8 +1389,6 @@ class Syndication
     {
         $http_params = http_build_query( $params, '', '&' );
        
-        //$headers[] = "Date: ".gmdate("D, d M Y H:i:s", time())." GMT";
-
         $curl = curl_init();
 
         curl_setopt($curl, CURLOPT_USERAGENT,      'Syndication-Client/php-drupal v1'); // Useragent string to use for request
@@ -1349,7 +1409,6 @@ class Syndication
                 {
                     curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
                 }
-                $headers[] = 'Content-length: '.strlen($http_params);
                 break;
             case 'put':
                 curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'PUT'        );
@@ -1357,7 +1416,6 @@ class Syndication
                 {
                     curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params );
                 }
-                $headers[] = 'Content-length: '.strlen($http_params);
                 break;
             case 'delete':
                 curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'DELETE' );
@@ -1365,7 +1423,6 @@ class Syndication
                 {
                     curl_setopt( $curl, CURLOPT_POSTFIELDS,    $http_params  );
                 }
-                $headers[] = 'Content-length: '.strlen($http_params);
                 break;
             case 'get':
             default:
@@ -1374,17 +1431,17 @@ class Syndication
                 {
                     $url .= (strpos($url,'?')===FALSE?'?':'&') . $http_params;
                 }
-                $headers[] = 'Content-length: 0';
                 break;
         }
         curl_setopt( $curl, CURLOPT_HTTPHEADER,     $headers);
-/// debug
-//        curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
-//        curl_setopt( $curl, CURLOPT_STDERR,  fopen('php://stdout', 'w') );
+        /** / // debug request output
+        curl_setopt( $curl, CURLOPT_VERBOSE, 1 );
+        curl_setopt( $curl, CURLOPT_STDERR,  fopen('php://stdout', 'w') );
+        /**/
 
         curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
         curl_setopt( $curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
-        /** /// forces new connections
+        /** / // forces new connections
         curl_setopt( $curl, CURLOPT_FORBID_REUSE,  true );
         curl_setopt( $curl, CURLOPT_FRESH_CONNECT, true );
         curl_setopt( $curl, CURLOPT_MAXCONNECTS,   1);
@@ -1414,9 +1471,10 @@ class Syndication
       $canonicalizedHeaders  = '';
       $desiredHeaders = array('date','content-type','content-length');
       $headerData = array();
+      rsort($headers);
       foreach ( $headers as $header )
       {
-        $pos = strpos(':',$header);
+        $pos = strpos($header,':');
         if ( $pos )
         {
           $name  = strtolower(trim(substr($header,0,$pos)));
@@ -1424,39 +1482,73 @@ class Syndication
           $headerData[$name] = trim($value);
           if ( in_array($name,$desiredHeaders) )
           {
-            $canononicalizedHeaders = $name .':'. trim(str_replace(array('\n','\r'),' ',$value))."\n";
-          } 
-        }      
+            $canonicalizedHeaders .= $name .':'. trim(str_replace(array('\n','\r'),' ',$value))."\n";
+          }
+        }
       }
       $canonicalizedHeaders = trim($canonicalizedHeaders);
 
-      // just the clean url path
+      // just the clean url path - JS LOGIC IS DIFF - gets up to ? OR all url - this is prob wrong on zack's part
       $url_parts = $this->parseUrl($url);
-      $canonicalizedResource = ( !empty($url_parts) && !empty($url_parts['path']) ) ? trim($url_parts['path']) : ''; 
+      $canonicalizedResource = ( !empty($url_parts) && !empty($url_parts['path']) ) ? trim($url_parts['path']) : '';
         
-      /// md5 of the body
+      /// hash of the body - md5
       $http_params   = http_build_query( $params, '', '&' );
-      $hashedData    = md5($http_params);
+/** /
+print_r(array(
+    'raw'       => $http_params,
+
+    'md5'       =>               md5($http_params),
+    '64(md5)'   => base64_encode(md5($http_params)),
+
+    'md5t'       =>               md5($http_params,true),
+    '64(md5t)'   => base64_encode(md5($http_params,true)),
+
+    'hash'      =>               hash('md5',$http_params),
+    '64(hash)'  => base64_encode(hash('md5',$http_params)),
+
+    'hashB'      =>               hash('md5',$http_params, true),
+    '64(hashB)'  => base64_encode(hash('md5',$http_params, true)),
+
+    'hash_hmac'     =>               hash_hmac('md5', $http_params, null ),
+    '64(hash_hmac)' => base64_encode(hash_hmac('md5', $http_params, null )),
+
+    'hash_hmacB'     =>               hash_hmac('md5', $http_params, null, true ),
+    '64(hash_hmacB)' => base64_encode(hash_hmac('md5', $http_params, null, true )),
+));
+/**/
+      $hashedData    = base64_encode(md5($http_params,true));
 
       // array of: date,content-type,http method;
-      $requestData = array( 'date'         => isset($headerData['date'])         ? $headerData['date']         : '', 
-                            'content-type' => isset($headerData['content-type']) ? $headerData['content-type'] : '', 
-                            'method'       => strtoupper($http_method) ); 
+      $requestMethod = strtoupper($http_method);
 
       // put it all together
-      $signingString = "{$requestData['method']}\n".
+      $signingString = "{$requestMethod}\n".
                        "{$hashedData}\n".
-                       "{$requestData['content-type']}\n".
-                       "{$requestData['date']}\n".
                        "{$canonicalizedHeaders}\n".
                        "{$canonicalizedResource}";
-
+/*
+print_r( array('m'=>$requestMethod,'d'=>$hashedData,'h'=>$canonicalizedHeaders,'r'=>$canonicalizedResource) );
+*/
       /// grab keys 
-      $sharedKey     = "SHARED SECRET KEY";  
-      $myPublicKey   = "MY PUBLIC KEY";  
+      $sharedKey     = "xjY3i4AnsZ9wWuDKboD1XbAdtX1hgOh2tYMnwCWnXhweO94IKrbVJuPZIQsyO5Sa40CjAMF9tG5ciI+cXITjVw==";
+      $myPublicKey   = "9k+x8vDQJBcEYcEb/y/iipg8kXMU7sFfk1klV3PqMZkUBuJ/rDgVZtHmJGBydEKfnGKPAf6y9DBb7a+1tAz9Bg=="; 
+      $myPrivateKey  = "UxMt4OpdAZhJFMOF/kmv/lZAYXjE4hV8EI9UdmQP71J9VbbIvmR0DEhX2D3He7AKTq1IQz4tAqDX+Jy1Svxlqw==";
+        
       
       /// hash up our thingy
-      $computedHash  = base64_encode(hash_hmac('sha1', $signingString, $sharedKey, true ));
+      $computedHash  = base64_encode(hash_hmac('md5', $signingString, $sharedKey, true ));
+/** /
+print_r(array( 
+    'ss'=>$signingString, 
+    'sk'=>$sharedKey, 
+    'hd'=>$hashedData,
+    'h5'=>hash_hmac('md5', $signingString, $sharedKey, true ), 
+    '64(h5)'=>$computedHash, 
+    'pk'=>$myPublicKey, 
+    'final'=>"{$myPublicKey}:{$computedHash}" 
+));
+*/
 
       /// share public key are our hash
       return "{$myPublicKey}:{$computedHash}";

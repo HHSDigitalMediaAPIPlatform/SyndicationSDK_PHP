@@ -112,13 +112,18 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   public function testApiKey()
   {
-    /// wtf is the plan for this - 
-    /// ask mock for key? do i gen one from bin scripts or what
-    /// build a request hash with api key
-    /// see if it matches pregenerated request hash on server?
+        $params = array( 'param1'=>'valueA', 'param2'=>'valueB' );
+        $http_params = http_build_query($params,'','&');
+        $resp = self::$syndication->apiCall('post','http://'.self::$hostname.':'.self::$cms_port.'/secure_echo',$params);
+        /// good response must be 200 
+        $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good Response has "http_code" key holding http status code'); 
+        $this->assertEquals('200',$resp['http']['http_code'], 'Good Response has http code of 200');
+        /// good response must give back what we gave it
+        $this->assertArrayHasKey( 'content',   $resp,            'Response has "content" key holding actual response content'); 
+        $this->assertEquals(  $http_params,    $resp['content'], 'Response echoes our post params');
   }
 
-  public function testPublishHtml ()
+  public function testPublish ()
   {
     $params = array(
         'mediaType'     => 'Html', 
