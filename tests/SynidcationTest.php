@@ -188,10 +188,6 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(             '500',     $resp->status );
   } 
 
-    /// what are appropriate tests - 
-    /// can I talk to server
-    /// does each api call require testing for valid and invalid results?
-
 /*
 
   /**
