@@ -222,24 +222,25 @@ class Syndication
      *
      * @var array
      * @array format
-     *     url      : string
-     *     tinu_url : string
-     *     cms_url  : string
-     *     cms_id   : string
-     *     api_key  : string
-     *     timeout  : integer
      *
      * @access public
      */
     var $api = array(
-        'url'      => '',
-        'tiny_url' => '',
-        'cms_url'  => '',
-        'cms_id'   => '',
-        'api_key'  => '',
-        'timeout'  => '',
+        'syndication_url'     => '',
+        'syndication_tinyurl' => '',
+        'cms_manager_url'     => '',
+        'cms_manager_id'      => '',
+        'key_shared'          => '',
+        'key_public'          => '', 
+        'key_private'         => ''
     );
 
+    /**
+     * Date format required by Syndication Server 
+     * 
+     * @var string 
+     * @access public
+     */
     var $date_format = 'Y-m-d\TH:i:s\Z';
 
     /**
@@ -252,27 +253,38 @@ class Syndication
      */
     function __construct ( $api=null )
     {
+        $settings = array();
         if ( is_array($api) )
         {
-            $this->api = array_merge($this->api,$api);
-        } else {
-            /// if api is an array ( merge with defaults );
-            /// if api is string ( assume file on filesystem - read and try and guess format )
-            $this->api = array(
-                'url'      => 'http://ctacdev.com:8090/Syndication/api/v1/resources',
-                'tiny_url' => 'http://ctacdev.com:8082/',
-                'cms_url'  => 'http://ctacdev.com:8090/CMS_Manager/api/v1/resources',
-                'cms_id'   => 'drupal_cms_1',
-                'api_key'  => 'TEST_CMS1', // 'TEST_CMS2'
-                'timeout'  => 60
-            );
+            $settings = $api;
+        } else if ( is_string($api) && file_exists($api) && is_file($api) && is_readable($api) ) {
+            /// try and see if it's an ini file
+            if ( $ini = parse_ini_file($api,true) )
+            {
+                $settings = $ini;
+            /// try and see if it's a json file
+            } else {
+                $contents = file_get_contents($api);
+                $json = json_decode($contents,true);
+                if ( !empty($json) && is_array($json) ) 
+                {
+                    $settings = $json;
+                }    
+            }
+        }
+        foreach ( array_keys($this->api) as $k )
+        {
+            if ( isset($settings[$k]) )
+            {
+                $this->api[$k] = $settings[$k];
+            }
         }
     }
 
     /// CLIENT FUNCTIONS
 
     /**
-     * Get Client Version : the version of the api this client can talk too 
+     * Get Client Version : the versions of the api this client can talk too 
      * 
      * @access public
      * 
@@ -282,7 +294,7 @@ class Syndication
     { return '3'; }
 
     /**
-     * Get Server Version : the version of the API for the configured server 
+     * Get Server Version : the version of the API for the configured server - generated dynamically from api settings
      * 
      * @access public
      * 
@@ -305,7 +317,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/mediaTypes.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/mediaTypes.json");
             return $this->createResponse($result,'get All MediaTypes');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -332,7 +344,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/organizations.json",$params);
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/organizations.json",$params);
             return $this->createResponse($result,'get All Organizations');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -354,7 +366,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/organizations/{$id}.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/organizations/{$id}.json");
             return $this->createResponse($result,'get Organization','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -383,7 +395,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/campaigns.json",$params);
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/campaigns.json",$params);
             return $this->createResponse($result,'get All Campaigns');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -407,7 +419,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/campaigns/{$id}.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/campaigns/{$id}.json");
             return $this->createResponse($result,'get Campaign','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -433,7 +445,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/languages.json",$params);
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/languages.json",$params);
             return $this->createResponse($result,'get All Languages');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -454,7 +466,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/languages/{$id}.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/languages/{$id}.json");
             return $this->createResponse($result,'get Language','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -475,7 +487,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/tags/{$id}.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/tags/{$id}.json");
             return $this->createResponse($result,'get Tag','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -495,7 +507,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/tags/{$id}/related.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/tags/{$id}/related.json");
             return $this->createResponse($result,'get Related Tags','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -567,10 +579,10 @@ class Syndication
         {
             if ( is_array($query) )
             {
-              $result = $this->apiCall('get',"{$this->api['url']}/media.json",$query);
+              $result = $this->apiCall('get',"{$this->api['syndication_url']}/media.json",$query);
             } else {  
               $params = array( 'q' => $query );
-              $result = $this->apiCall('get',"{$this->api['url']}.json",$params,'json');
+              $result = $this->apiCall('get',"{$this->api['syndication_url']}.json",$params,'json');
             }
             return $this->createResponse($result,'search Resources','Search Criteria');
         } catch ( Exception $e ) {
@@ -601,7 +613,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}.json");
             return $this->createResponse($result,'get MetaData','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -632,7 +644,7 @@ class Syndication
         try
         {
             $params = array( 'sourceUrl' => $source_url );
-            $result = $this->apiCall('get',"{$this->api['url']}/media.json",$params);
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media.json",$params);
             return $this->createResponse($result,'get MetaData','Url');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -662,7 +674,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/tags/{$id}/media.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/tags/{$id}/media.json");
             return $this->createResponse($result,'get MetaData','Tag Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -706,7 +718,7 @@ class Syndication
             // dirty pluralization
             if( !in_array($type_path,array('SocialMedia','Audio')) ) { $type_path .= 's'; }
             $type_path{0} = strtolower($type_path{0});
-            $result = $this->apiCall('post',"{$this->api['url']}/media/$type_path",$params,'json');
+            $result = $this->apiCall('post',"{$this->api['syndication_url']}/media/$type_path",$params,'json');
             return $this->createResponse($result,'Publish');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -727,7 +739,7 @@ class Syndication
         /// if publishing a collection, we get collection item, which contains list of any sub-items also generated
         try
         {
-            $result = $this->apiCall('delete',"{$this->api['url']}/media/{$id}");
+            $result = $this->apiCall('delete',"{$this->api['syndication_url']}/media/{$id}");
             return $this->createResponse($result,'Un-Publish','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -758,7 +770,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('post',"{$this->api['cms_url']}/subscriptions/{$id}",array(),'json');
+            $result = $this->apiCall('post',"{$this->api['cms_manager_url']}/subscriptions/{$id}",array(),'json');
             return $this->createResponse($result,'Subscribe','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -788,7 +800,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('delete',"{$this->api['cms_url']}/subscriptions/{$id}",array(),'json');
+            $result = $this->apiCall('delete',"{$this->api['cms_manager_url']}/subscriptions/{$id}",array(),'json');
             return $this->createResponse($result,'Un-Subscribe','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -807,7 +819,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['cms_url']}/cms/{$this->api['cms_id']}",array(),'json');
+            $result = $this->apiCall('get',"{$this->api['cms_manager_url']}/cms/{$this->api['cms_manager_id']}",array(),'json');
             return $this->createResponse($result,'get My CMS Information');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -824,7 +836,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['cms_url']}/subscriptions.json",array(),'json');
+            $result = $this->apiCall('get',"{$this->api['cms_manager_url']}/subscriptions.json",array(),'json');
             return $this->createResponse($result,'get My Subscriptions');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -843,7 +855,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/content");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}/content");
             return $this->createResponse($result,'get Content','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -865,7 +877,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/preview.jpg");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}/preview.jpg");
             return $this->createResponse($result,'get Content Preview','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -887,7 +899,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/thumbnail.jpg");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}/thumbnail.jpg");
             return $this->createResponse($result,'get Content Thumbnail','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -908,7 +920,7 @@ class Syndication
         try
         {
             if ( !in_array( $format, array('json','html','xml') ) ) { $format='html'; }
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/embed.{$format}");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}/embed.{$format}");
             return $this->createResponse($result,'get Embedded Html','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -927,7 +939,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/javascriptEmbedTag.html");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}/javascriptEmbedTag.html");
             return $this->createResponse($result,'get Snippet Code','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -946,7 +958,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/youtubeMedaData.json");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}/youtubeMedaData.json");
             return $this->createResponse($result,'get YouTube MetaData','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -969,7 +981,7 @@ class Syndication
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['url']}/media/{$id}/iframeEmbeddedTag",$params);
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/media/{$id}/iframeEmbeddedTag",$params);
             return $this->createResponse($result,'get Embedded IFrame','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -1452,7 +1464,7 @@ class Syndication
         /**/
 
         curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
-        curl_setopt( $curl, CURLOPT_TIMEOUT,        $this->api['timeout'] ); // seconds cURL allowed to execute
+        curl_setopt( $curl, CURLOPT_TIMEOUT,        60 ); // seconds cURL allowed to execute
         /** / // forces new connections
         curl_setopt( $curl, CURLOPT_FORBID_REUSE,  true );
         curl_setopt( $curl, CURLOPT_FRESH_CONNECT, true );
@@ -1543,13 +1555,12 @@ print_r(array(
 print_r( array('m'=>$requestMethod,'d'=>$hashedData,'h'=>$canonicalizedHeaders,'r'=>$canonicalizedResource) );
 */
       /// grab keys 
-      $sharedKey     = "xjY3i4AnsZ9wWuDKboD1XbAdtX1hgOh2tYMnwCWnXhweO94IKrbVJuPZIQsyO5Sa40CjAMF9tG5ciI+cXITjVw==";
-      $myPublicKey   = "9k+x8vDQJBcEYcEb/y/iipg8kXMU7sFfk1klV3PqMZkUBuJ/rDgVZtHmJGBydEKfnGKPAf6y9DBb7a+1tAz9Bg=="; 
-      $myPrivateKey  = "UxMt4OpdAZhJFMOF/kmv/lZAYXjE4hV8EI9UdmQP71J9VbbIvmR0DEhX2D3He7AKTq1IQz4tAqDX+Jy1Svxlqw==";
-        
+      //$sharedKey     = "xjY3i4AnsZ9wWuDKboD1XbAdtX1hgOh2tYMnwCWnXhweO94IKrbVJuPZIQsyO5Sa40CjAMF9tG5ciI+cXITjVw==";
+      //$myPublicKey   = "9k+x8vDQJBcEYcEb/y/iipg8kXMU7sFfk1klV3PqMZkUBuJ/rDgVZtHmJGBydEKfnGKPAf6y9DBb7a+1tAz9Bg=="; 
+      //$myPrivateKey  = "UxMt4OpdAZhJFMOF/kmv/lZAYXjE4hV8EI9UdmQP71J9VbbIvmR0DEhX2D3He7AKTq1IQz4tAqDX+Jy1Svxlqw==";
       
       /// hash up our thingy
-      $computedHash  = base64_encode(hash_hmac('md5', $signingString, $sharedKey, true ));
+      $computedHash  = base64_encode(hash_hmac('md5', $signingString, $this->api['key_shared'], true ));
 /** /
 print_r(array( 
     'ss'=>$signingString, 
@@ -1563,6 +1574,6 @@ print_r(array(
 */
 
       /// share public key are our hash
-      return "{$myPublicKey}:{$computedHash}";
+      return "{$this->api['key_public']}:{$computedHash}";
     }
 }

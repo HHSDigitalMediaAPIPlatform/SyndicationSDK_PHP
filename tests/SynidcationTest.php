@@ -27,14 +27,8 @@ class BGProcess
 
 class SyndicationTest extends PHPUnit_Framework_TestCase
 {
-  protected static $syn_host;  
-  protected static $syn_port;  
 
-  protected static $cms_host;  
-  protected static $cms_port;  
-
-  protected static $pub_host;
-  protected static $pub_port;
+  protected static $api_mock;  
 
   protected static $syn_mock;  
   protected static $cms_mock;  
@@ -45,50 +39,42 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
 
   public function __construct()
   {
-    self::$syn_host = 'http://localhost'; //'http://ctacdev.com';
-    self::$syn_port = 3000; //8090;
+    self::$syn_mock = 'http://localhost:3000';
+    self::$cms_mock = 'http://localhost:3000';
 
-    self::$cms_host = 'http://localhost'; //'http://ctacdev.com';
-    self::$cms_port = 3000; // ???
+    self::$api_mock = array(
+        'syndication_url'     => self::$syn_mock,
+        'syndication_tinyurl' => self::$cms_mock, 
+        'cms_manager_url'     => 'http://localhost:3000',
+        'cms_manager_id'      => 'DrupalCms1',
+        'key_shared'  => 'xjY3i4AnsZ9wWuDKboD1XbAdtX1hgOh2tYMnwCWnXhweO94IKrbVJuPZIQsyO5Sa40CjAMF9tG5ciI+cXITjVw==',
+        'key_public'  => '9k+x8vDQJBcEYcEb/y/iipg8kXMU7sFfk1klV3PqMZkUBuJ/rDgVZtHmJGBydEKfnGKPAf6y9DBb7a+1tAz9Bg==', 
+        'key_private' => 'UxMt4OpdAZhJFMOF/kmv/lZAYXjE4hV8EI9UdmQP71J9VbbIvmR0DEhX2D3He7AKTq1IQz4tAqDX+Jy1Svxlqw==',
+    );
 
-    self::$pub_host = 'http://localhost';
-    self::$pub_port = 3333; // ??
+    self::$syn_mock = 'http://localhost:3000';
+    self::$cms_mock = 'http://localhost:3000';
+    self::$pub_mock = 'http://'.gethostbyname(trim(`hostname`)).'3333';
 
     self::$http_methods = array('get','post','delete');
-
-    //self::$cms_mock = new BGProcess('npm start','../cms_manager_simulator/');
-    //self::$pub_mock = new BGProcess('php -S '.self::$hostname.':'.self::$pub_port,'./public/');
   } 
   public static function setUpBeforeClass()
   {
-    self::$syndication = new Syndication(array(
-            'url'      => self::$syn_host.":".self::$cms_port."/Syndication/api/v2/resources",
-       		'tiny_url' => self::$syn_host.":".self::$syn_port."/",
-            'cms_url'  => self::$cms_host.":".self::$cms_port."/CMS_Manager/api/v1/resources",
-            'cms_id'   => 'drupal_cms_1',
-            'api_key'  => 'TEST_CMS1',
-            'timeout'  => 60
-    ));
-    //self::$cms_mock->start();
-    //self::$pub_mock->start();
+    self::$syndication = new Syndication(self::$api_mock);
   }
   public static function tearDownAfterClass()
   {
-    //self::$cms_mock->stop();
-    //self::$pub_mock->stop();
   }
 
   public function testInitialization ()
   {
     $this->assertInstanceOf('Syndication',self::$syndication);
-    //$this->assertTrue(self::$cms_mock->running(),'Mock Service is running');
-    //$this->assertTrue(self::$pub_mock->running(),'Public Server is running');
   }
 
   public function testCurlRequest ()
   {
     /// must be able to generate a valid curl requests
-    $url     = self::$pub_host.':'.self::$pub_port.'/single.html';
+    $url     = self::$pub_mock.'/single.html';
     $params  = array('a'=>'1');    
     $headers = array();
     $format  = 'json';
@@ -106,7 +92,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   {
     foreach ( self::$http_methods as $http_method )
     {
-        $resp = self::$syndication->apiCall($http_method,self::$cms_host.':'.self::$cms_port.'/200');
+        $resp = self::$syndication->apiCall($http_method,self::$cms_mock.'/200');
 
         /// all api calls must return an api_response array
         $this->assertNotEmpty($resp);
@@ -117,7 +103,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good '.strtoupper($http_method).' Response has "http_code" key holding http status code'); 
         $this->assertEquals('200',$resp['http']['http_code'], 'Good '.strtoupper($http_method).' Response has http code of 200');
         /// bad pathed calls must return notFound http status
-        $resp = self::$syndication->apiCall(strtoupper($http_method),self::$syn_host.':'.self::$syn_port.'/404');
+        $resp = self::$syndication->apiCall(strtoupper($http_method),self::$cms_mock.'/404');
         $this->assertNotEmpty($resp);
         $this->assertArrayHasKey( 'http',      $resp,         'Bad '.strtoupper($http_method).' path Response has "http" key holding curl_info'); 
         $this->assertArrayHasKey( 'http_code', $resp['http'], 'Bad '.strtoupper($http_method).' path Response has "http_code" key holding http status code'); 
@@ -129,7 +115,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   {
         $params = array( 'param1'=>'valueA', 'param2'=>'valueB' );
         $http_params = http_build_query($params,'','&');
-        $resp = self::$syndication->apiCall('post',self::$cms_host.':'.self::$cms_port.'/secure/echo',$params);
+        $resp = self::$syndication->apiCall('post',self::$cms_mock.'/secure/echo',$params);
         /// good response must be 200 
         $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good Response has "http_code" key holding http status code'); 
         $this->assertEquals('200',$resp['http']['http_code'], 'Good Response has http code of 200');
@@ -138,20 +124,22 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(  $http_params,    $resp['content'], 'Response echoes our post params');
   }
 
-  public function testPublish ()
+  public function _testPublish ()
   {
     $params = array(
         'mediaType'     => 'Html', 
         'name'          => 'return_type', 
-        'sourceUrl'     => self::$pub_host.':'.self::$pub_port.'/single.html', 
-        'dateAuthored'  => gmdate('Y-m-d\TH:i:s\Z'), 
-        'dateUpdated'   => gmdate('Y-m-d\TH:i:s\Z'),
+        'sourceUrl'     => self::$pub_mock.'/single.html', 
+        'dateSyndicationVisible'  => gmdate('Y-m-d\TH:i:s\Z'), 
+        'dateSyndicationCaptured' => gmdate('Y-m-d\TH:i:s\Z'),
+        'dateSyndicationUpdated'  => gmdate('Y-m-d\TH:i:s\Z'),
         'language'      => '1',   
         'organization'  => '1'
     );
 
     $params['name'] = 'success';
     $resp = self::$syndication->publishMedia($params);
+
     $this->assertNotEmpty($resp);
     $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" attribute'); 
     $this->assertEquals(             '200',     $resp->status );
@@ -178,7 +166,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $this->assertEquals( 'Field Constraint Violation', $resp->messages[1]['errorMessage'], 'Response->messages[0][errorMessage] is "Field Contraint Violation"'); 
   }
 
-  public function testSubscribe ()
+  public function _testSubscribe ()
   {
     $resp = self::$syndication->subscribeById(201);
     $this->assertNotEmpty($resp);
