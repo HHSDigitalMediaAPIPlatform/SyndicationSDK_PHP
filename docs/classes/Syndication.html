@@ -958,11 +958,12 @@
  sort                     : string
  order                    : string
  mediaType                : string
+ name                     : string
  nameContains             : string
  descriptionContains      : string
  licenseInfoContains      : string
- sourceUri                : string
- sourceUriContains        : string
+ sourceUrl                : string
+ sourceUrlContains        : string
  dateAuthored             : string
  authoredSinceDate        : string
  authoredBeforeDate       : string
@@ -970,33 +971,42 @@
  updatedSinceDate         : string
  updatedBeforeDate        : string
  updatedInRange           : int
+ languageId               : string
  languageName             : string
  languageValue            : string
  hash                     : string
  hashContains             : string
- organizationId           : int
- organizationName         : string
- organizationNameContains : string
- organizationAbv          : string
- organizationAbvContains  : string
+ sourceId                 : int
+ sourceName               : string
+ sourceNameContains       : string
+ sourceAcronym            : string
+ sourceAcrynymContains    : string
  tagIds                   : csv_string
  restrictToSet            : csv_string</code></pre></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id           : int
- name         : string
- description  : string
- licenseInfo  : string
- sourceUri    : string
- dateAuthored : date(rfc3339)
- dateUpdated  : date(rfc3339)
- language     : language
- active       : boolean
- externalGuid : string
- hash         : string
- organization : organization</code></pre></p>
+<pre><code> id            : int
+ name          : string
+ description   : string
+ sourceUrl     : string
+ dateContentAuthored     : date(rfc3339)
+ dateContentUpdated      : date(rfc3339)
+ dateContentPublished    : date(rfc3339)
+ dateContentReviewed     : date(rfc3339)
+ dateSyndicationVisible  : date(rfc3339)
+ dateSyndicationCaptured : date(rfc3339)
+ dateSyndicationUpdated  : date(rfc3339)
+ language      : language
+ externalGuid  : string
+ contentHash   : string
+ source        : source
+ campaigns     : campaign[]
+ tags          : tag[]
+ tinyUrl       : string
+ tinyToken     : string
+ thumbnailLink : sting</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -1041,7 +1051,7 @@
  name         : string
  description  : string
  licenseInfo  : string
- sourceUri    : string
+ sourceUrl    : string
  dateAuthored : date(rfc3339)
  dateUpdated  : date(rfc3339)
  language     : language
@@ -1093,7 +1103,7 @@
  name         : string
  description  : string
  licenseInfo  : string
- sourceUri    : string
+ sourceUrl    : string
  dateAuthored : date(rfc3339)
  dateUpdated  : date(rfc3339)
  language     : language
@@ -1145,7 +1155,7 @@
  name         : string
  description  : string
  licenseInfo  : string
- sourceUri    : string
+ sourceUrl    : string
  dateAuthored : date(rfc3339)
  dateUpdated  : date(rfc3339)
  language     : language
@@ -1190,7 +1200,7 @@
                                                 <h4>$params</h4>
                                                 <code>mixed</code><p><p>options</p>
 <pre><code> name         : string
- sourceUri    : string
+ sourceUrl    : string
  dateAuthored : date
  dateUpdated  : date
  language     : string
@@ -1203,7 +1213,7 @@
  name         : string
  description  : string
  licenseInfo  : string
- sourceUri    : string
+ sourceUrl    : string
  dateAuthored : date(rfc3339)
  dateUpdated  : date(rfc3339)
  language     : language
@@ -1296,7 +1306,7 @@
  name         : string
  description  : string
  licenseInfo  : string
- sourceUri    : string
+ sourceUrl    : string
  dateAuthored : date(rfc3339)
  dateUpdated  : date(rfc3339)
  language     : language
@@ -1348,7 +1358,7 @@
  name         : string
  description  : string
  licenseInfo  : string
- sourceUri    : string
+ sourceUrl    : string
  dateAuthored : date(rfc3339)
  dateUpdated  : date(rfc3339)
  language     : language
@@ -2189,6 +2199,36 @@ timeout  : integer</code></pre>
                                                                             </div>
                                 </div>
                             </div>
+                                                    <a id="property_date_format"> </a>
+                            <div class="element clickable property  public property_date_format" data-toggle="collapse" data-target=".property_date_format .collapse">
+                                <h2>date_format</h2>
+                                <pre>date_format : </pre>
+                                <div class="labels">
+                                                                                                        </div>
+                                <div class="row collapse">
+                                    <div class="detail-description">
+                                        <div class="long_description"></div>
+
+                                        <table class="table">
+                                                                                            <tr>
+                                                    <th>
+                                                        
+                                                    </th>
+                                                    <td>
+                                                                                                            </td>
+                                                </tr>
+                                                                                            <tr>
+                                                    <th>
+                                                        
+                                                    </th>
+                                                    <td>
+                                                                                                            </td>
+                                                </tr>
+                                                                                    </table>
+
+                                                                            </div>
+                                </div>
+                            </div>
                                                             </div>
             </div>
             <a id="\Syndication"></a>
@@ -2209,7 +2249,7 @@ timeout  : integer</code></pre>
             Template is built using <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap 2</a> and icons provided by
             <a href="http://glyphicons.com/">Glyphicons</a>.<br/>
             Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and<br/>
-            generated on Wed, 15 Jan 2014 18:40:12 +0000.<br/>
+            generated on Fri, 07 Feb 2014 18:28:50 +0000.<br/>
     </footer>
     </body>
 </html>
