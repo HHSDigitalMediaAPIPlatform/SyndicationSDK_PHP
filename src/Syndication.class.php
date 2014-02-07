@@ -240,6 +240,8 @@ class Syndication
         'timeout'  => '',
     );
 
+    var $date_format = 'Y-m-d\TH:i:s\Z';
+
     /**
      * Constructor for Syndication interface
      * 
@@ -510,11 +512,12 @@ class Syndication
      *      sort                     : string 
      *      order                    : string 
      *      mediaType                : string
+     *      name                     : string
      *      nameContains             : string
      *      descriptionContains      : string
      *      licenseInfoContains      : string
-     *      sourceUri                : string
-     *      sourceUriContains        : string
+     *      sourceUrl                : string
+     *      sourceUrlContains        : string
      *      dateAuthored             : string
      *      authoredSinceDate        : string
      *      authoredBeforeDate       : string
@@ -522,32 +525,41 @@ class Syndication
      *      updatedSinceDate         : string
      *      updatedBeforeDate        : string
      *      updatedInRange           : int
+     *      languageId               : string
      *      languageName             : string
      *      languageValue            : string
      *      hash                     : string
      *      hashContains             : string
-     *      organizationId           : int
-     *      organizationName         : string
-     *      organizationNameContains : string
-     *      organizationAbv          : string
-     *      organizationAbvContains  : string
+     *      sourceId                 : int
+     *      sourceName               : string
+     *      sourceNameContains       : string
+     *      sourceAcronym            : string
+     *      sourceAcrynymContains    : string
      *      tagIds                   : csv_string
      *      restrictToSet            : csv_string
      * 
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id           : int
-     *      name         : string
-     *      description  : string
-     *      licenseInfo  : string
-     *      sourceUri    : string
-     *      dateAuthored : date(rfc3339)
-     *      dateUpdated  : date(rfc3339)
-     *      language     : language
-     *      active       : boolean
-     *      externalGuid : string
-     *      hash         : string
-     *      organization : organization
+     *      id            : int
+     *      name          : string
+     *      description   : string
+     *      sourceUrl     : string
+     *      dateContentAuthored     : date(rfc3339)
+     *      dateContentUpdated      : date(rfc3339)
+     *      dateContentPublished    : date(rfc3339)
+     *      dateContentReviewed     : date(rfc3339)
+     *      dateSyndicationVisible  : date(rfc3339)
+     *      dateSyndicationCaptured : date(rfc3339)
+     *      dateSyndicationUpdated  : date(rfc3339)
+     *      language      : language
+     *      externalGuid  : string
+     *      contentHash   : string
+     *      source        : source
+     *      campaigns     : campaign[]
+     *      tags          : tag[]
+     *      tinyUrl       : string
+     *      tinyToken     : string
+     *      thumbnailLink : sting 
      */
     function searchMedia( $query )
     {
@@ -576,7 +588,7 @@ class Syndication
      *      name         : string
      *      description  : string
      *      licenseInfo  : string
-     *      sourceUri    : string
+     *      sourceUrl    : string
      *      dateAuthored : date(rfc3339)
      *      dateUpdated  : date(rfc3339)
      *      language     : language
@@ -606,7 +618,7 @@ class Syndication
      *      name         : string
      *      description  : string
      *      licenseInfo  : string
-     *      sourceUri    : string
+     *      sourceUrl    : string
      *      dateAuthored : date(rfc3339)
      *      dateUpdated  : date(rfc3339)
      *      language     : language
@@ -619,7 +631,7 @@ class Syndication
     {
         try
         {
-            $params = array( 'sourceUri' => $source_url );
+            $params = array( 'sourceUrl' => $source_url );
             $result = $this->apiCall('get',"{$this->api['url']}/media.json",$params);
             return $this->createResponse($result,'get MetaData','Url');
         } catch ( Exception $e ) {
@@ -637,7 +649,7 @@ class Syndication
      *      name         : string
      *      description  : string
      *      licenseInfo  : string
-     *      sourceUri    : string
+     *      sourceUrl    : string
      *      dateAuthored : date(rfc3339)
      *      dateUpdated  : date(rfc3339)
      *      language     : language
@@ -663,7 +675,7 @@ class Syndication
      * 
      * @param mixed $params options 
      *      name         : string 
-     *      sourceUri    : string 
+     *      sourceUrl    : string 
      *      dateAuthored : date 
      *      dateUpdated  : date 
      *      language     : string
@@ -675,7 +687,7 @@ class Syndication
      *      name         : string
      *      description  : string
      *      licenseInfo  : string
-     *      sourceUri    : string
+     *      sourceUrl    : string
      *      dateAuthored : date(rfc3339)
      *      dateUpdated  : date(rfc3339)
      *      language     : language
@@ -733,7 +745,7 @@ class Syndication
      *      name         : string
      *      description  : string
      *      licenseInfo  : string
-     *      sourceUri    : string
+     *      sourceUrl    : string
      *      dateAuthored : date(rfc3339)
      *      dateUpdated  : date(rfc3339)
      *      language     : language
@@ -763,7 +775,7 @@ class Syndication
      *      name         : string
      *      description  : string
      *      licenseInfo  : string
-     *      sourceUri    : string
+     *      sourceUrl    : string
      *      dateAuthored : date(rfc3339)
      *      dateUpdated  : date(rfc3339)
      *      language     : language
