@@ -124,14 +124,14 @@
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getClientVersion" title="getClientVersion :: Get Client Version : the version of the api this client can talk too">
-            <span class="description">Get Client Version : the version of the api this client can talk too</span><pre>getClientVersion</pre>
+        <a href="#method_getClientVersion" title="getClientVersion :: Get Client Version : the versions of the api this client can talk too">
+            <span class="description">Get Client Version : the versions of the api this client can talk too</span><pre>getClientVersion</pre>
         </a>
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getServerVersion" title="getServerVersion :: Get Server Version : the version of the API for the configured server">
-            <span class="description">Get Server Version : the version of the API for the configured server</span><pre>getServerVersion</pre>
+        <a href="#method_getServerVersion" title="getServerVersion :: Get Server Version : the version of the API for the configured server - generated dynamically from api settings">
+            <span class="description">Get Server Version : the version of the API for the configured server - generated dynamically from api settings</span><pre>getServerVersion</pre>
         </a>
     </li>
 
@@ -433,7 +433,7 @@
                         </div>
                                             <a id="method_getClientVersion"></a>
                         <div class="element clickable method public  method_getClientVersion" data-toggle="collapse" data-target=".method_getClientVersion .collapse">
-                            <h2>Get Client Version : the version of the api this client can talk too</h2>
+                            <h2>Get Client Version : the versions of the api this client can talk too</h2>
                             <pre>getClientVersion() : string</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
@@ -475,7 +475,7 @@
                         </div>
                                             <a id="method_getServerVersion"></a>
                         <div class="element clickable method public  method_getServerVersion" data-toggle="collapse" data-target=".method_getServerVersion .collapse">
-                            <h2>Get Server Version : the version of the API for the configured server</h2>
+                            <h2>Get Server Version : the version of the API for the configured server - generated dynamically from api settings</h2>
                             <pre>getServerVersion() : string</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
@@ -2169,12 +2169,6 @@
                                                     </th>
                                                     <td>
                                                                                                                     <p>format</p>
-<pre><code>url      : string
-tinu_url : string
-cms_url  : string
-cms_id   : string
-api_key  : string
-timeout  : integer</code></pre>
                                                                                                             </td>
                                                 </tr>
                                                                                             <tr>
@@ -2201,8 +2195,8 @@ timeout  : integer</code></pre>
                             </div>
                                                     <a id="property_date_format"> </a>
                             <div class="element clickable property  public property_date_format" data-toggle="collapse" data-target=".property_date_format .collapse">
-                                <h2>date_format</h2>
-                                <pre>date_format : </pre>
+                                <h2>Date format required by Syndication Server</h2>
+                                <pre>date_format : string</pre>
                                 <div class="labels">
                                                                                                         </div>
                                 <div class="row collapse">
@@ -2212,9 +2206,18 @@ timeout  : integer</code></pre>
                                         <table class="table">
                                                                                             <tr>
                                                     <th>
-                                                        
+                                                        var
                                                     </th>
                                                     <td>
+                                                                                                                    
+                                                                                                            </td>
+                                                </tr>
+                                                                                            <tr>
+                                                    <th>
+                                                        access
+                                                    </th>
+                                                    <td>
+                                                                                                                    <p>public</p>
                                                                                                             </td>
                                                 </tr>
                                                                                             <tr>
@@ -2226,6 +2229,8 @@ timeout  : integer</code></pre>
                                                 </tr>
                                                                                     </table>
 
+                                                                                    <h3>Type(s)</h3>
+                                            <code>string</code>
                                                                             </div>
                                 </div>
                             </div>
@@ -2249,7 +2254,7 @@ timeout  : integer</code></pre>
             Template is built using <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap 2</a> and icons provided by
             <a href="http://glyphicons.com/">Glyphicons</a>.<br/>
             Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and<br/>
-            generated on Fri, 07 Feb 2014 18:28:50 +0000.<br/>
+            generated on Fri, 07 Feb 2014 22:27:59 +0000.<br/>
     </footer>
     </body>
 </html>
