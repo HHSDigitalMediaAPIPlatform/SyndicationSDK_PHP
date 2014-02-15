@@ -28,39 +28,45 @@ class BGProcess
 class SyndicationTest extends PHPUnit_Framework_TestCase
 {
 
-  protected static $api_mock;  
+  protected static $api;  
 
-  protected static $syn_mock;  
-  protected static $cms_mock;  
-  protected static $pub_mock;
+  protected static $syn_url;  
+  protected static $cms_url;  
+  protected static $pub_url;
 
   protected static $syndication;   
   protected static $http_methods;  
 
   public function __construct()
   {
-    self::$syn_mock = 'http://localhost:3000';
-    self::$cms_mock = 'http://localhost:3000';
+    //self::$syn_url = 'http://localhost:3000';
+    //self::$cms_url = 'http://localhost:3000';
+    self::$syn_url = 'http://ctacdev.com:8090/Syndication/api/v2';
+    self::$cms_url = 'http://ctacdev.com:8090/CmsManager/api/v1';
 
-    self::$api_mock = array(
-        'syndication_url'     => self::$syn_mock,
-        'syndication_tinyurl' => self::$cms_mock, 
-        'cms_manager_url'     => 'http://localhost:3000',
+    self::$api = array(
+        'syndication_url'     => self::$syn_url,
+        'syndication_tinyurl' => '',
+        'cms_manager_url'     => self::$cms_url,
         'cms_manager_id'      => 'DrupalCms1',
+        /*
         'key_shared'  => 'xjY3i4AnsZ9wWuDKboD1XbAdtX1hgOh2tYMnwCWnXhweO94IKrbVJuPZIQsyO5Sa40CjAMF9tG5ciI+cXITjVw==',
         'key_public'  => '9k+x8vDQJBcEYcEb/y/iipg8kXMU7sFfk1klV3PqMZkUBuJ/rDgVZtHmJGBydEKfnGKPAf6y9DBb7a+1tAz9Bg==', 
         'key_private' => 'UxMt4OpdAZhJFMOF/kmv/lZAYXjE4hV8EI9UdmQP71J9VbbIvmR0DEhX2D3He7AKTq1IQz4tAqDX+Jy1Svxlqw==',
+        */
+        'key_shared'  => 'KEap7FOUphaeeE8J8ZGxyPej9+cY9r47St2gLy94RE6pJu1DTqMTUIH/+HKhrSw0lGHmSEaRj9k9Rz5mhQD/PQ==',
+        'key_public'  => 'AMqq6mm6/vM+OsDYu3vS00IzF0m244N0H/sBV1K2+E5FBG4jLouGgt89ueQr1i3xvZZFK5myHPOHLslyomqxlJM=',
+        'key_private' => 'W5vQAky0Ys6uCx7esGcLy9NTOEb5ePPwiJ7L9KZzGyOvJOi7ZPV6pEn5nGytiBrHKszt7hQZh2dG+Oh4pe299g=='
+
     );
 
-    self::$syn_mock = 'http://localhost:3000';
-    self::$cms_mock = 'http://localhost:3000';
-    self::$pub_mock = 'http://'.gethostbyname(trim(`hostname`)).'3333';
+    self::$pub_url = 'http://'.gethostbyname(trim(`hostname`)).'3333';
 
     self::$http_methods = array('get','post','delete');
   } 
   public static function setUpBeforeClass()
   {
-    self::$syndication = new Syndication(self::$api_mock);
+    self::$syndication = new Syndication(self::$api);
   }
   public static function tearDownAfterClass()
   {
@@ -74,7 +80,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   public function testCurlRequest ()
   {
     /// must be able to generate a valid curl requests
-    $url     = self::$pub_mock.'/single.html';
+    $url     = self::$pub_url.'/single.html';
     $params  = array('a'=>'1');    
     $headers = array();
     $format  = 'json';
@@ -92,8 +98,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
   {
     foreach ( self::$http_methods as $http_method )
     {
-        $resp = self::$syndication->apiCall($http_method,self::$cms_mock.'/200');
-
+        $resp = self::$syndication->apiCall($http_method,self::$api['syndication_url'].'/resources');
         /// all api calls must return an api_response array
         $this->assertNotEmpty($resp);
         $this->assertArrayHasKey( 'content',   $resp, strtoupper($http_method).' Response has "content" key holding actual response content'); 
@@ -103,25 +108,28 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good '.strtoupper($http_method).' Response has "http_code" key holding http status code'); 
         $this->assertEquals('200',$resp['http']['http_code'], 'Good '.strtoupper($http_method).' Response has http code of 200');
         /// bad pathed calls must return notFound http status
-        $resp = self::$syndication->apiCall(strtoupper($http_method),self::$cms_mock.'/404');
+        $resp = self::$syndication->apiCall(strtoupper($http_method),self::$syn_url.'/404');
         $this->assertNotEmpty($resp);
-        $this->assertArrayHasKey( 'http',      $resp,         'Bad '.strtoupper($http_method).' path Response has "http" key holding curl_info'); 
-        $this->assertArrayHasKey( 'http_code', $resp['http'], 'Bad '.strtoupper($http_method).' path Response has "http_code" key holding http status code'); 
-        $this->assertEquals('404',$resp['http']['http_code'], 'Bad '.strtoupper($http_method).' Response has http code of 200');
+        $this->assertArrayHasKey( 'http',      $resp,         'Bad '.strtoupper($http_method).' Response has "http" key holding curl_info'); 
+        $this->assertArrayHasKey( 'http_code', $resp['http'], 'Bad '.strtoupper($http_method).' Response has "http_code" key holding http status code'); 
+        $this->assertNotEquals('200',$resp['http']['http_code'], 'Bad '.strtoupper($http_method).' Response does not have an http code of 200');
     }
   }
-
+ 
   public function testApiKey()
   {
-        $params = array( 'param1'=>'valueA', 'param2'=>'valueB' );
-        $http_params = http_build_query($params,'','&');
-        $resp = self::$syndication->apiCall('post',self::$cms_mock.'/secure/echo',$params);
+        $resp = self::$syndication->apiCall('get',self::$api['cms_manager_url'].'/debug/secure/resource');
+print_r($resp);
         /// good response must be 200 
         $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good Response has "http_code" key holding http status code'); 
         $this->assertEquals('200',$resp['http']['http_code'], 'Good Response has http code of 200');
-        /// good response must give back what we gave it
-        $this->assertArrayHasKey( 'content',   $resp,            'Response has "content" key holding actual response content'); 
-        $this->assertEquals(  $http_params,    $resp['content'], 'Response echoes our post params');
+  }
+
+  public function _testLookup()
+  {
+  }
+  public function _testSearch()
+  {
   }
 
   public function _testPublish ()
@@ -129,7 +137,7 @@ class SyndicationTest extends PHPUnit_Framework_TestCase
     $params = array(
         'mediaType'     => 'Html', 
         'name'          => 'return_type', 
-        'sourceUrl'     => self::$pub_mock.'/single.html', 
+        'sourceUrl'     => self::$pub_url.'/single.html', 
         'dateSyndicationVisible'  => gmdate('Y-m-d\TH:i:s\Z'), 
         'dateSyndicationCaptured' => gmdate('Y-m-d\TH:i:s\Z'),
         'dateSyndicationUpdated'  => gmdate('Y-m-d\TH:i:s\Z'),
