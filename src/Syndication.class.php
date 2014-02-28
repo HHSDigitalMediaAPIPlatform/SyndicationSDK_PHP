@@ -72,7 +72,6 @@ class SyndicationResponse
    *    max         : int
    *    nextUrl     : string
    *    offset      : int
-   *    order       : string
    *    pageNum     : int
    *    previousUrl : string
    *    sort        : string
@@ -119,7 +118,6 @@ class SyndicationResponse
    *    max         : int
    *    nextUrl     : string
    *    offset      : int
-   *    order       : string
    *    pageNum     : int
    *    previousUrl : string
    *    sort        : string
@@ -169,7 +167,6 @@ class SyndicationResponse
    *    max         : int
    *    nextUrl     : string
    *    offset      : int
-   *    order       : string
    *    pageNum     : int
    *    previousUrl : string
    *    sort        : string
@@ -207,7 +204,11 @@ class SyndicationResponse
   }
 }
 
+/*
 
+http://ctacdev.com:8090/Syndication/swagger/media/api
+
+*/
 
 /**
  * Syndication 
@@ -291,7 +292,9 @@ class Syndication
      * @return string
      */
     function getClientVersion()
-    { return '2'; }
+    {
+        return array('2');
+    }
 
     /**
      * Get Server Version : the version of the API for the configured server - generated dynamically from api settings
@@ -301,7 +304,15 @@ class Syndication
      * @return string
      */
     function getServerVersion()
-    { return '2'; }
+    { 
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/swagger/api");
+            return $this->createResponse($result,'get Server API Version');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
 
     /// API FUNCTIONS
 
@@ -331,14 +342,15 @@ class Syndication
      *      max    : int
      *      offset : int
      *      sort   : string
-     *      order  : string
      * 
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id   : int 
-     *      name : string
-     *      abv  : string
-     *      url  : string 
+     *      id           : int 
+     *      name         : string
+     *      acronym      : string
+     *      websiteUrl   : string 
+     *      largeLogoUrl : string 
+     *      SmallLogoUrl : string 
      */
     function getAllSources ( $params=array() )
     {
@@ -349,7 +361,7 @@ class Syndication
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
-    }
+    } 
 
     /**
      * Gets a single Source
@@ -358,10 +370,12 @@ class Syndication
      * 
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id   : int 
-     *      name : string
-     *      abv  : string
-     *      url  : string 
+     *      id           : int 
+     *      name         : string
+     *      acronym      : string
+     *      websiteUrl   : string 
+     *      largeLogoUrl : string 
+     *      SmallLogoUrl : string 
      */
     function getSourceById ( $id )
     {
@@ -381,7 +395,6 @@ class Syndication
      *      max    : int
      *      offset : int
      *      sort   : string
-     *      order  : string
      *  
      * @access public
      * @return SyndicationResponse ->results[]
@@ -390,7 +403,7 @@ class Syndication
      *      description  : string
      *      startDate    : date
      *      endDate      : date
-     *      source : source  
+     *      source       : source  
      */
     function getAllCampaigns ( $params=array() )
     {
@@ -415,7 +428,7 @@ class Syndication
      *      description  : string
      *      startDate    : date
      *      endDate      : date
-     *      source : source  
+     *      source       : source  
      */
     function getCampaignById ( $id )
     {
@@ -435,7 +448,6 @@ class Syndication
      *      max    : int
      *      offset : int
      *      sort   : string
-     *      order  : string
      *  
      * @access public
      * @return SyndicationResponse ->results[]
@@ -444,7 +456,7 @@ class Syndication
      *      value : string
      */
     function getAllLanguages ( $params=array() )
-    {
+    { 
         try
         {
             $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/languages.json",$params);
@@ -475,6 +487,35 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
+
+    /**
+     * Gets a list of all Tags
+     *
+     * @param array $params options 
+     *      max           : int
+     *      offset        : int
+     *      sort          : string
+     *      name          : string
+     *      nameContains  : string
+     *      syndicationId : int
+     *      typeId        : int
+     *      typeName      : string
+     * 
+     * @access public
+     * @return SyndicationResponse ->results[]
+     *      id   : int
+     *      name : string
+     */
+    function getTags ( $params=array() )
+    {
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/tags.json",$params);
+            return $this->createResponse($result,'get All Tags');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+     }
 
     /**
      * Gets a single Tag
@@ -518,72 +559,98 @@ class Syndication
         }
     }
     
+    /// function getMediaByTagId ( $id ) : defined below with getMedia*() functions
+
     /**
      * Gets a list of Media MetaData.
      * Makes a different API call depending on $query. 
      * 
-     * @param mixed $query if string: all-column text search. if array: per-column search params 
-     *      max                      : int
-     *      offset                   : int
-     *      sort                     : string 
-     *      order                    : string 
-     *      mediaType                : string
-     *      name                     : string
-     *      nameContains             : string
-     *      descriptionContains      : string
-     *      licenseInfoContains      : string
-     *      sourceUrl                : string
-     *      sourceUrlContains        : string
-     *      dateAuthored             : string
-     *      authoredSinceDate        : string
-     *      authoredBeforeDate       : string
-     *      authoredInRange          : string
-     *      updatedSinceDate         : string
-     *      updatedBeforeDate        : string
-     *      updatedInRange           : int
-     *      languageId               : string
-     *      languageName             : string
-     *      languageValue            : string
-     *      hash                     : string
-     *      hashContains             : string
-     *      sourceId                 : int
-     *      sourceName               : string
-     *      sourceNameContains       : string
-     *      sourceAcronym            : string
-     *      sourceAcrynymContains    : string
-     *      tagIds                   : csv_string
-     *      restrictToSet            : csv_string
+     * @param mixed $query if string or params with q: all-column text search. if array: per-column search params 
+     *      max                          : int
+     *      offset                       : int
+     *      sort                         : string 
+     *      mediaType                    : csv
+     *      name                         : string
+     *      nameContains                 : string
+     *      sourceUrl                    : string
+     *      sourceUrlContains            : string
+     *      descriptionContains          : string
+     *      licenseInfoContains          : string
+     *      dateContentAuthored          : rfc3339
+     *      contentAuthoredSinceDate     : rfc3339
+     *      contentAuthoredBeforeDate    : rfc3339
+     *      contentAuthoredInRange       : csv rfc3339
+     *      dateContentUpdated           : rfc3339
+     *      contentUpdatedSinceDate      : rfc3339
+     *      contentUpdatedBeforeDate     : rfc3339
+     *      contentUpdatedInRange        : csv rfc3339
+     *      dateContentPublished         : rfc3339
+     *      contentPublishedSinceDate    : rfc3339
+     *      contentPublishedBeforeDate   : rfc3339
+     *      contentPublishedInRange      : csv rfc3339
+     *      dateContentReviewed          : rfc3339
+     *      contentReviewedSinceDate     : rfc3339
+     *      contentReviewedBeforeDate    : rfc3339
+     *      contentReviewedInRange       : csv rfc3339
+     *      dateSyndicationUpdated       : rfc3339
+     *      syndicationUpdatedSinceDate  : rfc3339
+     *      syndicationUpdatedBeforeDate : rfc3339
+     *      syndicationUpdatedInRange    : csv rfc3339
+     *      dateSyndicationVisible       : rfc3339
+     *      syndicationVisibleSinceDate  : rfc3339
+     *      syndicationVisibleBeforeDate : rfc3339
+     *      syndicationVisibleInRange    : csv rfc3339
+     *      languageId                   : string
+     *      languageName                 : string
+     *      languageIsoCode              : string
+     *      hash                         : string
+     *      hashContains                 : string
+     *      sourceId                     : int
+     *      sourceName                   : string
+     *      sourceNameContains           : string
+     *      sourceAcronym                : string
+     *      sourceAcrynymContains        : string
+     *      tagIds                       : csv int
+     *      restrictToSet                : csv int
      * 
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id            : int
-     *      name          : string
-     *      description   : string
-     *      sourceUrl     : string
-     *      dateContentAuthored     : date(rfc3339)
-     *      dateContentUpdated      : date(rfc3339)
-     *      dateContentPublished    : date(rfc3339)
-     *      dateContentReviewed     : date(rfc3339)
-     *      dateSyndicationVisible  : date(rfc3339)
-     *      dateSyndicationCaptured : date(rfc3339)
-     *      dateSyndicationUpdated  : date(rfc3339)
-     *      language      : language
-     *      externalGuid  : string
-     *      contentHash   : string
-     *      source        : source
-     *      campaigns     : campaign[]
-     *      tags          : tag[]
-     *      tinyUrl       : string
-     *      tinyToken     : string
-     *      thumbnailLink : sting 
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
      */
-    function searchMedia( $query )
+    function getMedia( $query )
     {
         try
         {
             if ( is_array($query) )
             {
-              $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media.json",$query);
+              if ( isset($query['q']) )
+              {
+                $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/searchResults.json",$params);
+              } else {  
+                $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media.json",$query);
+              }
             } else {  
               $params = array( 'q' => $query );
               $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/searchResults.json",$params);
@@ -601,20 +668,30 @@ class Syndication
      * 
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id           : int
-     *      name         : string
-     *      description  : string
-     *      licenseInfo  : string
-     *      sourceUrl    : string
-     *      dateAuthored : date(rfc3339)
-     *      dateUpdated  : date(rfc3339)
-     *      language     : language
-     *      active       : boolean
-     *      externalGuid : string
-     *      hash         : string
-     *      source : source
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
      */
-
     function getMediaById ( $id )
     {
         try
@@ -627,55 +704,35 @@ class Syndication
     }
 
     /**
-     * Gets a single Media MetaData
-     * 
-     * @param string $source_url Url of the media source 
-     * 
-     * @access public
-     * @return SyndicationResponse ->results[]
-     *      id           : int
-     *      name         : string
-     *      description  : string
-     *      licenseInfo  : string
-     *      sourceUrl    : string
-     *      dateAuthored : date(rfc3339)
-     *      dateUpdated  : date(rfc3339)
-     *      language     : language
-     *      active       : boolean
-     *      externalGuid : string
-     *      hash         : string
-     *      source : source
-     */
-    function getMediaByUrl ( $source_url )
-    {
-        try
-        {
-            $params = array( 'sourceUrl' => $source_url );
-            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media.json",$params);
-            return $this->createResponse($result,'get MetaData','Url');
-        } catch ( Exception $e ) {
-            return $this->createResponse($e,'API Call');
-        }
-    }
-    /**
      * Gets a list of Media MetaData
      * 
      * @param mixed $id Numeric Id of a Tag 
      * 
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id           : int
-     *      name         : string
-     *      description  : string
-     *      licenseInfo  : string
-     *      sourceUrl    : string
-     *      dateAuthored : date(rfc3339)
-     *      dateUpdated  : date(rfc3339)
-     *      language     : language
-     *      active       : boolean
-     *      externalGuid : string
-     *      hash         : string
-     *      source : source
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
      */
     function getMediaByTagId ( $id )
     {
@@ -688,7 +745,48 @@ class Syndication
         }
     }
 
-    
+    /**
+     * Gets MediaItems related to certain MediaItem.
+     *
+     * @param mixed $id Numeric Id of origin MediaItem
+     *
+     * @access public 
+     * @return SyndicationResponse ->results[]
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
+     */
+    function getMediaRelatedToId ( $id )
+    {
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/relatedMedia.json");
+            return $this->createResponse($result,'get Media Alternate Images','Id');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
+
     /**
      * Publish a new piece of Media content 
      * 
@@ -702,18 +800,29 @@ class Syndication
      *
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id           : int
-     *      name         : string
-     *      description  : string
-     *      licenseInfo  : string
-     *      sourceUrl    : string
-     *      dateAuthored : date(rfc3339)
-     *      dateUpdated  : date(rfc3339)
-     *      language     : language
-     *      active       : boolean
-     *      externalGuid : string
-     *      hash         : string
-     *      source : source
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
      */
     function publishMedia ( $params )
     {
@@ -761,18 +870,29 @@ class Syndication
      * @access public
      * 
      * @return SyndicationResponse ->results[]
-     *      id           : int
-     *      name         : string
-     *      description  : string
-     *      licenseInfo  : string
-     *      sourceUrl    : string
-     *      dateAuthored : date(rfc3339)
-     *      dateUpdated  : date(rfc3339)
-     *      language     : language
-     *      active       : boolean
-     *      externalGuid : string
-     *      hash         : string
-     *      source : source
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
      */
     function subscribeById ( $id )
     {
@@ -792,18 +912,29 @@ class Syndication
      * 
      * @access public
      * @return SyndicationResponse ->results[]
-     *      id           : int
-     *      name         : string
-     *      description  : string
-     *      licenseInfo  : string
-     *      sourceUrl    : string
-     *      dateAuthored : date(rfc3339)
-     *      dateUpdated  : date(rfc3339)
-     *      language     : language
-     *      active       : boolean
-     *      externalGuid : string
-     *      hash         : string
-     *      source       : source
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
      */
     function unSubscribeById ( $id )
     {
@@ -901,15 +1032,12 @@ class Syndication
      * Gets a fixed size thumbnail image of a single Media item. Allows custom margin configuration.
      * 
      * @param mixed $id Numeric Id of MediaItem
-     * @param mixed $params options
-     *      imageFloat  : string
-     *      imageMargin : css string (int,int,int,int)
      * 
      * @access public 
      * @return SyndicationResponse ->results[]
      *      base64 encoded jpg
      */
-    function getMediaThumbnailById ( $id, $params=array() )
+    function getMediaThumbnailById ( $id )
     {
         try
         {
@@ -924,18 +1052,21 @@ class Syndication
      * Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format
      *
      * @param mixed $id Numeric Id of MediaItem
-     * @param string $format Desired return format of embedded html
+     * @param mixed $params options
+     *      flavor : string
+     *      width  : int
+     *      height : int
+     *      name   : string
      *
      * @access public 
      * @return SyndicationResponse ->results[]
-     *      string (html,json,xml)
+     *      string hmtml
      */
-    function getMediaEmbeddedHtmlById ( $id, $format='html' )
+    function getMediaEmbedById ( $id, $params=array() )
     {
         try
         {
-            if ( !in_array( $format, array('json','html','xml') ) ) { $format='html'; }
-            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/embed.{$format}");
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/embed.html",$params);
             return $this->createResponse($result,'get Embedded Html','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -943,20 +1074,30 @@ class Syndication
     }
 
     /**
-     * Get javascript code used to embed this MediaItem.
+     * Gets the content belonging to a given MediaItem for embedding as HTML.
      *
      * @param mixed $id Numeric Id of MediaItem
+     * @param mixed $params options
+     *      cssClass     : string (for extraction)
+     *      stripStyles  : int
+     *      stripImages  : int
+     *      stripBreaks  : string
+     *      stripClasses : string
+     *      font-size    : int
+     *      stripBreaks  : string
+     *      imageFloat   : string
+     *      imageMargin  : csv int
      *
      * @access public 
      * @return SyndicationResponse ->results[]
-     *      html
+     *      string hmtml
      */
-    function getMediaJavascriptEmbedTagById ( $id )
+    function getMediaHtmlById ( $id, $params=array() )
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/javascriptEmbedTag.html");
-            return $this->createResponse($result,'get Snippet Code','Id');
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/syndicate.html",$params);
+            return $this->createResponse($result,'get Embedded Html','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
@@ -971,7 +1112,7 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      youtube metatdata
      */
-    function getMediaYoutubeMetadataById ( $id )
+    function getMediaYoutubeMetaDataById ( $id )
     {
         try
         {
@@ -983,35 +1124,52 @@ class Syndication
     }
 
     /**
-     * Gets the iframe content belonging to a given MediaItem for embedding. Name is placed into the iframe's html.
+     * Gets list of alternate images for this MediaItem.
      *
      * @param mixed $id Numeric Id of MediaItem
-     * @param mixed $params options
-     *      width  : int
-     *      height : int
-     *      name   : string
      *
      * @access public 
      * @return SyndicationResponse ->results[]
-     *     html 
+     *      youtube metatdata
      */
-    function getMediaIframeEmbeddedTagById ( $id, $params=array() )
+    function getMediaAlternateImagesById ( $id )
     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/iframeEmbeddedTag",$params);
-            return $this->createResponse($result,'get Embedded IFrame','Id');
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/alternateImages.json");
+            return $this->createResponse($result,'get Media Alternate Images','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
 
     /**
-     * Calls an debug url which will do nothing but validate our key
+     * Gets ratings for this MediaItem.
+     *
+     * @param mixed $id Numeric Id of MediaItem
+     *
+     * @access public 
+     * @return SyndicationResponse ->results[]
+     *      likes : int
+     */
+    function getMediaRatingsById ( $id )
+    {
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/ratings.json");
+            return $this->createResponse($result,'get Media Alternate Images','Id');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
+
+    /**
+     * Calls an debug url which will do nothing but validate our key. 200 http response means valid.
      * 
      * @access public
      * 
-     * @return void
+     * @return SyndicationResponse ->results[]
+     *      empty
      */
     function testCredentials()
     {
@@ -1331,6 +1489,20 @@ class Syndication
                 unset( $params[$p] );
             }
         }
+        /// ascending order is default, descending order is speicified by a '-' sign 
+        /// if 'order' param is set, reinterpret that as part of sort param 
+        if ( !empty($params['sort']) && !empty($params['order']) ) 
+        {
+            // clean up sort, strip off leading '-'
+            if ( $params['sort']{0} != '-' )
+            {
+                $params['sort'] = substr( $params['sort'], 1 );
+            }
+            if ( strtolower(substr($params['order'],4)) == 'desc' )
+            {
+                $params['sort'] = '-'.$params['sort'];
+            } 
+        }
 
         /// our request format type
         $request_headers = array(
@@ -1382,6 +1554,7 @@ class Syndication
         $curl = $this->apiBuildCurlRequest( $http_method, $url, $params, $request_headers, $response_format ); 
 
 
+        /// do some temp memory writing bs to capture curl's output to grab actual request string
         curl_setopt($curl, CURLOPT_VERBOSE, true);
         $verbose = fopen('php://temp', 'rw+');
         curl_setopt($curl, CURLOPT_STDERR, $verbose);
@@ -1391,8 +1564,7 @@ class Syndication
         rewind($verbose);
         $verbose_log = stream_get_contents($verbose);
 
-        $http    = curl_getinfo($curl);
-
+        $http = curl_getinfo($curl);
         $http['verbose_log'] = $verbose_log;
 
         if ($content === false)
@@ -1513,8 +1685,8 @@ class Syndication
         curl_setopt( $curl, CURLOPT_STDERR,  fopen('php://stdout', 'w') );
         /**/
 
-        curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 );                    // seconds attempting to connect
-        curl_setopt( $curl, CURLOPT_TIMEOUT,        60 ); // seconds cURL allowed to execute
+        curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 ); // seconds attempting to connect
+        curl_setopt( $curl, CURLOPT_TIMEOUT,        12 ); // seconds cURL allowed to execute
         /** / // forces new connections
         curl_setopt( $curl, CURLOPT_FORBID_REUSE,  true );
         curl_setopt( $curl, CURLOPT_FRESH_CONNECT, true );
@@ -1539,21 +1711,23 @@ class Syndication
      */
     function apiGenerateKey( $http_method, $url, $params, $headers )
     {
-        /// need to figure out how key sharing works
-
       // ordered and scrubbed headers: date,content-type,content-length;
       $canonicalizedHeaders  = '';
       $desiredHeaders = array('date','content-type','content-length');
       $headerData = array();
       rsort($headers);
+/**/
 $h = '';
+/**/
       foreach ( $headers as $header )
       {
         $pos = strpos($header,':');
         if ( $pos )
         {
           $name  = strtolower(trim(substr($header,0,$pos)));
+/**/
 $h .= "$name,";
+/**/
           $value = substr($header,$pos+1);
           $headerData[$name] = trim($value);
           if ( in_array($name,$desiredHeaders) )
@@ -1570,7 +1744,7 @@ $h .= "$name,";
         
       /// hash of the body - md5
       $http_params   = http_build_query( $params, '', '&' );
-/** /
+/**/
 print_r(array(
     'raw'       => $http_params,
 
@@ -1603,18 +1777,14 @@ print_r(array(
                        "{$hashedData}\n".
                        "{$canonicalizedHeaders}\n".
                        "{$canonicalizedResource}";
-/*
-print_r( array('m'=>$requestMethod,'d'=>$hashedData,'h'=>$canonicalizedHeaders,'r'=>$canonicalizedResource) );
-*/
-      /// grab keys 
-      //$sharedKey     = "xjY3i4AnsZ9wWuDKboD1XbAdtX1hgOh2tYMnwCWnXhweO94IKrbVJuPZIQsyO5Sa40CjAMF9tG5ciI+cXITjVw==";
-      //$myPublicKey   = "9k+x8vDQJBcEYcEb/y/iipg8kXMU7sFfk1klV3PqMZkUBuJ/rDgVZtHmJGBydEKfnGKPAf6y9DBb7a+1tAz9Bg=="; 
-      //$myPrivateKey  = "UxMt4OpdAZhJFMOF/kmv/lZAYXjE4hV8EI9UdmQP71J9VbbIvmR0DEhX2D3He7AKTq1IQz4tAqDX+Jy1Svxlqw==";
-      
       /// hash up our thingy
       $computedHash  = base64_encode(hash_hmac('md5', $signingString, $this->api['key_shared'], true ));
-/** /
+/**/
 print_r(array( 
+    'm'=>$requestMethod,
+    'd'=>$hashedData,
+    'h'=>$canonicalizedHeaders,
+    'r'=>$canonicalizedResource,
     'ss'=>$signingString, 
     'sk'=>$this->api['key_public'], 
     'hd'=>$hashedData,
@@ -1624,7 +1794,6 @@ print_r(array(
     'final'=>"{$this->api['key_public']}:{$computedHash}" 
 ));
 /**/
-
       /// share public key are our hash
       return "{$this->api['key_public']}:{$computedHash}";# \n\n header order: $h \n\n Signing String:\n $signingString";
     }
