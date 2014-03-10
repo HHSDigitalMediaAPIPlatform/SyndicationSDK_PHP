@@ -124,14 +124,14 @@
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getClientVersion" title="getClientVersion :: Get Client Version : the versions of the server api this client can talk too">
-            <span class="description">Get Client Version : the versions of the server api this client can talk too</span><pre>getClientVersion</pre>
+        <a href="#method_getClientApiVersions" title="getClientApiVersions :: Get Client Version : the versions of the server api this client can talk too">
+            <span class="description">Get Client Version : the versions of the server api this client can talk too</span><pre>getClientApiVersions</pre>
         </a>
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getServerVersion" title="getServerVersion :: Get Server Version : the version of the API for the configured server - generated dynamically from api settings">
-            <span class="description">Get Server Version : the version of the API for the configured server - generated dynamically from api settings</span><pre>getServerVersion</pre>
+        <a href="#method_getServerApiVersion" title="getServerApiVersion :: Get Server Version : the version of the API for the configured server - generated dynamically from api settings">
+            <span class="description">Get Server Version : the version of the API for the configured server - generated dynamically from api settings</span><pre>getServerApiVersion</pre>
         </a>
     </li>
 
@@ -178,6 +178,12 @@
     </li>
 
                                                                                                         <li class="method public">
+        <a href="#method_getTags" title="getTags :: Gets a list of all Tags">
+            <span class="description">Gets a list of all Tags</span><pre>getTags</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
         <a href="#method_getTagById" title="getTagById :: Gets a single Tag">
             <span class="description">Gets a single Tag</span><pre>getTagById</pre>
         </a>
@@ -190,8 +196,8 @@
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_searchMedia" title="searchMedia :: Gets a list of Media MetaData.">
-            <span class="description">Gets a list of Media MetaData.</span><pre>searchMedia</pre>
+        <a href="#method_getMedia" title="getMedia :: Gets a list of Media MetaData.">
+            <span class="description">Gets a list of Media MetaData.</span><pre>getMedia</pre>
         </a>
     </li>
 
@@ -202,14 +208,14 @@
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getMediaByUrl" title="getMediaByUrl :: Gets a single Media MetaData">
-            <span class="description">Gets a single Media MetaData</span><pre>getMediaByUrl</pre>
+        <a href="#method_getMediaByTagId" title="getMediaByTagId :: Gets a list of Media MetaData">
+            <span class="description">Gets a list of Media MetaData</span><pre>getMediaByTagId</pre>
         </a>
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getMediaByTagId" title="getMediaByTagId :: Gets a list of Media MetaData">
-            <span class="description">Gets a list of Media MetaData</span><pre>getMediaByTagId</pre>
+        <a href="#method_getMediaRelatedToId" title="getMediaRelatedToId :: Gets MediaItems related to certain MediaItem.">
+            <span class="description">Gets MediaItems related to certain MediaItem.</span><pre>getMediaRelatedToId</pre>
         </a>
     </li>
 
@@ -268,32 +274,38 @@
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getMediaEmbeddedHtmlById" title="getMediaEmbeddedHtmlById :: Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format">
-            <span class="description">Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format</span><pre>getMediaEmbeddedHtmlById</pre>
+        <a href="#method_getMediaEmbedById" title="getMediaEmbedById :: Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format">
+            <span class="description">Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format</span><pre>getMediaEmbedById</pre>
         </a>
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getMediaJavascriptEmbedTagById" title="getMediaJavascriptEmbedTagById :: Get javascript code used to embed this MediaItem.">
-            <span class="description">Get javascript code used to embed this MediaItem.</span><pre>getMediaJavascriptEmbedTagById</pre>
+        <a href="#method_getMediaHtmlById" title="getMediaHtmlById :: Gets the content belonging to a given MediaItem for embedding as HTML.">
+            <span class="description">Gets the content belonging to a given MediaItem for embedding as HTML.</span><pre>getMediaHtmlById</pre>
         </a>
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getMediaYoutubeMetadataById" title="getMediaYoutubeMetadataById :: Gets Youtube metadata for this MediaItem.">
-            <span class="description">Gets Youtube metadata for this MediaItem.</span><pre>getMediaYoutubeMetadataById</pre>
+        <a href="#method_getMediaYoutubeMetaDataById" title="getMediaYoutubeMetaDataById :: Gets Youtube metadata for this MediaItem.">
+            <span class="description">Gets Youtube metadata for this MediaItem.</span><pre>getMediaYoutubeMetaDataById</pre>
         </a>
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_getMediaIframeEmbeddedTagById" title="getMediaIframeEmbeddedTagById :: Gets the iframe content belonging to a given MediaItem for embedding. Name is placed into the iframe&#039;s html.">
-            <span class="description">Gets the iframe content belonging to a given MediaItem for embedding. Name is placed into the iframe&#039;s html.</span><pre>getMediaIframeEmbeddedTagById</pre>
+        <a href="#method_getMediaAlternateImagesById" title="getMediaAlternateImagesById :: Gets list of alternate images for this MediaItem.">
+            <span class="description">Gets list of alternate images for this MediaItem.</span><pre>getMediaAlternateImagesById</pre>
         </a>
     </li>
 
                                                                                                         <li class="method public">
-        <a href="#method_testCredentials" title="testCredentials :: Calls an debug url which will do nothing but validate our key">
-            <span class="description">Calls an debug url which will do nothing but validate our key</span><pre>testCredentials</pre>
+        <a href="#method_getMediaRatingsById" title="getMediaRatingsById :: Gets ratings for this MediaItem.">
+            <span class="description">Gets ratings for this MediaItem.</span><pre>getMediaRatingsById</pre>
+        </a>
+    </li>
+
+                                                                                                        <li class="method public">
+        <a href="#method_testCredentials" title="testCredentials :: Calls an debug url which will do nothing but validate our key. 200 http response means valid.">
+            <span class="description">Calls an debug url which will do nothing but validate our key. 200 http response means valid.</span><pre>testCredentials</pre>
         </a>
     </li>
 
@@ -349,11 +361,11 @@
         </li>
         <li class="nav-header protected">» Protected
             <ul>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </ul>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </ul>
         </li>
         <li class="nav-header private">» Private
             <ul>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </ul>
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </ul>
         </li>
         <li class="nav-header">
             <i class="icon-custom icon-constant"></i> Constants
@@ -382,7 +394,7 @@
                                                                             </th>
                                     <td>
                                                                                     
-                                                                                <p>Dan Narkiewicz <dnarkiewicz@ctacorp.com></p>
+                                                                                <p>Dan Narkiewicz <a href="mailto:dnarkiewicz@ctacorp.com">dnarkiewicz@ctacorp.com</a></p>
                                     </td>
                                 </tr>
                                                                                                                 <tr>
@@ -437,10 +449,10 @@
                                                                     </div>
                             </div>
                         </div>
-                                            <a id="method_getClientVersion"></a>
-                        <div class="element clickable method public  method_getClientVersion" data-toggle="collapse" data-target=".method_getClientVersion .collapse">
+                                            <a id="method_getClientApiVersions"></a>
+                        <div class="element clickable method public  method_getClientApiVersions" data-toggle="collapse" data-target=".method_getClientApiVersions .collapse">
                             <h2>Get Client Version : the versions of the server api this client can talk too</h2>
-                            <pre>getClientVersion() : string</pre>
+                            <pre>getClientApiVersions() : string</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -479,10 +491,10 @@
                                                                     </div>
                             </div>
                         </div>
-                                            <a id="method_getServerVersion"></a>
-                        <div class="element clickable method public  method_getServerVersion" data-toggle="collapse" data-target=".method_getServerVersion .collapse">
+                                            <a id="method_getServerApiVersion"></a>
+                        <div class="element clickable method public  method_getServerApiVersion" data-toggle="collapse" data-target=".method_getServerApiVersion .collapse">
                             <h2>Get Server Version : the version of the API for the configured server - generated dynamically from api settings</h2>
-                            <pre>getServerVersion() : string</pre>
+                            <pre>getServerApiVersion() : string</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -599,16 +611,17 @@
                                                 <code>array</code><p><p>options</p>
 <pre><code> max    : int
  offset : int
- sort   : string
- order  : string</code></pre></p>
+ sort   : string</code></pre></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id   : int
- name : string
- abv  : string
- url  : string</code></pre></p>
+<pre><code> id           : int
+ name         : string
+ acronym      : string
+ websiteUrl   : string
+ largeLogoUrl : string
+ SmallLogoUrl : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -649,10 +662,12 @@
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id   : int
- name : string
- abv  : string
- url  : string</code></pre></p>
+<pre><code> id           : int
+ name         : string
+ acronym      : string
+ websiteUrl   : string
+ largeLogoUrl : string
+ SmallLogoUrl : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -691,8 +706,7 @@
                                                 <code>array</code><p><p>options</p>
 <pre><code> max    : int
  offset : int
- sort   : string
- order  : string</code></pre></p>
+ sort   : string</code></pre></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
@@ -702,7 +716,7 @@
  description  : string
  startDate    : date
  endDate      : date
- source : source</code></pre></p>
+ source       : source</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -748,7 +762,7 @@
  description  : string
  startDate    : date
  endDate      : date
- source : source</code></pre></p>
+ source       : source</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -787,8 +801,7 @@
                                                 <code>array</code><p><p>options</p>
 <pre><code> max    : int
  offset : int
- sort   : string
- order  : string</code></pre></p>
+ sort   : string</code></pre></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
@@ -839,6 +852,56 @@
 <pre><code> id    : int
  name  : string
  value : string</code></pre></p>
+                                                                    </div>
+                            </div>
+                        </div>
+                                            <a id="method_getTags"></a>
+                        <div class="element clickable method public  method_getTags" data-toggle="collapse" data-target=".method_getTags .collapse">
+                            <h2>Gets a list of all Tags</h2>
+                            <pre>getTags(array $params = array()) : \SyndicationResponse</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    access
+                                                </th>
+                                                <td>
+                                                                                                                                                                        
+                                                                                                                                                                        <p>public</p>
+                                                                                                    </td>
+                                            </tr>
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$params</h4>
+                                                <code>array</code><p><p>options</p>
+<pre><code> max           : int
+ offset        : int
+ sort          : string
+ name          : string
+ nameContains  : string
+ syndicationId : int
+ typeId        : int
+ typeName      : string</code></pre></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
+<pre><code> id   : int
+ name : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -926,10 +989,10 @@
                                                                     </div>
                             </div>
                         </div>
-                                            <a id="method_searchMedia"></a>
-                        <div class="element clickable method public  method_searchMedia" data-toggle="collapse" data-target=".method_searchMedia .collapse">
+                                            <a id="method_getMedia"></a>
+                        <div class="element clickable method public  method_getMedia" data-toggle="collapse" data-target=".method_getMedia .collapse">
                             <h2>Gets a list of Media MetaData.</h2>
-                            <pre>searchMedia(mixed $query) : \SyndicationResponse</pre>
+                            <pre>getMedia(mixed $query) : \SyndicationResponse</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -958,61 +1021,80 @@
                                                                             <h3>Arguments</h3>
                                                                                     <div class="subelement argument">
                                                 <h4>$query</h4>
-                                                <code>mixed</code><p><p>if string: all-column text search. if array: per-column search params</p>
-<pre><code> max                      : int
- offset                   : int
- sort                     : string
- order                    : string
- mediaType                : string
- name                     : string
- nameContains             : string
- descriptionContains      : string
- licenseInfoContains      : string
- sourceUrl                : string
- sourceUrlContains        : string
- dateAuthored             : string
- authoredSinceDate        : string
- authoredBeforeDate       : string
- authoredInRange          : string
- updatedSinceDate         : string
- updatedBeforeDate        : string
- updatedInRange           : int
- languageId               : string
- languageName             : string
- languageValue            : string
- hash                     : string
- hashContains             : string
- sourceId                 : int
- sourceName               : string
- sourceNameContains       : string
- sourceAcronym            : string
- sourceAcrynymContains    : string
- tagIds                   : csv_string
- restrictToSet            : csv_string</code></pre></p>
+                                                <code>mixed</code><p><p>if string or params with q: all-column text search. if array: per-column search params</p>
+<pre><code> max                          : int
+ offset                       : int
+ sort                         : string
+ mediaType                    : csv
+ name                         : string
+ nameContains                 : string
+ sourceUrl                    : string
+ sourceUrlContains            : string
+ descriptionContains          : string
+ licenseInfoContains          : string
+ dateContentAuthored          : rfc3339
+ contentAuthoredSinceDate     : rfc3339
+ contentAuthoredBeforeDate    : rfc3339
+ contentAuthoredInRange       : csv rfc3339
+ dateContentUpdated           : rfc3339
+ contentUpdatedSinceDate      : rfc3339
+ contentUpdatedBeforeDate     : rfc3339
+ contentUpdatedInRange        : csv rfc3339
+ dateContentPublished         : rfc3339
+ contentPublishedSinceDate    : rfc3339
+ contentPublishedBeforeDate   : rfc3339
+ contentPublishedInRange      : csv rfc3339
+ dateContentReviewed          : rfc3339
+ contentReviewedSinceDate     : rfc3339
+ contentReviewedBeforeDate    : rfc3339
+ contentReviewedInRange       : csv rfc3339
+ dateSyndicationUpdated       : rfc3339
+ syndicationUpdatedSinceDate  : rfc3339
+ syndicationUpdatedBeforeDate : rfc3339
+ syndicationUpdatedInRange    : csv rfc3339
+ dateSyndicationVisible       : rfc3339
+ syndicationVisibleSinceDate  : rfc3339
+ syndicationVisibleBeforeDate : rfc3339
+ syndicationVisibleInRange    : csv rfc3339
+ languageId                   : string
+ languageName                 : string
+ languageIsoCode              : string
+ hash                         : string
+ hashContains                 : string
+ sourceId                     : int
+ sourceName                   : string
+ sourceNameContains           : string
+ sourceAcronym                : string
+ sourceAcrynymContains        : string
+ tagIds                       : csv int
+ restrictToSet                : csv int</code></pre></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id            : int
- name          : string
- description   : string
- sourceUrl     : string
- dateContentAuthored     : date(rfc3339)
- dateContentUpdated      : date(rfc3339)
- dateContentPublished    : date(rfc3339)
- dateContentReviewed     : date(rfc3339)
- dateSyndicationVisible  : date(rfc3339)
- dateSyndicationCaptured : date(rfc3339)
- dateSyndicationUpdated  : date(rfc3339)
- language      : language
- externalGuid  : string
- contentHash   : string
- source        : source
- campaigns     : campaign[]
- tags          : tag[]
- tinyUrl       : string
- tinyToken     : string
- thumbnailLink : sting</code></pre></p>
+<pre><code> id                      : int
+ mediaType               : string
+ name                    : string
+ description             : string
+ sourceUrl               : string
+ dateContentAuthored     : rfc3339
+ dateContentUpdated      : rfc3339
+ dateContentPublished    : rfc3339
+ dateContentReviewed     : rfc3339
+ dateSyndicationVisible  : rfc3339
+ dateSyndicationCaptured : rfc3339
+ dateSyndicationUpdated  : rfc3339
+ language                : language
+ externalGuid            : string
+ contentHash             : string
+ source                  : source
+ campaigns               : campaign[]
+ tags                    : tag[]
+ tinyUrl                 : string
+ tinyToken               : string
+ thumbnailUrl            : string
+ alternateImages         : image[]
+ attribution             : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -1053,70 +1135,29 @@
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id           : int
- name         : string
- description  : string
- licenseInfo  : string
- sourceUrl    : string
- dateAuthored : date(rfc3339)
- dateUpdated  : date(rfc3339)
- language     : language
- active       : boolean
- externalGuid : string
- hash         : string
- source : source</code></pre></p>
-                                                                    </div>
-                            </div>
-                        </div>
-                                            <a id="method_getMediaByUrl"></a>
-                        <div class="element clickable method public  method_getMediaByUrl" data-toggle="collapse" data-target=".method_getMediaByUrl .collapse">
-                            <h2>Gets a single Media MetaData</h2>
-                            <pre>getMediaByUrl(string $source_url) : \SyndicationResponse</pre>
-                            <div class="labels">
-                                                                                                                                                                                            </div>
-                            <div class="row collapse">
-                                <div class="detail-description">
-                                    <div class="long_description"></div>
-
-                                    <table class="table">
-                                                                                    <tr>
-                                                <th>
-                                                    access
-                                                </th>
-                                                <td>
-                                                                                                                                                                        
-                                                                                                                                                                        <p>public</p>
-                                                                                                    </td>
-                                            </tr>
-                                                                                    <tr>
-                                                <th>
-                                                    
-                                                </th>
-                                                <td>
-                                                                                                    </td>
-                                            </tr>
-                                                                            </table>
-
-                                                                            <h3>Arguments</h3>
-                                                                                    <div class="subelement argument">
-                                                <h4>$source_url</h4>
-                                                <code>string</code><p><p>Url of the media source</p></p>
-                                            </div>
-                                                                            
-                                                                            <h3>Response</h3>
-                                        <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id           : int
- name         : string
- description  : string
- licenseInfo  : string
- sourceUrl    : string
- dateAuthored : date(rfc3339)
- dateUpdated  : date(rfc3339)
- language     : language
- active       : boolean
- externalGuid : string
- hash         : string
- source : source</code></pre></p>
+<pre><code> id                      : int
+ mediaType               : string
+ name                    : string
+ description             : string
+ sourceUrl               : string
+ dateContentAuthored     : rfc3339
+ dateContentUpdated      : rfc3339
+ dateContentPublished    : rfc3339
+ dateContentReviewed     : rfc3339
+ dateSyndicationVisible  : rfc3339
+ dateSyndicationCaptured : rfc3339
+ dateSyndicationUpdated  : rfc3339
+ language                : language
+ externalGuid            : string
+ contentHash             : string
+ source                  : source
+ campaigns               : campaign[]
+ tags                    : tag[]
+ tinyUrl                 : string
+ tinyToken               : string
+ thumbnailUrl            : string
+ alternateImages         : image[]
+ attribution             : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -1157,18 +1198,92 @@
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id           : int
- name         : string
- description  : string
- licenseInfo  : string
- sourceUrl    : string
- dateAuthored : date(rfc3339)
- dateUpdated  : date(rfc3339)
- language     : language
- active       : boolean
- externalGuid : string
- hash         : string
- source : source</code></pre></p>
+<pre><code> id                      : int
+ mediaType               : string
+ name                    : string
+ description             : string
+ sourceUrl               : string
+ dateContentAuthored     : rfc3339
+ dateContentUpdated      : rfc3339
+ dateContentPublished    : rfc3339
+ dateContentReviewed     : rfc3339
+ dateSyndicationVisible  : rfc3339
+ dateSyndicationCaptured : rfc3339
+ dateSyndicationUpdated  : rfc3339
+ language                : language
+ externalGuid            : string
+ contentHash             : string
+ source                  : source
+ campaigns               : campaign[]
+ tags                    : tag[]
+ tinyUrl                 : string
+ tinyToken               : string
+ thumbnailUrl            : string
+ alternateImages         : image[]
+ attribution             : string</code></pre></p>
+                                                                    </div>
+                            </div>
+                        </div>
+                                            <a id="method_getMediaRelatedToId"></a>
+                        <div class="element clickable method public  method_getMediaRelatedToId" data-toggle="collapse" data-target=".method_getMediaRelatedToId .collapse">
+                            <h2>Gets MediaItems related to certain MediaItem.</h2>
+                            <pre>getMediaRelatedToId(mixed $id) : \SyndicationResponse</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    access
+                                                </th>
+                                                <td>
+                                                                                                                                                                        
+                                                                                                                                                                        <p>public</p>
+                                                                                                    </td>
+                                            </tr>
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$id</h4>
+                                                <code>mixed</code><p><p>Numeric Id of origin MediaItem</p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
+<pre><code> id                      : int
+ mediaType               : string
+ name                    : string
+ description             : string
+ sourceUrl               : string
+ dateContentAuthored     : rfc3339
+ dateContentUpdated      : rfc3339
+ dateContentPublished    : rfc3339
+ dateContentReviewed     : rfc3339
+ dateSyndicationVisible  : rfc3339
+ dateSyndicationCaptured : rfc3339
+ dateSyndicationUpdated  : rfc3339
+ language                : language
+ externalGuid            : string
+ contentHash             : string
+ source                  : source
+ campaigns               : campaign[]
+ tags                    : tag[]
+ tinyUrl                 : string
+ tinyToken               : string
+ thumbnailUrl            : string
+ alternateImages         : image[]
+ attribution             : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -1215,18 +1330,29 @@
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id           : int
- name         : string
- description  : string
- licenseInfo  : string
- sourceUrl    : string
- dateAuthored : date(rfc3339)
- dateUpdated  : date(rfc3339)
- language     : language
- active       : boolean
- externalGuid : string
- hash         : string
- source : source</code></pre></p>
+<pre><code> id                      : int
+ mediaType               : string
+ name                    : string
+ description             : string
+ sourceUrl               : string
+ dateContentAuthored     : rfc3339
+ dateContentUpdated      : rfc3339
+ dateContentPublished    : rfc3339
+ dateContentReviewed     : rfc3339
+ dateSyndicationVisible  : rfc3339
+ dateSyndicationCaptured : rfc3339
+ dateSyndicationUpdated  : rfc3339
+ language                : language
+ externalGuid            : string
+ contentHash             : string
+ source                  : source
+ campaigns               : campaign[]
+ tags                    : tag[]
+ tinyUrl                 : string
+ tinyToken               : string
+ thumbnailUrl            : string
+ alternateImages         : image[]
+ attribution             : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -1308,18 +1434,29 @@
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id           : int
- name         : string
- description  : string
- licenseInfo  : string
- sourceUrl    : string
- dateAuthored : date(rfc3339)
- dateUpdated  : date(rfc3339)
- language     : language
- active       : boolean
- externalGuid : string
- hash         : string
- source : source</code></pre></p>
+<pre><code> id                      : int
+ mediaType               : string
+ name                    : string
+ description             : string
+ sourceUrl               : string
+ dateContentAuthored     : rfc3339
+ dateContentUpdated      : rfc3339
+ dateContentPublished    : rfc3339
+ dateContentReviewed     : rfc3339
+ dateSyndicationVisible  : rfc3339
+ dateSyndicationCaptured : rfc3339
+ dateSyndicationUpdated  : rfc3339
+ language                : language
+ externalGuid            : string
+ contentHash             : string
+ source                  : source
+ campaigns               : campaign[]
+ tags                    : tag[]
+ tinyUrl                 : string
+ tinyToken               : string
+ thumbnailUrl            : string
+ alternateImages         : image[]
+ attribution             : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -1360,18 +1497,29 @@
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> id           : int
- name         : string
- description  : string
- licenseInfo  : string
- sourceUrl    : string
- dateAuthored : date(rfc3339)
- dateUpdated  : date(rfc3339)
- language     : language
- active       : boolean
- externalGuid : string
- hash         : string
- source       : source</code></pre></p>
+<pre><code> id                      : int
+ mediaType               : string
+ name                    : string
+ description             : string
+ sourceUrl               : string
+ dateContentAuthored     : rfc3339
+ dateContentUpdated      : rfc3339
+ dateContentPublished    : rfc3339
+ dateContentReviewed     : rfc3339
+ dateSyndicationVisible  : rfc3339
+ dateSyndicationCaptured : rfc3339
+ dateSyndicationUpdated  : rfc3339
+ language                : language
+ externalGuid            : string
+ contentHash             : string
+ source                  : source
+ campaigns               : campaign[]
+ tags                    : tag[]
+ tinyUrl                 : string
+ tinyToken               : string
+ thumbnailUrl            : string
+ alternateImages         : image[]
+ attribution             : string</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -1545,7 +1693,48 @@
                                             <a id="method_getMediaThumbnailById"></a>
                         <div class="element clickable method public  method_getMediaThumbnailById" data-toggle="collapse" data-target=".method_getMediaThumbnailById .collapse">
                             <h2>Gets a fixed size thumbnail image of a single Media item. Allows custom margin configuration.</h2>
-                            <pre>getMediaThumbnailById(mixed $id, mixed $params = array()) : \SyndicationResponse</pre>
+                            <pre>getMediaThumbnailById(mixed $id) : \SyndicationResponse</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    access
+                                                </th>
+                                                <td>
+                                                                                                                                                                        
+                                                                                                                                                                        <p>public</p>
+                                                                                                    </td>
+                                            </tr>
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
+                                                                                    <div class="subelement argument">
+                                                <h4>$id</h4>
+                                                <code>mixed</code><p><p>Numeric Id of MediaItem</p></p>
+                                            </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
+<pre><code> base64 encoded jpg</code></pre></p>
+                                                                    </div>
+                            </div>
+                        </div>
+                                            <a id="method_getMediaEmbedById"></a>
+                        <div class="element clickable method public  method_getMediaEmbedById" data-toggle="collapse" data-target=".method_getMediaEmbedById .collapse">
+                            <h2>Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format</h2>
+                            <pre>getMediaEmbedById(mixed $id, mixed $params = array()) : \SyndicationResponse</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -1579,20 +1768,22 @@
                                                                                     <div class="subelement argument">
                                                 <h4>$params</h4>
                                                 <code>mixed</code><p><p>options</p>
-<pre><code> imageFloat  : string
- imageMargin : css string (int,int,int,int)</code></pre></p>
+<pre><code> flavor : string
+ width  : int
+ height : int
+ name   : string</code></pre></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> base64 encoded jpg</code></pre></p>
+<pre><code> string hmtml</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
-                                            <a id="method_getMediaEmbeddedHtmlById"></a>
-                        <div class="element clickable method public  method_getMediaEmbeddedHtmlById" data-toggle="collapse" data-target=".method_getMediaEmbeddedHtmlById .collapse">
-                            <h2>Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format</h2>
-                            <pre>getMediaEmbeddedHtmlById(mixed $id, string $format = &#039;html&#039;) : \SyndicationResponse</pre>
+                                            <a id="method_getMediaHtmlById"></a>
+                        <div class="element clickable method public  method_getMediaHtmlById" data-toggle="collapse" data-target=".method_getMediaHtmlById .collapse">
+                            <h2>Gets the content belonging to a given MediaItem for embedding as HTML.</h2>
+                            <pre>getMediaHtmlById(mixed $id, mixed $params = array()) : \SyndicationResponse</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -1624,61 +1815,29 @@
                                                 <code>mixed</code><p><p>Numeric Id of MediaItem</p></p>
                                             </div>
                                                                                     <div class="subelement argument">
-                                                <h4>$format</h4>
-                                                <code>string</code><p><p>Desired return format of embedded html</p></p>
+                                                <h4>$params</h4>
+                                                <code>mixed</code><p><p>options</p>
+<pre><code> cssClass     : string (for extraction)
+ stripStyles  : int
+ stripImages  : int
+ stripBreaks  : string
+ stripClasses : string
+ font-size    : int
+ stripBreaks  : string
+ imageFloat   : string
+ imageMargin  : csv int</code></pre></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> string (html,json,xml)</code></pre></p>
+<pre><code> string hmtml</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
-                                            <a id="method_getMediaJavascriptEmbedTagById"></a>
-                        <div class="element clickable method public  method_getMediaJavascriptEmbedTagById" data-toggle="collapse" data-target=".method_getMediaJavascriptEmbedTagById .collapse">
-                            <h2>Get javascript code used to embed this MediaItem.</h2>
-                            <pre>getMediaJavascriptEmbedTagById(mixed $id) : \SyndicationResponse</pre>
-                            <div class="labels">
-                                                                                                                                                                                            </div>
-                            <div class="row collapse">
-                                <div class="detail-description">
-                                    <div class="long_description"></div>
-
-                                    <table class="table">
-                                                                                    <tr>
-                                                <th>
-                                                    access
-                                                </th>
-                                                <td>
-                                                                                                                                                                        
-                                                                                                                                                                        <p>public</p>
-                                                                                                    </td>
-                                            </tr>
-                                                                                    <tr>
-                                                <th>
-                                                    
-                                                </th>
-                                                <td>
-                                                                                                    </td>
-                                            </tr>
-                                                                            </table>
-
-                                                                            <h3>Arguments</h3>
-                                                                                    <div class="subelement argument">
-                                                <h4>$id</h4>
-                                                <code>mixed</code><p><p>Numeric Id of MediaItem</p></p>
-                                            </div>
-                                                                            
-                                                                            <h3>Response</h3>
-                                        <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code> html</code></pre></p>
-                                                                    </div>
-                            </div>
-                        </div>
-                                            <a id="method_getMediaYoutubeMetadataById"></a>
-                        <div class="element clickable method public  method_getMediaYoutubeMetadataById" data-toggle="collapse" data-target=".method_getMediaYoutubeMetadataById .collapse">
+                                            <a id="method_getMediaYoutubeMetaDataById"></a>
+                        <div class="element clickable method public  method_getMediaYoutubeMetaDataById" data-toggle="collapse" data-target=".method_getMediaYoutubeMetaDataById .collapse">
                             <h2>Gets Youtube metadata for this MediaItem.</h2>
-                            <pre>getMediaYoutubeMetadataById(mixed $id) : \SyndicationResponse</pre>
+                            <pre>getMediaYoutubeMetaDataById(mixed $id) : \SyndicationResponse</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -1716,10 +1875,10 @@
                                                                     </div>
                             </div>
                         </div>
-                                            <a id="method_getMediaIframeEmbeddedTagById"></a>
-                        <div class="element clickable method public  method_getMediaIframeEmbeddedTagById" data-toggle="collapse" data-target=".method_getMediaIframeEmbeddedTagById .collapse">
-                            <h2>Gets the iframe content belonging to a given MediaItem for embedding. Name is placed into the iframe&#039;s html.</h2>
-                            <pre>getMediaIframeEmbeddedTagById(mixed $id, mixed $params = array()) : \SyndicationResponse</pre>
+                                            <a id="method_getMediaAlternateImagesById"></a>
+                        <div class="element clickable method public  method_getMediaAlternateImagesById" data-toggle="collapse" data-target=".method_getMediaAlternateImagesById .collapse">
+                            <h2>Gets list of alternate images for this MediaItem.</h2>
+                            <pre>getMediaAlternateImagesById(mixed $id) : \SyndicationResponse</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -1750,24 +1909,58 @@
                                                 <h4>$id</h4>
                                                 <code>mixed</code><p><p>Numeric Id of MediaItem</p></p>
                                             </div>
+                                                                            
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
+<pre><code> youtube metatdata</code></pre></p>
+                                                                    </div>
+                            </div>
+                        </div>
+                                            <a id="method_getMediaRatingsById"></a>
+                        <div class="element clickable method public  method_getMediaRatingsById" data-toggle="collapse" data-target=".method_getMediaRatingsById .collapse">
+                            <h2>Gets ratings for this MediaItem.</h2>
+                            <pre>getMediaRatingsById(mixed $id) : \SyndicationResponse</pre>
+                            <div class="labels">
+                                                                                                                                                                                            </div>
+                            <div class="row collapse">
+                                <div class="detail-description">
+                                    <div class="long_description"></div>
+
+                                    <table class="table">
+                                                                                    <tr>
+                                                <th>
+                                                    access
+                                                </th>
+                                                <td>
+                                                                                                                                                                        
+                                                                                                                                                                        <p>public</p>
+                                                                                                    </td>
+                                            </tr>
+                                                                                    <tr>
+                                                <th>
+                                                    
+                                                </th>
+                                                <td>
+                                                                                                    </td>
+                                            </tr>
+                                                                            </table>
+
+                                                                            <h3>Arguments</h3>
                                                                                     <div class="subelement argument">
-                                                <h4>$params</h4>
-                                                <code>mixed</code><p><p>options</p>
-<pre><code> width  : int
- height : int
- name   : string</code></pre></p>
+                                                <h4>$id</h4>
+                                                <code>mixed</code><p><p>Numeric Id of MediaItem</p></p>
                                             </div>
                                                                             
                                                                             <h3>Response</h3>
                                         <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
-<pre><code>html</code></pre></p>
+<pre><code> likes : int</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
                                             <a id="method_testCredentials"></a>
                         <div class="element clickable method public  method_testCredentials" data-toggle="collapse" data-target=".method_testCredentials .collapse">
-                            <h2>Calls an debug url which will do nothing but validate our key</h2>
-                            <pre>testCredentials() : void</pre>
+                            <h2>Calls an debug url which will do nothing but validate our key. 200 http response means valid.</h2>
+                            <pre>testCredentials() : \SyndicationResponse</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -1801,6 +1994,9 @@
                                                                             </table>
 
                                     
+                                                                            <h3>Response</h3>
+                                        <code><a href="../classes/SyndicationResponse.html">\SyndicationResponse</a></code><p><p>->results[]</p>
+<pre><code> empty</code></pre></p>
                                                                     </div>
                             </div>
                         </div>
@@ -2027,7 +2223,7 @@
                                             <a id="method_apiCall"></a>
                         <div class="element clickable method public  method_apiCall" data-toggle="collapse" data-target=".method_apiCall .collapse">
                             <h2>Makes http request to a Syndication Service</h2>
-                            <pre>apiCall(mixed $http_method, mixed $url, array $params = array(), mixed $response_format = null) : array</pre>
+                            <pre>apiCall(mixed $http_method, mixed $url, array $params = array(), mixed $response_format = null, $request_format = null) : array</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -2070,6 +2266,10 @@
                                                 <h4>$response_format</h4>
                                                 <code>mixed</code><p><p>expected response format</p></p>
                                             </div>
+                                                                                    <div class="subelement argument">
+                                                <h4>$request_format</h4>
+                                                <code></code><p></p>
+                                            </div>
                                                                             
                                                                             <h3>Response</h3>
                                         <code>array</code><p><p>format</p>
@@ -2082,7 +2282,7 @@
                                             <a id="method_apiBuildCurlRequest"></a>
                         <div class="element clickable method public  method_apiBuildCurlRequest" data-toggle="collapse" data-target=".method_apiBuildCurlRequest .collapse">
                             <h2>Builds Curl Object capable of talking to Syndication Service</h2>
-                            <pre>apiBuildCurlRequest(string $http_method, string $url, array $params = array(), array $headers = array(), string $response_format = &#039;&#039;) : \curl</pre>
+                            <pre>apiBuildCurlRequest(string $http_method, string $url, $http_params = &#039;&#039;, array $headers = array(), string $response_format = &#039;&#039;) : \curl</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -2118,8 +2318,8 @@
                                                 <code>string</code><p><p>url</p></p>
                                             </div>
                                                                                     <div class="subelement argument">
-                                                <h4>$params</h4>
-                                                <code>array</code><p><p>query params</p></p>
+                                                <h4>$http_params</h4>
+                                                <code></code><p></p>
                                             </div>
                                                                                     <div class="subelement argument">
                                                 <h4>$headers</h4>
@@ -2138,7 +2338,7 @@
                                             <a id="method_apiGenerateKey"></a>
                         <div class="element clickable method public  method_apiGenerateKey" data-toggle="collapse" data-target=".method_apiGenerateKey .collapse">
                             <h2>Generate API Key.</h2>
-                            <pre>apiGenerateKey(string $http_method, string $url, array $params, array $headers) : string</pre>
+                            <pre>apiGenerateKey(string $http_method, string $url, $query, array $headers) : string</pre>
                             <div class="labels">
                                                                                                                                                                                             </div>
                             <div class="row collapse">
@@ -2174,8 +2374,8 @@
                                                 <code>string</code><p><p>url</p></p>
                                             </div>
                                                                                     <div class="subelement argument">
-                                                <h4>$params</h4>
-                                                <code>array</code><p><p>query params</p></p>
+                                                <h4>$query</h4>
+                                                <code></code><p></p>
                                             </div>
                                                                                     <div class="subelement argument">
                                                 <h4>$headers</h4>
@@ -2300,7 +2500,7 @@
             Template is built using <a href="http://twitter.github.com/bootstrap/">Twitter Bootstrap 2</a> and icons provided by
             <a href="http://glyphicons.com/">Glyphicons</a>.<br/>
             Documentation is powered by <a href="http://www.phpdoc.org/">phpDocumentor </a> and<br/>
-            generated on Fri, 14 Feb 2014 14:46:12 +0000.<br/>
+            generated on Mon, 10 Mar 2014 20:05:05 +0000.<br/>
     </footer>
     </body>
 </html>
