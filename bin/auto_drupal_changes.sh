@@ -1,3 +1,2 @@
 #!/bin/sh
-#fswatch src/:tests:/ "phpunit tests"
-fswatch src/ "composer install"
+fswatch src/ "bin/push_to_drupal_module.sh"
