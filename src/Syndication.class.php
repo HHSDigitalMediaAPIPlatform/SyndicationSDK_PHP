@@ -227,8 +227,10 @@ class Syndication
      * @access public
      */
     var $api = array(
+        'syndication_base'    => '',
         'syndication_url'     => '',
         'syndication_tinyurl' => '',
+        'cms_manager_base'    => '',
         'cms_manager_url'     => '',
         'cms_manager_id'      => '',
         'key_shared'          => '',
@@ -291,9 +293,9 @@ class Syndication
      * 
      * @return string
      */
-    function getClientVersion()
+    function getClientApiVersions()
     {
-        return array('2');
+        return array( 'v2' );
     }
 
     /**
@@ -303,14 +305,18 @@ class Syndication
      * 
      * @return string
      */
-    function getServerVersion()
+    function getServerApiVersion()
     { 
         try
         {
-            $result = $this->apiCall('get',"{$this->api['syndication_url']}/swagger/api");
-            return $this->createResponse($result,'get Server API Version');
+            $result = $this->apiCall('get',"{$this->api['syndication_base']}/swagger/api",array(),'json');
+            if ( !empty($result['content']) && is_array($result['content']) && isset($result['content']['apiVersion']) )
+            {
+               return $result['content']['apiVersion']; 
+            }
+            return null;
         } catch ( Exception $e ) {
-            return $this->createResponse($e,'API Call');
+            return null;
         }
     }
 
@@ -830,11 +836,11 @@ class Syndication
         /// if publishing a collection, we get single collection item, which contains a list of any sub-items also generated
         try
         {
-            $type_path = $params['mediaType'];
+            $type_path = strtolower($params['mediaType']);
             // dirty pluralization
-            if( !in_array($type_path,array('SocialMedia','Audio')) ) { $type_path .= 's'; }
-            $type_path{0} = strtolower($type_path{0});
-            $result = $this->apiCall('post',"{$this->api['syndication_url']}/resources/media/$type_path",$params,'json');
+            //if( !in_array($type_path,array('socialmedia','audio')) ) { $type_path .= 's'; }
+            //$type_path{0} = strtolower($type_path{0});
+            $result = $this->apiCall('post',"{$this->api['syndication_url']}/resources/media/$type_path",$params,'json','html');
             return $this->createResponse($result,'Publish');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -1475,13 +1481,14 @@ class Syndication
      *      content : string  response body
      *      format  : string  response format
      */
-    function apiCall ( $http_method, $url, $params=array(), $response_format=null )
+    function apiCall ( $http_method, $url, $params=array(), $response_format=null, $request_format=null )
     {
         if ( empty($response_format) )
         {
             $response_format = $this->guessFormatFromUrl($url);
         }
 
+        /*
         foreach ( $params as $p=>$param )
         {
             if ( empty($param) && $param!==0 && $param!=='0' ) 
@@ -1489,6 +1496,7 @@ class Syndication
                 unset( $params[$p] );
             }
         }
+        */
         /// ascending order is default, descending order is speicified by a '-' sign 
         /// if 'order' param is set, reinterpret that as part of sort param 
         if ( !empty($params['sort']) && !empty($params['order']) ) 
@@ -1504,12 +1512,31 @@ class Syndication
             } 
         }
 
+        $http_params = '';
+
         /// our request format type
-        $request_headers = array(
-            //'Content-Type: text/xml; charset=UTF-8',
-            'Content-Type: application/x-www-form-urlencoded',
-            'Date: '.gmdate('D, d M Y H:i:s', time()).' GMT'
-        );
+        $request_headers = array();
+        switch( $request_format )
+        {
+            case 'html':
+                $http_params = http_build_query($params,'','&');
+                $request_headers[] = 'Content-Type: text/html;charset=UTF-8';
+                break;
+            case 'xml':
+                $http_params = http_build_query($params,'','&');
+                $request_headers[] = 'Content-Type: text/xml;charset=UTF-8';
+                break;
+            case 'json':
+                $http_params = json_encode($params);
+                $request_headers[] = 'Content-Type: application/json;charset=UTF-8';
+                break;
+            default:
+                $http_params = http_build_query($params,'','&');
+                $request_headers[] = 'Content-Type: application/x-www-form-urlencoded;charset=UTF-8';
+                break;
+        }
+
+        $request_headers[] = 'Date: '.gmdate('D, d M Y H:i:s', time()).' GMT';
 
         /// ask for a specific format type of response
         if ( !empty($response_format) )
@@ -1517,16 +1544,16 @@ class Syndication
             switch( $response_format )
             {
                 case 'html':
-                    $request_headers[] = 'Accept: text/html; charset=UTF-8';
+                    $request_headers[] = 'Accept: text/html;charset=UTF-8';
                     break;
                 case 'json':
-                    $request_headers[] = 'Accept: application/json; charset=UTF-8';
+                    $request_headers[] = 'Accept: application/json;charset=UTF-8';
                     break;
                 case 'js':
-                    $request_headers[] = 'Accept: application/javascript; charset=UTF-8';
+                    $request_headers[] = 'Accept: application/javascript;charset=UTF-8';
                     break;
                 case 'text':
-                    $request_headers[] = 'Accept: text/plain; charset=UTF-8';
+                    $request_headers[] = 'Accept: text/plain;charset=UTF-8';
                     break;
                 case 'image':
                     $request_headers[] = 'Accept: image/*;';
@@ -1540,7 +1567,7 @@ class Syndication
             case 'post':
             case 'put':
             case 'delete':
-                $request_headers[] = 'Content-Length: '.strlen(http_build_query($params,'','&'));
+                $request_headers[] = 'Content-Length: '.strlen($http_params);
                 break;
             case 'get':
             default:
@@ -1548,10 +1575,10 @@ class Syndication
                 break;
         }
         
-        $apiKey = $this->apiGenerateKey( $http_method, $url, $params, $request_headers );
+        $apiKey = $this->apiGenerateKey( $http_method, $url, $http_params, $request_headers );
         $request_headers[] = "Authorization: syndication_api_key {$apiKey}";
 
-        $curl = $this->apiBuildCurlRequest( $http_method, $url, $params, $request_headers, $response_format ); 
+        $curl = $this->apiBuildCurlRequest( $http_method, $url, $http_params, $request_headers, $response_format ); 
 
 
         /// do some temp memory writing bs to capture curl's output to grab actual request string
@@ -1560,10 +1587,8 @@ class Syndication
         curl_setopt($curl, CURLOPT_STDERR, $verbose);
 
         $content = curl_exec($curl);
-
         rewind($verbose);
         $verbose_log = stream_get_contents($verbose);
-
         $http = curl_getinfo($curl);
         $http['verbose_log'] = $verbose_log;
 
@@ -1631,13 +1656,12 @@ class Syndication
      * @access public
      * @return curl resouce handle
      */
-    function apiBuildCurlRequest( $http_method, $url, $params=array(), $headers=array(), $response_format='' )
+    function apiBuildCurlRequest( $http_method, $url, $http_params='', $headers=array(), $response_format='' )
     {
-        $http_params = http_build_query( $params, '', '&' );
        
         $curl = curl_init();
 
-        curl_setopt($curl, CURLOPT_USERAGENT,      'Syndication-Client/php-drupal v1'); // Useragent string to use for request
+        curl_setopt($curl, CURLOPT_USERAGENT,      'Syndication-Client/php v1'); // Useragent string to use for request
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true );
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true );
         if ( $response_format=='image' )
@@ -1645,11 +1669,10 @@ class Syndication
             curl_setopt($curl, CURLOPT_HEADER,         false );
             curl_setopt($curl, CURLOPT_BINARYTRANSFER, true  );
         }
-
         switch ( strtolower($http_method) )
         {
             case 'post':
-                //curl_setopt( $curl, CURLOPT_POST,       true    );
+                //curl_setopt( $curl, CURLOPT_POST,          true      );
                 curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, 'POST'    );
                 if ( !empty($http_params) )
                 {
@@ -1709,25 +1732,19 @@ class Syndication
      * @access public
      * @return string Api Key
      */
-    function apiGenerateKey( $http_method, $url, $params, $headers )
+    function apiGenerateKey( $http_method, $url, $query, $headers )
     {
       // ordered and scrubbed headers: date,content-type,content-length;
       $canonicalizedHeaders  = '';
       $desiredHeaders = array('date','content-type','content-length');
       $headerData = array();
       rsort($headers);
-/**/
-$h = '';
-/**/
       foreach ( $headers as $header )
       {
         $pos = strpos($header,':');
         if ( $pos )
         {
           $name  = strtolower(trim(substr($header,0,$pos)));
-/**/
-$h .= "$name,";
-/**/
           $value = substr($header,$pos+1);
           $headerData[$name] = trim($value);
           if ( in_array($name,$desiredHeaders) )
@@ -1738,62 +1755,21 @@ $h .= "$name,";
       }
       $canonicalizedHeaders = trim($canonicalizedHeaders);
 
-      // just the clean url path - JS LOGIC IS DIFF - gets up to ? OR all url - this is prob wrong on zack's part
+      // just the clean url path - JS LOGIC IS DIFF - gets up to ? OR all url - this is prob wrong on zack's part, ignoring fragment
+      // js logic would include fragment if no ? is found
       $url_parts = $this->parseUrl($url);
       $canonicalizedResource = ( !empty($url_parts) && !empty($url_parts['path']) ) ? trim($url_parts['path']) : '';
-        
-      /// hash of the body - md5
-      $http_params   = http_build_query( $params, '', '&' );
-/**/
-print_r(array(
-    'raw'       => $http_params,
-
-    'md5'       =>               md5($http_params),
-    '64(md5)'   => base64_encode(md5($http_params)),
-
-    'md5t'       =>               md5($http_params,true),
-    '64(md5t)'   => base64_encode(md5($http_params,true)),
-
-    'hash'      =>               hash('md5',$http_params),
-    '64(hash)'  => base64_encode(hash('md5',$http_params)),
-
-    'hashB'      =>               hash('md5',$http_params, true),
-    '64(hashB)'  => base64_encode(hash('md5',$http_params, true)),
-
-    'hash_hmac'     =>               hash_hmac('md5', $http_params, null ),
-    '64(hash_hmac)' => base64_encode(hash_hmac('md5', $http_params, null )),
-
-    'hash_hmacB'     =>               hash_hmac('md5', $http_params, null, true ),
-    '64(hash_hmacB)' => base64_encode(hash_hmac('md5', $http_params, null, true )),
-));
-/**/
-      $hashedData    = base64_encode(md5($http_params,true));
 
       // array of: date,content-type,http method;
       $requestMethod = strtoupper($http_method);
-
-      // put it all together
+       
+      /// hash of the body - md5
+      $hashedData    = md5($query);
       $signingString = "{$requestMethod}\n".
                        "{$hashedData}\n".
                        "{$canonicalizedHeaders}\n".
                        "{$canonicalizedResource}";
-      /// hash up our thingy
       $computedHash  = base64_encode(hash_hmac('md5', $signingString, $this->api['key_shared'], true ));
-/**/
-print_r(array( 
-    'm'=>$requestMethod,
-    'd'=>$hashedData,
-    'h'=>$canonicalizedHeaders,
-    'r'=>$canonicalizedResource,
-    'ss'=>$signingString, 
-    'sk'=>$this->api['key_public'], 
-    'hd'=>$hashedData,
-    'h5'=>hash_hmac('md5', $signingString, $this->api['key_shared'], true ), 
-    '64(h5)'=>$computedHash, 
-    'pk'=>$this->api['key_public'], 
-    'final'=>"{$this->api['key_public']}:{$computedHash}" 
-));
-/**/
       /// share public key are our hash
       return "{$this->api['key_public']}:{$computedHash}";# \n\n header order: $h \n\n Signing String:\n $signingString";
     }
