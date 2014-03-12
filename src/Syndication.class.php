@@ -323,14 +323,14 @@ class Syndication
     /// API FUNCTIONS
 
     /**
-     * Gets a list of all MediaType Names 
+     * Gets a list of MediaType Names 
      * 
      * @access public
      * 
      * @return SyndicationResponse ->results[]
      *      string
      */
-    function getAllMediaTypes ()
+    function getMediaTypes ()
     {
         try
         {
@@ -358,7 +358,7 @@ class Syndication
      *      largeLogoUrl : string 
      *      SmallLogoUrl : string 
      */
-    function getAllSources ( $params=array() )
+    function getSources ( $params=array() )
     {
         try
         {
@@ -411,7 +411,7 @@ class Syndication
      *      endDate      : date
      *      source       : source  
      */
-    function getAllCampaigns ( $params=array() )
+    function getCampaigns ( $params=array() )
     {
         try
         {
@@ -447,6 +447,8 @@ class Syndication
         }
     }
 
+    /// function getMediaByCampaignId ( $id ) : defined below with getMedia*() functions
+
     /**
      * Gets a list of all Languages
      *
@@ -461,7 +463,7 @@ class Syndication
      *      name  : string
      *      value : string
      */
-    function getAllLanguages ( $params=array() )
+    function getLanguages ( $params=array() )
     { 
         try
         {
@@ -565,7 +567,7 @@ class Syndication
         }
     }
     
-    /// function getMediaByTagId ( $id ) : defined below with getMedia*() functions
+    /// function getMediaByTagId      ( $id ) : defined below with getMedia*() functions
 
     /**
      * Gets a list of Media MetaData.
@@ -750,6 +752,50 @@ class Syndication
             return $this->createResponse($e,'API Call');
         }
     }
+
+
+    /**
+     * Gets a list of Media MetaData
+     * 
+     * @param mixed $id Numeric Id of a Campaign 
+     * 
+     * @access public
+     * @return SyndicationResponse ->results[]
+     *      id                      : int
+     *      mediaType               : string
+     *      name                    : string
+     *      description             : string
+     *      sourceUrl               : string
+     *      dateContentAuthored     : rfc3339
+     *      dateContentUpdated      : rfc3339
+     *      dateContentPublished    : rfc3339
+     *      dateContentReviewed     : rfc3339
+     *      dateSyndicationVisible  : rfc3339
+     *      dateSyndicationCaptured : rfc3339
+     *      dateSyndicationUpdated  : rfc3339
+     *      language                : language
+     *      externalGuid            : string
+     *      contentHash             : string
+     *      source                  : source
+     *      campaigns               : campaign[]
+     *      tags                    : tag[]
+     *      tinyUrl                 : string
+     *      tinyToken               : string
+     *      thumbnailUrl            : string
+     *      alternateImages         : image[]
+     *      attribution             : string
+     */
+    function getMediaByCampaignId ( $id )
+    {
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/campaigns/{$id}/media.json");
+            return $this->createResponse($result,'get MetaData','Campaign Id');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
+
 
     /**
      * Gets MediaItems related to certain MediaItem.
@@ -998,7 +1044,8 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      mixed : string or base64 encoded data
      */
-    function getMediaDataById ( $id )
+    function getMediaContentById ( $id ) { return $this->getMediaDataById($id); }
+    function getMediaDataById    ( $id )
     {
         try
         {
@@ -1053,7 +1100,7 @@ class Syndication
     }
 
     /**
-     * Gets the content belonging to a given MediaItem for embedding. Supports HTML, JSON and XML responses based on request format
+     * Gets the content belonging to a given MediaItem for embedding. Supports Iframe or Javascript return format.
      *
      * @param mixed $id Numeric Id of MediaItem
      * @param mixed $params options
@@ -1064,7 +1111,7 @@ class Syndication
      *
      * @access public 
      * @return SyndicationResponse ->results[]
-     *      string hmtml
+     *      string html
      */
     function getMediaEmbedById ( $id, $params=array() )
     {
@@ -1088,24 +1135,26 @@ class Syndication
      *      stripBreaks  : string
      *      stripClasses : string
      *      font-size    : int
-     *      stripBreaks  : string
      *      imageFloat   : string
      *      imageMargin  : csv int
      *
      * @access public 
      * @return SyndicationResponse ->results[]
-     *      string hmtml
+     *      string html
      */
-    function getMediaHtmlById ( $id, $params=array() )
-    {
+    function getMediaHtmlById ( $id, $params=array(), $return_format='html' )
+     {
         try
         {
-            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/syndicate.html",$params);
+            $format = ($return_format=='json') ? 'json' : 'html';
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/{$id}/syndicate.{$format}",$params);
             return $this->createResponse($result,'get Embedded Html','Id');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
     }
+
+
 
     /**
      * Gets Youtube metadata for this MediaItem.
