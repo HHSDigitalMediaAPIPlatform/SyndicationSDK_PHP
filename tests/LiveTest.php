@@ -37,7 +37,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
         'key_private' => "IqFZmWeeF5dZNwM9oWzM+GEodHeRr/fi2Az21ud0j36ySZLWGPoz9oWrrZjv+fD3BabQeDr9uTnAMA6B9h/vKw==",
     );
 
-    self::$pub_url = 'http://'.gethostbyname(trim(`hostname`)).'3333';
+    self::$pub_url = 'http://'.gethostbyname(trim(`hostname`)).':3333';
 
     self::$http_methods = array('get','post','delete');
   } 
@@ -110,6 +110,38 @@ class LiveTest extends PHPUnit_Framework_TestCase
       $this->assertEquals('200',$resp['http']['http_code'], 'Good Response has http code of 200');
   }
 
+  public function testPublish ()
+  {
+    $params = array(
+        'mediaType' => 'Html', 
+        'name'      => 'Drupal Test Publish '.mt_rand(1000,9999), 
+        'sourceUrl' => self::$pub_url.'/single.html', 
+        'language'  => '1',   
+        'source'    => '1'
+    );
+
+    $resp = self::$syndication->publishMedia($params);
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
+    $this->assertEquals(                     1, count($resp->results),  'Results should only have one result');
+    $this->assertArrayHasKey       (         0, $resp->results,         'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey       (      'id', $resp->results[0],      'Results[0] requires "id" key'); 
+    $this->assertTrue(             is_numeric($resp->results[0]['id']), 'Results[0][id] is numeric');
+
+    unset($params['language']);
+    $resp = self::$syndication->publishMedia($params);
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute(   'status', $resp,                  'Response requires "status" attribute'); 
+    $this->assertEquals(                  '400', $resp->status );
+    $this->assertObjectHasAttribute( 'messages', $resp,                  'Response->meta requires "message" attribute'); 
+    $this->assertGreaterThan(                 1, count($resp->messages), 'Response->meta has a message'); 
+    $this->assertArrayHasKey(    'errorMessage', $resp->messages[1],     'Response->messages[1] requires "errorMessage" attribute'); 
+    $this->assertEquals( 'Field Constraint Violation', $resp->messages[1]['errorMessage'], 'Response->messages[1][errorMessage] is "Field Contraint Violation"'); 
+  }
+
+
 /*
   public function _testLookup()
   {
@@ -118,47 +150,6 @@ class LiveTest extends PHPUnit_Framework_TestCase
   {
   }
 
-  public function _testPublish ()
-  {
-    $params = array(
-        'mediaType'     => 'Html', 
-        'name'          => 'return_type', 
-        'sourceUrl'     => self::$pub_url.'/single.html', 
-        'dateSyndicationVisible'  => gmdate('Y-m-d\TH:i:s\Z'), 
-        'dateSyndicationCaptured' => gmdate('Y-m-d\TH:i:s\Z'),
-        'dateSyndicationUpdated'  => gmdate('Y-m-d\TH:i:s\Z'),
-        'language'      => '1',   
-        'organization'  => '1'
-    );
-
-    $params['name'] = 'success';
-    $resp = self::$syndication->publishMedia($params);
-
-    $this->assertNotEmpty($resp);
-    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" attribute'); 
-    $this->assertEquals(             '200',     $resp->status );
-    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
-    $this->assertEquals(             1,         count($resp->results),  'Results should only have one result');
-    $this->assertArrayHasKey       ( 0,         $resp->results,         'Response[results] requires "0" key'); 
-    $this->assertArrayHasKey       ( 'id',      $resp->results[0],      'Results[0] requires "id" key'); 
-    $this->assertTrue(             is_numeric($resp->results[0]['id']), 'Results[0][id] is numeric');
-
-    $params['name'] = 'serverError';
-    $resp = self::$syndication->publishMedia($params);
-    $this->assertNotEmpty($resp);
-    $this->assertObjectHasAttribute( 'status',  $resp, 'Response requires "status" attribute'); 
-    $this->assertEquals(             '500',     $resp->status );
-
-    $params['name'] = 'invalidData';
-    $resp = self::$syndication->publishMedia($params);
-    $this->assertNotEmpty($resp);
-    $this->assertObjectHasAttribute( 'status',   $resp, 'Response requires "status" attribute'); 
-    $this->assertEquals(             '400',      $resp->status );
-    $this->assertObjectHasAttribute( 'messages', $resp, 'Response->meta requires "message" attribute'); 
-    $this->assertGreaterThan(        1,          count($resp->messages), 'Response->meta has a message'); 
-    $this->assertArrayHasKey(    'errorMessage', $resp->messages[1], 'Response->messages[0] requires "errorMessage" attribute'); 
-    $this->assertEquals( 'Field Constraint Violation', $resp->messages[1]['errorMessage'], 'Response->messages[0][errorMessage] is "Field Contraint Violation"'); 
-  }
 
   public function _testSubscribe ()
   {
