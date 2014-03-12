@@ -799,10 +799,8 @@ class Syndication
      * @param mixed $params options 
      *      name         : string 
      *      sourceUrl    : string 
-     *      dateAuthored : date 
-     *      dateUpdated  : date 
      *      language     : string
-     *      source : string 
+     *      source       : string 
      *
      * @access public
      * @return SyndicationResponse ->results[]
@@ -838,9 +836,9 @@ class Syndication
         {
             $type_path = strtolower($params['mediaType']);
             // dirty pluralization
-            //if( !in_array($type_path,array('socialmedia','audio')) ) { $type_path .= 's'; }
+            if( !in_array($type_path,array('socialmedia','audio')) ) { $type_path .= 's'; }
             //$type_path{0} = strtolower($type_path{0});
-            $result = $this->apiCall('post',"{$this->api['syndication_url']}/resources/media/$type_path",$params,'json','html');
+            $result = $this->apiCall('post',"{$this->api['syndication_url']}/resources/media/$type_path",$params,'json','json');
             return $this->createResponse($result,'Publish');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
