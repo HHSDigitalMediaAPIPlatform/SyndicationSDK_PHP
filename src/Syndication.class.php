@@ -249,30 +249,54 @@ class Syndication
     /**
      * Constructor for Syndication interface
      * 
-     * @param mixed $api if array, settings. if string, config file path. 
+     * @param mixed $api array of or filepath to config settings
      * @access protected
      * 
      * @return Syndication
      */
-    function __construct ( $api=null )
+    function __construct ( $api=null, $key=null )
     {
         $settings = array();
         if ( is_array($api) )
         {
             $settings = $api;
-        } else if ( is_string($api) && file_exists($api) && is_file($api) && is_readable($api) ) {
-            /// try and see if it's an ini file
-            if ( $ini = parse_ini_file($api,true) )
+        } else if ( is_string($api) && is_file($api) && is_readable($api) ) {
+            /// try and see if it's a php file that returns a value
+            try {
+                ob_start();    
+                $php = (include $api);
+                ob_end_clean();
+            } catch(Exception $e) {
+                $php = null;
+            }
+            if ( is_array($php) && !empty($php) ) 
             {
-                $settings = $ini;
-            /// try and see if it's a json file
+                $settings = $php;
+
+            /// try and see if it's an ini file
             } else {
-                $contents = file_get_contents($api);
-                $json = json_decode($contents,true);
-                if ( !empty($json) && is_array($json) ) 
-                {
-                    $settings = $json;
-                }    
+                try {
+                    $ini = parse_ini_file($api);
+                } catch (Exception $e) {
+                    $ini = null;
+                }
+                if ( is_array($ini) && !empty($ini) )
+                {  
+                    $settings = $ini;
+
+                /// try and see if it's a json file
+                } else {
+                    try {
+                        $contents = file_get_contents($api);
+                        $json = json_decode($contents,true);
+                    } catch (Exception $e) {
+                        $json = null;
+                    }
+                    if ( is_array($json) && !empty($json) )  
+                    {
+                        $settings = $json;
+                    }
+                }
             }
         }
         foreach ( array_keys($this->api) as $k )
@@ -299,11 +323,11 @@ class Syndication
     }
 
     /**
-     * Get Server Version : the version of the API for the configured server - generated dynamically from api settings
+     * Get Server Version : the version of the API on the configured server
      * 
      * @access public
      * 
-     * @return string
+     * @return string Version identification string
      */
     function getServerApiVersion()
     { 
@@ -328,7 +352,8 @@ class Syndication
      * @access public
      * 
      * @return SyndicationResponse ->results[]
-     *      string
+     *      name        : string
+     *      description : string
      */
     function getMediaTypes ()
     {
@@ -356,7 +381,7 @@ class Syndication
      *      acronym      : string
      *      websiteUrl   : string 
      *      largeLogoUrl : string 
-     *      SmallLogoUrl : string 
+     *      smallLogoUrl : string 
      */
     function getSources ( $params=array() )
     {
@@ -513,13 +538,35 @@ class Syndication
      * @return SyndicationResponse ->results[]
      *      id   : int
      *      name : string
+     *      language : string (not a language obj or id)
+     *      type : string (not a type obj or id)
      */
     function getTags ( $params=array() )
     {
         try
         {
             $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/tags.json",$params);
-            return $this->createResponse($result,'get All Tags');
+            return $this->createResponse($result,'get Tags');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+     }
+
+    /**
+     * Gets a list of all Tag Types
+     *
+     * @access public
+     * @return SyndicationResponse ->results[]
+     *      id   : int
+     *      name : string
+     *      description : string 
+     */
+    function getTagTypes ()
+    {
+        try
+        {
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/tagTypes.json");
+            return $this->createResponse($result,'get All Tag Types');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }
@@ -1755,8 +1802,8 @@ class Syndication
         curl_setopt( $curl, CURLOPT_STDERR,  fopen('php://stdout', 'w') );
         /**/
 
-        curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 10 ); // seconds attempting to connect
-        curl_setopt( $curl, CURLOPT_TIMEOUT,        12 ); // seconds cURL allowed to execute
+        curl_setopt( $curl, CURLOPT_CONNECTTIMEOUT, 5  ); // seconds attempting to connect
+        curl_setopt( $curl, CURLOPT_TIMEOUT,        10 ); // seconds cURL allowed to execute
         /** / // forces new connections
         curl_setopt( $curl, CURLOPT_FORBID_REUSE,  true );
         curl_setopt( $curl, CURLOPT_FRESH_CONNECT, true );
