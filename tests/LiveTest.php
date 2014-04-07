@@ -6,24 +6,38 @@ require_once('src/Syndication.class.php');
 class LiveTest extends PHPUnit_Framework_TestCase
 {
 
+  protected static $tmp;
   protected static $api;  
 
   protected static $syn_base;  
   protected static $syn_url;  
   protected static $cms_base;  
   protected static $cms_url;  
-  protected static $pub_url;
 
   protected static $syndication;   
-  protected static $http_methods;  
+  protected static $http_methods;
+
+  protected static $published_media;  
+  protected static $existing_media;  
+  protected static $existing_sources;
+  protected static $existing_campaigns;
 
   public function __construct()
   {
+    self::$tmp = realpath( dirname(__FILE__).'/../tmp/' );
+
+    /**/
     self::$syn_base = 'http://ctacdev.com:8090/Syndication';
     self::$syn_url  = 'http://ctacdev.com:8090/Syndication/api/v2';
+    /**/
+
+    /** /
+    self::$syn_base = 'http://localhost:8080/Syndication';
+    self::$syn_url  = 'http://localhost:8080/Syndication/api/v2';
+    /**/
 
     self::$cms_base = 'http://ctacdev.com:8090/CmsManager';
-    self::$cms_url = 'http://ctacdev.com:8090/CmsManager/api/v1';
+    self::$cms_url  = 'http://ctacdev.com:8090/CmsManager/api/v1';
 
     self::$api = array(
         'syndication_base'    => self::$syn_base,
@@ -32,14 +46,18 @@ class LiveTest extends PHPUnit_Framework_TestCase
         'cms_manager_base'    => self::$cms_base,
         'cms_manager_url'     => self::$cms_url,
         'cms_manager_id'      => 'dan.drupal.test',
-        'key_shared'  => "aQ5IhjAFPJcrqfhw5coru+Zv6vpkZKz5ff5W2TX5nSFnHrU9H5DqGIAhg62GTF8i+uqX8dR9Ou13J6KnyryNbQ==",
-        'key_public'  => "FlOYnZ/KU5SA/A8xz1PTHVTabyzbg0jOK7+j9lacd7xj80ok2Rnsu9QNEI1BfD3TZ6jXier8OnTcAgH3ngCmsA==",
-        'key_private' => "IqFZmWeeF5dZNwM9oWzM+GEodHeRr/fi2Az21ud0j36ySZLWGPoz9oWrrZjv+fD3BabQeDr9uTnAMA6B9h/vKw==",
+        'key_shared'  => "vA9xlmP1jLWgtAqigjDJ4siQbQup1HLcIF7WMuvHOkYZDw5FsVaci7ezARwHEGfQGInCwyA8RYSie/l8NYW8aA==",
+        'key_public'  => "ALaNyPqXV7hnVYtnLWdymAOrtGmKRxNtHOysk7PRf30b5Yj4kkBSbKjAC2KRvzvbqsttfcqYXMO7b2PwIkQmKWI=",
+        'key_private' => "H+dIq0KzX2BLs/vcPil0Shj1LvsALOMBqnRf1oN4lyLgVoWu37O23w6GA9fDGda7DQSgurUOgARgWtzcw+GwmQ==",
     );
 
-    self::$pub_url = 'http://'.gethostbyname(trim(`hostname`)).':3333';
-
     self::$http_methods = array('get','post','delete');
+
+    self::$published_media  = null;
+    self::$existing_media   = array();
+    self::$existing_sources = array();
+    self::$existing_campaigns = array();
+
   } 
   public static function setUpBeforeClass()
   {
@@ -49,15 +67,49 @@ class LiveTest extends PHPUnit_Framework_TestCase
   {
   }
 
+  /// TEST CORE FUNCTIONALITY
+
   public function testInitialization ()
   {
     $this->assertInstanceOf('Syndication',self::$syndication);
+
+    $file_php  = fopen( self::$tmp.'/config.php',  'w' );
+    fwrite( $file_php, "<?php return array(\n" );
+    $file_ini  = fopen( self::$tmp.'/config.ini',  'w' );
+    $file_json = fopen( self::$tmp.'/config.json', 'w' );
+    fwrite( $file_json, "{\n" );
+    $c = '';
+    foreach ( self::$api as $k=>$v )
+    {
+        fwrite( $file_php,  "   {$c}\"{$k}\" => \"{$v}\"\n" );
+        fwrite( $file_ini,  "{$k} = \"{$v}\"\r\n" );
+        fwrite( $file_json, "   {$c}\"{$k}\" : \"{$v}\"\n" );
+        $c = ',';
+    }
+    fwrite( $file_php, "\n);\n?>" );
+    fclose( $file_php );
+    fclose( $file_ini );
+    fwrite( $file_json, "\n}" );
+    fclose( $file_json );
+
+    $synd_php  = new Syndication( self::$tmp.'/config.php' );
+    $this->assertInstanceOf('Syndication',$synd_php);
+    $this->assertEquals(  self::$syndication->api, $synd_php->api, 'Config should be loadable from a php file' );
+
+    $synd_ini  = new Syndication( self::$tmp.'/config.ini' );
+    $this->assertInstanceOf('Syndication',$synd_ini);
+    $this->assertEquals(  self::$syndication->api, $synd_ini->api, 'Config should be loadable from a ini file' );
+
+    $synd_json = new Syndication( self::$tmp.'/config.json' );
+    $this->assertInstanceOf('Syndication',$synd_json);
+    $this->assertEquals(  self::$syndication->api, $synd_json->api, 'Config should be loadable from a json file' );
+
   }
 
   public function testCurlRequest ()
   {
     /// must be able to generate a valid curl requests
-    $url     = self::$pub_url.'/single.html';
+    $url     = 'htp://www.dogs.com';
     $params  = http_build_query(array('a'=>'1'),'','&');
     $headers = array();
     $format  = 'json';
@@ -75,20 +127,23 @@ class LiveTest extends PHPUnit_Framework_TestCase
   {
     foreach ( self::$http_methods as $http_method )
     {
-        $resp = self::$syndication->apiCall($http_method,self::$api['syndication_url'].'/resources');
+        $resp = self::$syndication->apiCall($http_method,self::$api['syndication_base'].'/swagger/api');
+
         /// all api calls must return an api_response array
         $this->assertNotEmpty($resp);
         $this->assertArrayHasKey( 'content',   $resp, strtoupper($http_method).' Response has "content" key holding actual response content'); 
         $this->assertArrayHasKey( 'format',    $resp, strtoupper($http_method).' Response has "format" key holding content format, if known'); 
         $this->assertArrayHasKey( 'http',      $resp, strtoupper($http_method).' Response has "http" key holding curl_info');
+
         /// good calls must return successful http status
         $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good '.strtoupper($http_method).' Response has "http_code" key holding http status code'); 
         $this->assertEquals('200',$resp['http']['http_code'], 'Good '.strtoupper($http_method).' Response has http code of 200');
+
         /// bad pathed calls must return notFound http status
         $resp = self::$syndication->apiCall(strtoupper($http_method),self::$syn_url.'/404');
         $this->assertNotEmpty($resp);
-        $this->assertArrayHasKey( 'http',      $resp,         'Bad '.strtoupper($http_method).' Response has "http" key holding curl_info'); 
-        $this->assertArrayHasKey( 'http_code', $resp['http'], 'Bad '.strtoupper($http_method).' Response has "http_code" key holding http status code'); 
+        $this->assertArrayHasKey( 'http',      $resp,            'Bad '.strtoupper($http_method).' Response has "http" key holding curl_info'); 
+        $this->assertArrayHasKey( 'http_code', $resp['http'],    'Bad '.strtoupper($http_method).' Response has "http_code" key holding http status code'); 
         $this->assertNotEquals('200',$resp['http']['http_code'], 'Bad '.strtoupper($http_method).' Response does not have an http code of 200');
     }
   }
@@ -105,6 +160,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
   public function testApiKey()
   {
       $resp = self::$syndication->apiCall('get',self::$api['cms_manager_url'].'/debug/secure/resource');
+
       /// good response must be 200 
       $this->assertArrayHasKey( 'http_code', $resp['http'], 'Good Response has "http_code" key holding http status code'); 
       $this->assertEquals('200',$resp['http']['http_code'], 'Good Response has http code of 200');
@@ -112,15 +168,18 @@ class LiveTest extends PHPUnit_Framework_TestCase
 
   public function testPublish ()
   {
+    $random_id = mt_rand(1000,9999);
     $params = array(
         'mediaType' => 'Html', 
-        'name'      => 'Drupal Test Publish '.mt_rand(1000,9999), 
-        'sourceUrl' => self::$pub_url.'/single.html', 
+        'name'      => 'Drupal Test Publish '.$random_id, 
+        'sourceUrl' => 'http://www.stopmedicarefraud.gov/newsroom/your-state/texas/index.html#'.$random_id,
         'language'  => '1',   
         'source'    => '1'
     );
 
     $resp = self::$syndication->publishMedia($params);
+
+    /// good publish
     $this->assertNotEmpty($resp);
     $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
     $this->assertEquals(                 '200', $resp->status );
@@ -130,6 +189,9 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertArrayHasKey       (      'id', $resp->results[0],      'Results[0] requires "id" key'); 
     $this->assertTrue(             is_numeric($resp->results[0]['id']), 'Results[0][id] is numeric');
 
+    self::$published_media = $resp->results[0];
+
+    /// bad publish - missing required parameter
     unset($params['language']);
     $resp = self::$syndication->publishMedia($params);
     $this->assertNotEmpty($resp);
@@ -141,6 +203,182 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertEquals( 'Field Constraint Violation', $resp->messages[1]['errorMessage'], 'Response->messages[1][errorMessage] is "Field Contraint Violation"'); 
   }
 
+  public function testBrowse()
+  {
+    
+    $params = array(
+        'max' => 1
+    );
+    $resp = self::$syndication->getMedia( $params );
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute');
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key ');
+    $this->assertEquals(                     1, count($resp->results),  'Results should only have one result');
+
+    $this->assertArrayHasKey       (         0, $resp->results,         'Response[results] requires "0" key');
+    $this->assertArrayHasKey       (      'id', $resp->results[0],      'Results[0] requires "id" key');
+    $this->assertNotEmpty          (      'id', $resp->results[0],      'Results[0][id] is not empty');
+
+  }
+
+  public function testLookup()
+  {
+    $resp = self::$syndication->getMediaById( self::$published_media['id'] );
+ 
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
+    $this->assertEquals(                     1, count($resp->results),  'Results should only have one result');
+    $this->assertArrayHasKey       (         0, $resp->results,         'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey       (      'id', $resp->results[0],      'Results[0] requires "id" key'); 
+    $this->assertEquals( self::$published_media['id'], $resp->results[0]['id'], 'Results[0][id] should match requested id');
+  }
+
+ /// test each API call
+
+  public function testGetMediaTypes()
+  {
+    
+    $resp = self::$syndication->getMediaTypes();
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key '); 
+    $this->assertNotEmpty(                      $resp->results,            'Results should only have one result');
+
+    $this->assertArrayHasKey       (         0, $resp->results,            'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey       (    'name', $resp->results[0],         'Results[0] requires "name" key'); 
+    $this->assertNotEmpty          (            $resp->results[0]['name'], 'Results[0][name] is not empty');
+
+  }
+  
+  public function testGetSources()
+  {
+    
+    $resp = self::$syndication->getSources();
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute');
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key ');
+    $this->assertNotEmpty(                      $resp->results,            'Results should only have one result');
+
+    $this->assertArrayHasKey       (         0, $resp->results,            'Response[results] requires "0" key');
+    $this->assertArrayHasKey       (      'id', $resp->results[0],         'Results[0] requires "id" key');
+    $this->assertNotEmpty          (            $resp->results[0]['id'],   'Results[0][id] is not empty');
+    $this->assertArrayHasKey       (    'name', $resp->results[0],         'Results[0] requires "name" key');
+    $this->assertNotEmpty          (            $resp->results[0]['name'], 'Results[0][name] is not empty');
+
+    self::$existing_sources = $resp->results;
+
+  }
+
+  public function testLimitOffsetSort()
+  {
+    /// LIMIT TEST
+    $params = array(
+        'max' => '2'
+    );
+    $resp = self::$syndication->getSources($params);
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key ');
+    $this->assertEquals(                     2, count($resp->results),     'Results should contain two items');
+
+    /// OFFSET TEST
+    $params = array(
+        'max'    => '1',
+        'offset' => '1'
+    );
+    $resp = self::$syndication->getSources($params);
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key ');
+    $this->assertNotEmpty(                      $resp->results,            'Results should only have one result');
+    $this->assertArrayHasKey       (         0, $resp->results,            'Response[results] requires "0" key');
+    $this->assertEquals( self::$existing_sources[1]['id'], $resp->results[0]['id'],   'Results should contain second item');
+
+    /// SORTING TEST
+    $params1 = array(
+        'sort' => 'id',
+    );
+    $resp1 = self::$syndication->getSources($params1);
+    $this->assertEquals(                 '200', $resp1->status );
+    $this->assertObjectHasAttribute( 'results', $resp1,                     'Response requires has "results" key ');
+    $this->assertNotEmpty(                      $resp1->results,            'Results should only have one result');
+    $this->assertArrayHasKey       (         0, $resp1->results,            'Response[results] requires "0" key');
+ 
+    $params2 = array(
+        'sort' => '-id',
+    );
+    $resp2 = self::$syndication->getSources($params2);
+    $this->assertEquals(                 '200', $resp2->status );
+    $this->assertObjectHasAttribute( 'results', $resp2,                     'Response requires has "results" key ');
+    $this->assertNotEmpty(                      $resp2->results,            'Results should only have one result');
+    $this->assertArrayHasKey       (         0, $resp2->results,            'Response[results] requires "0" key');
+
+    $sort1 = array_pop(   $resp1->results ); /// last item here
+    $sort2 = array_shift( $resp2->results ); /// first item here
+    $this->assertEquals( $sort1, $sort2, 'Sorting should put same element at beginning of ascending list and end of descending list' );
+
+  }
+
+  public function testGetSourceById()
+  {
+    if ( empty(self::$existing_sources) ) { return; }
+
+    $resp = self::$syndication->getSourceById( self::$existing_sources[0]['id'] );
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key '); 
+    $this->assertNotEmpty(                      $resp->results,            'Results should only have one result');
+
+    $this->assertArrayHasKey       (         0, $resp->results,            'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey       (      'id', $resp->results[0],         'Results[0] requires "id" key'); 
+    $this->assertEquals            ( self::$existing_sources[0]['id'],   $resp->results[0]['id'],   'Results[0][id] is not empty');
+    $this->assertArrayHasKey       (    'name', $resp->results[0],         'Results[0] requires "name" key'); 
+    $this->assertEquals            ( self::$existing_sources[0]['name'], $resp->results[0]['name'], 'Results[0][name] is not empty');
+
+  }
+
+  public function testGetCampaigns()
+  {
+    
+    $resp = self::$syndication->getCampaigns();
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute');
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key ');
+    $this->assertNotEmpty(                      $resp->results,            'Results should only have one result');
+
+    $this->assertArrayHasKey       (         0, $resp->results,            'Response[results] requires "0" key');
+    $this->assertArrayHasKey       (      'id', $resp->results[0],         'Results[0] requires "id" key');
+    $this->assertNotEmpty          (            $resp->results[0]['id'],   'Results[0][id] is not empty');
+    $this->assertArrayHasKey       (    'name', $resp->results[0],         'Results[0] requires "name" key');
+    $this->assertNotEmpty          (            $resp->results[0]['name'], 'Results[0][name] is not empty');
+
+    self::$existing_campaigns = $resp->results;
+
+  }
+ 
+  public function testGetCampaignById()
+  {
+    if ( empty(self::$existing_campaigns) ) { return; }
+
+    $resp = self::$syndication->getCampaignById( self::$existing_campaigns[0]['id'] );
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key '); 
+    $this->assertNotEmpty(                      $resp->results,            'Results should only have one result');
+
+    $this->assertArrayHasKey       (         0, $resp->results,            'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey       (      'id', $resp->results[0],         'Results[0] requires "id" key'); 
+    $this->assertEquals            ( self::$existing_campaigns[0]['id'],   $resp->results[0]['id'],   'Results[0][id] is not empty');
+    $this->assertArrayHasKey       (    'name', $resp->results[0],         'Results[0] requires "name" key'); 
+    $this->assertEquals            ( self::$existing_campaigns[0]['name'], $resp->results[0]['name'], 'Results[0][name] is not empty');
+
+  }
 
 /*
   public function _testLookup()
