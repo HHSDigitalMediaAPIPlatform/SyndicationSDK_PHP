@@ -1,6 +1,13 @@
 <?php
 ini_set('display_errors',1);error_reporting(E_ALL);
 
+/*
+define('INSIGHT_CONFIG_PATH', './package.json');
+require_once('./lib/firephp/lib/FirePHP/Init.php');
+$firephp = FirePHP::getInstance(true);
+$firephp->log('Hello World');
+*/
+
 require_once('src/Syndication.class.php');
 
 class LiveTest extends PHPUnit_Framework_TestCase
@@ -26,12 +33,12 @@ class LiveTest extends PHPUnit_Framework_TestCase
   {
     self::$tmp = realpath( dirname(__FILE__).'/../tmp/' );
 
-    /**/
+    /** /
     self::$syn_base = 'http://ctacdev.com:8090/Syndication';
     self::$syn_url  = 'http://ctacdev.com:8090/Syndication/api/v2';
     /**/
 
-    /** /
+    /**/
     self::$syn_base = 'http://localhost:8080/Syndication';
     self::$syn_url  = 'http://localhost:8080/Syndication/api/v2';
     /**/
@@ -45,7 +52,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
         'syndication_tinyurl' => '',
         'cms_manager_base'    => self::$cms_base,
         'cms_manager_url'     => self::$cms_url,
-        'cms_manager_id'      => 'dan.drupal.test',
+        'cms_manager_id'      => 'cms.phpunit.test',
         'key_shared'  => "vA9xlmP1jLWgtAqigjDJ4siQbQup1HLcIF7WMuvHOkYZDw5FsVaci7ezARwHEGfQGInCwyA8RYSie/l8NYW8aA==",
         'key_public'  => "ALaNyPqXV7hnVYtnLWdymAOrtGmKRxNtHOysk7PRf30b5Yj4kkBSbKjAC2KRvzvbqsttfcqYXMO7b2PwIkQmKWI=",
         'key_private' => "H+dIq0KzX2BLs/vcPil0Shj1LvsALOMBqnRf1oN4lyLgVoWu37O23w6GA9fDGda7DQSgurUOgARgWtzcw+GwmQ==",
@@ -127,7 +134,8 @@ class LiveTest extends PHPUnit_Framework_TestCase
   {
     foreach ( self::$http_methods as $http_method )
     {
-        $resp = self::$syndication->apiCall($http_method,self::$api['syndication_base'].'/swagger/api');
+        //$resp = self::$syndication->apiCall($http_method,self::$api['syndication_base'].'/swagger/api');
+        $resp = self::$syndication->apiCall($http_method,self::$api['syndication_base'].'/api/v2/resources/media.json?max=1');
 
         /// all api calls must return an api_response array
         $this->assertNotEmpty($resp);
@@ -171,7 +179,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $random_id = mt_rand(1000,9999);
     $params = array(
         'mediaType' => 'Html', 
-        'name'      => 'Drupal Test Publish '.$random_id, 
+        'name'      => 'PHPClient Test Publish '.$random_id, 
         'sourceUrl' => 'http://www.stopmedicarefraud.gov/newsroom/your-state/texas/index.html#'.$random_id,
         'language'  => '1',   
         'source'    => '1'
@@ -185,8 +193,8 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(                 '200', $resp->status );
     $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
     $this->assertEquals(                     1, count($resp->results),  'Results should only have one result');
-    $this->assertArrayHasKey       (         0, $resp->results,         'Response[results] requires "0" key'); 
-    $this->assertArrayHasKey       (      'id', $resp->results[0],      'Results[0] requires "id" key'); 
+    $this->assertArrayHasKey(                0, $resp->results,         'Response[results] requires "0" key'); 
+    $this->assertArrayHasKey(             'id', $resp->results[0],      'Results[0] requires "id" key'); 
     $this->assertTrue(             is_numeric($resp->results[0]['id']), 'Results[0][id] is numeric');
 
     self::$published_media = $resp->results[0];
@@ -220,11 +228,15 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertArrayHasKey       (      'id', $resp->results[0],      'Results[0] requires "id" key');
     $this->assertNotEmpty          (      'id', $resp->results[0],      'Results[0][id] is not empty');
 
-  }
+    self::$existing_media = $resp->results;
+
+   }
 
   public function testLookup()
   {
-    $resp = self::$syndication->getMediaById( self::$published_media['id'] );
+    $this->assertArrayHasKey( 0, self::$existing_media, 'Existing_Media should not be empty, requires "0" key');
+
+    $resp = self::$syndication->getMediaById( self::$existing_media[0]['id'] );
  
     $this->assertNotEmpty($resp);
     $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
@@ -233,7 +245,27 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertEquals(                     1, count($resp->results),  'Results should only have one result');
     $this->assertArrayHasKey       (         0, $resp->results,         'Response[results] requires "0" key'); 
     $this->assertArrayHasKey       (      'id', $resp->results[0],      'Results[0] requires "id" key'); 
-    $this->assertEquals( self::$published_media['id'], $resp->results[0]['id'], 'Results[0][id] should match requested id');
+    $this->assertEquals( self::$existing_media[0]['id'], $resp->results[0]['id'], 'Results[0][id] should match requested id');
+  }
+
+  public function testSearch()
+  {
+    $resp = self::$syndication->getMedia( array('q'=>'health') );
+ 
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
+    $this->assertGreaterThan(                0, count($resp->results),  'Results should have at least one result');
+
+    $resp = self::$syndication->getMedia( array('descriptionContains'=>'health') );
+
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
+    $this->assertGreaterThan(                0, count($resp->results),  'Results should have at least one result');
+
   }
 
  /// test each API call
@@ -380,14 +412,47 @@ class LiveTest extends PHPUnit_Framework_TestCase
 
   }
 
-/*
-  public function _testLookup()
-  {
-  }
-  public function _testSearch()
-  {
+  public function testGetMostPopularMedia() 
+  { 
+    $resp = self::$syndication->getMostPopularMedia();
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute');
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key ');
+    $this->assertNotEmpty(                      $resp->results,            'Results should only have one result');
+
+    $this->assertArrayHasKey       (         0, $resp->results,            'Response[results] requires "0" key');
+    $this->assertArrayHasKey       (      'id', $resp->results[0],         'Results[0] requires "id" key');
+    $this->assertNotEmpty          (            $resp->results[0]['id'],   'Results[0][id] is not empty');
+    $this->assertArrayHasKey       (    'name', $resp->results[0],         'Results[0] requires "name" key');
+    $this->assertNotEmpty          (            $resp->results[0]['name'], 'Results[0][name] is not empty');
   }
 
+  public function testGetMediaContentById() 
+  { 
+    if ( empty(self::$existing_media) ) { return; }
+
+    $resp = self::$syndication->getMediaContentById( self::$existing_media[0]['id'] );
+
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute');
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                     'Response requires has "results" key ');
+    $this->assertNotEmpty(                      $resp->results,            'Results should have results');
+   
+  }
+
+  public function testGetMediaEmbedById() { }
+  public function testGetMediaPreviewById() { }
+  public function testGetMediaRatingsById() { }
+  public function testGetRelatedMediaById() { }
+
+  public function testGetMediaHtmlById() { }
+  public function testGetMediaThumbnailById() { }
+  public function testGetMediaYoutubeMetaDataById() { }
+
+
+
+/*
 
   public function _testSubscribe ()
   {

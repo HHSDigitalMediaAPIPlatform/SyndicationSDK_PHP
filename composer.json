@@ -7,10 +7,10 @@
   },
   "scripts": {
     "_pre-install-cmd": [
-      "phpunit tests/"
+      "./bin/unittests.sh"
     ],
     "post-install-cmd": [
-      "./vendor/phpdocumentor/phpdocumentor/bin/phpdoc.php -d ./src/ -t ./docs/ --template='responsive-twig'",
+      "./bin/gen_docs.sh",
       "./bin/push_to_drupal_module.sh"  
     ]
   }
