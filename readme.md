@@ -45,11 +45,11 @@ Since php is not a compiled language, the install procedure just runs the tests,
 
 Documentation
 --------------
-	Detailed [per-function documentation](docs/) can be found within the docs/ directory of this repository
+	Detailed [per-function documentation](https://bitbucket.org/ctacdevteam/syndicationsdk_php/docs/) can be found within the docs/ directory of this repository
 
 Example Application
 --------------
-	A Small [example application](examples/) can be found within the examples/ directory of this repository
+	A Small [example application](https://bitbucket.org/ctacdevteam/syndicationsdk_php/examples/) can be found within the examples/ directory of this repository
 
 Configuration
 --------------
@@ -68,7 +68,7 @@ Basic examples:
 	));
 	$synd = new Syndication('./config.php');
 	$synd = new Syndication('./config.json', 'synd' );
-	$synd = new Syndication('./config.ini',    'synd' );
+	$synd = new Syndication('./config.ini',  'synd' );
 ```
 
 ./config.php
