@@ -3,4 +3,5 @@ vendor/
 *.DS_Store
 *.out
 .idea/
+dist/
 docs/phpdoc-cache-*

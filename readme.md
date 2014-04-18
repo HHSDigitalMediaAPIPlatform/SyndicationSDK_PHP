@@ -2,8 +2,9 @@ Synidcation SDK - PHP
 ==============
 
 This is a php5 library for communicating with the Syndication APIs.
-	CTAC Syndication 3.0 API. 
-	CTAC CMS_Manager 3.0 API. 
+	
+    CTAC Syndication 3.0 API. 
+    CTAC CMS_Manager 3.0 API. 
 
 Features
 --------------
@@ -29,10 +30,33 @@ SDK available from our Git Repository:
 
 	git clone git@bitbucket.org:ctacdevteam/syndicationsdk_php.git
 
+Installing the SDK
+--------------
+
+There are three php class files required to use Syndication. They exist for use immediately and available under the src/ directory. They must simply be moved into php's include path.
+
+```composer test```
+
+Testing requires access to a live Syndication Server configured in the test/config.php file
+
+```composer install``` 
+
+Since php is not a compiled language, the install procedure just runs the tests, and if completed successfully, copies the src/ files into dist/. So during development you can be sure the dist/ dir contains the last set of functioning code. 
+
+Documentation
+--------------
+	Detailed [per-function documentation](docs/) can be found within the docs/ directory of this repository
+
+Example Application
+--------------
+	A Small [example application](examples/) can be found within the examples/ directory of this repository
+
 Configuration
 --------------
 
 The main Syndication Class accepts api-configuration settings as a constructor parameter. The constructor parameter can be either an array of key value pairs, or a filepath to a config file. Config files can be in one of three formats. An includable php file that returns an array, an INI file, or a JSON file. A second optional constructor parameter lets you define a key within your configuration array where your syndication options live.
+
+Basic examples:
 
 ```php
 	$synd = new Syndication(array( 
@@ -41,17 +65,13 @@ The main Syndication Class accepts api-configuration settings as a constructor p
 		'syndication_tinyurl'	=> 'http://...', 
 		'cms_manager_base' 		=> 'http://.../CmsManager/v1/api',
 		'cms_manager_url'		=> 'http://.../CmsManager/v1/api',
-		'cms_manager_id' 		=> 'cms.id', 
-		'key_shared'			=> 'key.shared.value', 
-		'key_public'			=> 'key.public.value', 
-		'key_private'			=> 'key.private.value' 
 	));
 	$synd = new Syndication('./config.php');
-	$synd = new Syndication('./config.json');
-	$synd = new Syndication('./config.ini');
+	$synd = new Syndication('./config.json', 'synd' );
+	$synd = new Syndication('./config.ini',    'synd' );
 ```
 
-PHP Config file returning array of configuration settings.
+./config.php
 
 ```php
 <?php 
@@ -61,22 +81,11 @@ PHP Config file returning array of configuration settings.
 		'syndication_tinyurl'	=> 'http://...', 
 		'cms_manager_base' 		=> 'http://.../CmsManager/v1/api',
 		'cms_manager_url'		=> 'http://.../CmsManager/v1/api',
-		'cms_manager_id' 		=> 'cms.id', 
-		'key_shared'			=> 'key.shared.value', 
-		'key_public'			=> 'key.public.value', 
-		'key_private'			=> 'key.private.value' 
 	);
 ?>
 ```
-File based config with "synd" key
 
-```php
-	$synd = new Syndication('./config.php'	,'synd');
-	$synd = new Syndication('./config.json'	,'synd');
-	$synd = new Syndication('./config.ini'	,'synd');
-```
-
-JSON Config file with "synd" key
+./config.json
 
 ```json
 {
@@ -87,13 +96,11 @@ JSON Config file with "synd" key
 		"syndication_tinyurl	: "http://...", 
 		"cms_manager_base"		: "http://.../CmsManager/v1/api",
 		"cms_manager_url"		: "http://.../CmsManager/v1/api",
-		"cms_manager_id"		: "cms.id", 
-		"key_shared"			: "key.shared.value", 
-		"key_public"			: "key.public.value", 
-		"key_private"			: "key.private.value" 
 	}
 }
-```INI Config file with "synd" key
+```
+
+./config.ini
 
 ```ini
 [foo]
@@ -101,20 +108,18 @@ bar:baz
 
 ;Syndication config options
 [synd]
-syndication_base	= http://.../Syndication/v2/api,
-syndication_url		= http://.../Syndication, 
-syndication_tinyurl	= http://..., 
-cms_manager_base	= http://.../CmsManager/v1/api,
-cms_manager_url		= http://.../CmsManager/v1/api,
-cms_manager_id		= cms.id, 
-key_shared			= key.shared.value, 
-key_public			= key.public.value, 
-key_private			= key.private.value 
+syndication_base	= http://.../Syndication/v2/api
+syndication_url		= http://.../Syndication 
+syndication_tinyurl	= http://... 
+cms_manager_base	= http://.../CmsManager/v1/api
+cms_manager_url		= http://.../CmsManager/v1/api
 ```
 
 PHP Usage
 --------------
-Single Class File : Syndication.class.php
+
+Have Three Class Files : Syndication.class.php, SyndicationResponse.class.php,
+Include Single Class File : Syndication.class.php
 
 ```php
   require('Syndication.class.php');
@@ -146,8 +151,10 @@ Expected Usage
   {
   	foreach ( $resp->results as $mediaType )
   	{
-		echo $mediaType."\n";  	}  } else {
-  	  }
+		echo $mediaType."\n";
+  	} 
+  } else {
+  }
 ```
 
 Application Mapping
@@ -164,12 +171,3 @@ SyndicationResponse results are always returned as a list of associative arrays.
   	echo "Type Name: {$type['name']}.<br />";
   	echo "Type Desc: {$type['description']}.<br />";  }
 ```
-
-API
---------------
-
-  Client Website is registered to a CMS Manager belonging to Syndication.
-  Client Website registers a callback URL for receviing updates and messages. 
-  Client Webiste is assigned an Id, an API Key. 
-  Client Website includes the API Key in a http header with each api call.
-  

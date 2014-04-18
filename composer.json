@@ -6,12 +6,12 @@
     "phpdocumentor/phpdocumentor": "2.*"
   },
   "scripts": {
-    "_pre-install-cmd": [
-      "./bin/unittests.sh"
+    "pre-install-cmd": [
+      "./bin/unit_tests.sh"
     ],
     "post-install-cmd": [
       "./bin/gen_docs.sh",
-      "./bin/push_to_drupal_module.sh"  
+      "./bin/dist.sh"
     ]
   }
 }

@@ -33,30 +33,12 @@ class LiveTest extends PHPUnit_Framework_TestCase
   {
     self::$tmp = realpath( dirname(__FILE__).'/../tmp/' );
 
-    /** /
-    self::$syn_base = 'http://ctacdev.com:8090/Syndication';
-    self::$syn_url  = 'http://ctacdev.com:8090/Syndication/api/v2';
-    /**/
+    self::$api = include dirname(__FILE__).'/config.php';
 
-    /**/
-    self::$syn_base = 'http://localhost:8080/Syndication';
-    self::$syn_url  = 'http://localhost:8080/Syndication/api/v2';
-    /**/
-
-    self::$cms_base = 'http://ctacdev.com:8090/CmsManager';
-    self::$cms_url  = 'http://ctacdev.com:8090/CmsManager/api/v1';
-
-    self::$api = array(
-        'syndication_base'    => self::$syn_base,
-        'syndication_url'     => self::$syn_url,
-        'syndication_tinyurl' => '',
-        'cms_manager_base'    => self::$cms_base,
-        'cms_manager_url'     => self::$cms_url,
-        'cms_manager_id'      => 'cms.phpunit.test',
-        'key_shared'  => "vA9xlmP1jLWgtAqigjDJ4siQbQup1HLcIF7WMuvHOkYZDw5FsVaci7ezARwHEGfQGInCwyA8RYSie/l8NYW8aA==",
-        'key_public'  => "ALaNyPqXV7hnVYtnLWdymAOrtGmKRxNtHOysk7PRf30b5Yj4kkBSbKjAC2KRvzvbqsttfcqYXMO7b2PwIkQmKWI=",
-        'key_private' => "H+dIq0KzX2BLs/vcPil0Shj1LvsALOMBqnRf1oN4lyLgVoWu37O23w6GA9fDGda7DQSgurUOgARgWtzcw+GwmQ==",
-    );
+    self::$syn_base = self::$api['syndication_base'];
+    self::$syn_url  = self::$api['syndication_url'];
+    self::$cms_base = self::$api['cms_manager_base'];
+    self::$cms_url  = self::$api['cms_manager_url'];
 
     self::$http_methods = array('get','post','delete');
 
@@ -77,7 +59,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
   /// TEST CORE FUNCTIONALITY
 
   public function testInitialization ()
-  {
+  { 
     $this->assertInstanceOf('Syndication',self::$syndication);
 
     $file_php  = fopen( self::$tmp.'/config.php',  'w' );
