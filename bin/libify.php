@@ -2,7 +2,9 @@
 
 /// combine classes into one single lib file for easy distribution
 
-$classes_dir = realpath(dirname(__FILE__).'/../dist/classes');
+$classes_dir = realpath(dirname(realpath(__FILE__)).'/../dist/classes');
+
+if ( empty($classes_dir) ) { die('dist/classes empty :('); }
 
 $c = "";
 
