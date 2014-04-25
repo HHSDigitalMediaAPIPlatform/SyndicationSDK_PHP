@@ -116,7 +116,6 @@ class LiveTest extends PHPUnit_Framework_TestCase
   {
     foreach ( self::$http_methods as $http_method )
     {
-        //$resp = self::$syndication->apiCall($http_method,self::$api['syndication_base'].'/swagger/api');
         $resp = self::$syndication->apiCall($http_method,self::$api['syndication_base'].'/api/v2/resources/media.json?max=1');
 
         /// all api calls must return an api_response array

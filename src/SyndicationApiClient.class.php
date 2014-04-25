@@ -134,7 +134,7 @@ class SyndicationAPIClient
      */
     function getClientApiVersions()
     {
-        return array( 'v2' );
+        return array( '2' );
     }
 
     /**

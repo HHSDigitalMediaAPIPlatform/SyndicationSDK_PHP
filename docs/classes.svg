@@ -13,30 +13,30 @@
 <path fill="none" stroke="gray" d="M256,-8C256,-8 362,-8 362,-8 368,-8 374,-14 374,-20 374,-20 374,-175 374,-175 374,-181 368,-187 362,-187 362,-187 256,-187 256,-187 250,-187 244,-181 244,-175 244,-175 244,-20 244,-20 244,-14 250,-8 256,-8"/>
 <text text-anchor="middle" x="309" y="-174.2" font-family="Times,serif" font-size="11.00" fill="gray">Global</text>
 </g>
+<!-- \\SyndicationAPIClient -->
+<g id="node1" class="node"><title>\\SyndicationAPIClient</title>
+<polygon fill="none" stroke="black" points="365.663,-160 252.337,-160 252.337,-124 365.663,-124 365.663,-160"/>
+<text text-anchor="middle" x="309" y="-138.7" font-family="Times,serif" font-size="11.00">SyndicationAPIClient</text>
+</g>
+<!-- \\SyndicationResponse -->
+<g id="node2" class="node"><title>\\SyndicationResponse</title>
+<polygon fill="none" stroke="black" points="364.214,-106 253.786,-106 253.786,-70 364.214,-70 364.214,-106"/>
+<text text-anchor="middle" x="309" y="-84.7" font-family="Times,serif" font-size="11.00">SyndicationResponse</text>
+</g>
 <!-- \\Syndication -->
-<g id="node1" class="node"><title>\\Syndication</title>
-<polygon fill="none" stroke="black" points="343.052,-160 274.948,-160 274.948,-124 343.052,-124 343.052,-160"/>
-<text text-anchor="middle" x="309" y="-138.7" font-family="Times,serif" font-size="11.00">Syndication</text>
+<g id="node3" class="node"><title>\\Syndication</title>
+<polygon fill="none" stroke="black" points="343.052,-52 274.948,-52 274.948,-16 343.052,-16 343.052,-52"/>
+<text text-anchor="middle" x="309" y="-30.7" font-family="Times,serif" font-size="11.00">Syndication</text>
 </g>
 <!-- \\SyndicationApiClient -->
 <g id="node4" class="node"><title>\\SyndicationApiClient</title>
-<ellipse fill="none" stroke="black" cx="90" cy="-142" rx="89.8878" ry="18"/>
-<text text-anchor="middle" x="90" y="-137.8" font-family="Times,serif" font-size="14.00" fill="gray">\SyndicationApiClient</text>
+<ellipse fill="none" stroke="black" cx="90" cy="-34" rx="89.8878" ry="18"/>
+<text text-anchor="middle" x="90" y="-29.8" font-family="Times,serif" font-size="14.00" fill="gray">\SyndicationApiClient</text>
 </g>
 <!-- \\Syndication&#45;&gt;\\SyndicationApiClient -->
 <g id="edge1" class="edge"><title>\\Syndication&#45;&gt;\\SyndicationApiClient</title>
-<path fill="none" stroke="black" d="M274.569,-142C251.818,-142 220.43,-142 190.039,-142"/>
-<polygon fill="none" stroke="black" points="189.784,-138.5 179.784,-142 189.784,-145.5 189.784,-138.5"/>
-</g>
-<!-- \\SyndicationAPIClient -->
-<g id="node2" class="node"><title>\\SyndicationAPIClient</title>
-<polygon fill="none" stroke="black" points="365.663,-106 252.337,-106 252.337,-70 365.663,-70 365.663,-106"/>
-<text text-anchor="middle" x="309" y="-84.7" font-family="Times,serif" font-size="11.00">SyndicationAPIClient</text>
-</g>
-<!-- \\SyndicationResponse -->
-<g id="node3" class="node"><title>\\SyndicationResponse</title>
-<polygon fill="none" stroke="black" points="364.214,-52 253.786,-52 253.786,-16 364.214,-16 364.214,-52"/>
-<text text-anchor="middle" x="309" y="-30.7" font-family="Times,serif" font-size="11.00">SyndicationResponse</text>
+<path fill="none" stroke="black" d="M274.569,-34C251.818,-34 220.43,-34 190.039,-34"/>
+<polygon fill="none" stroke="black" points="189.784,-30.5001 179.784,-34 189.784,-37.5001 189.784,-30.5001"/>
 </g>
 </g>
 </svg>
