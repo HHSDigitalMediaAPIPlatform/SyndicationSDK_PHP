@@ -163,7 +163,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
         'name'      => 'PHPClient Test Publish '.$random_id, 
         'sourceUrl' => 'http://www.stopmedicarefraud.gov/newsroom/your-state/texas/index.html#'.$random_id,
         'language'  => '1',   
-        'source'    => '1'
+        'source'    => '5'
     );
 
     $resp = self::$syndication->publishMedia($params);
@@ -190,7 +190,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertGreaterThan(                 1, count($resp->messages), 'Response->meta has a message'); 
     $this->assertArrayHasKey(    'errorMessage', $resp->messages[1],     'Response->messages[1] requires "errorMessage" attribute'); 
     $this->assertEquals( 'Field Constraint Violation', $resp->messages[1]['errorMessage'], 'Response->messages[1][errorMessage] is "Field Contraint Violation"'); 
-  }
+  } 
 
   public function testBrowse()
   {
@@ -231,8 +231,8 @@ class LiveTest extends PHPUnit_Framework_TestCase
 
   public function testSearch()
   {
-    $resp = self::$syndication->getMedia( array('q'=>'health') );
- 
+    $resp = self::$syndication->getMedia( array('q'=>'the') );
+
     $this->assertNotEmpty($resp);
     $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
     $this->assertEquals(                 '200', $resp->status );
@@ -422,14 +422,14 @@ class LiveTest extends PHPUnit_Framework_TestCase
    
   }
 
-  public function testGetMediaEmbedById() { }
-  public function testGetMediaPreviewById() { }
-  public function testGetMediaRatingsById() { }
-  public function testGetRelatedMediaById() { }
+  public function _testGetMediaEmbedById() { }
+  public function _testGetMediaPreviewById() { }
+  public function _testGetMediaRatingsById() { }
+  public function _testGetRelatedMediaById() { }
 
-  public function testGetMediaHtmlById() { }
-  public function testGetMediaThumbnailById() { }
-  public function testGetMediaYoutubeMetaDataById() { }
+  public function _testGetMediaHtmlById() { }
+  public function _testGetMediaThumbnailById() { }
+  public function _testGetMediaYoutubeMetaDataById() { }
 
 
 

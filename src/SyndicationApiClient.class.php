@@ -30,7 +30,7 @@ class SyndicationAPIClient
         'cms_manager_base'    => '',
         'cms_manager_url'     => '',
         'cms_manager_id'      => '',
-        'key_shared'          => '',
+        'key_secret'          => '',
         'key_public'          => '', 
         'key_private'         => ''
     );
@@ -760,7 +760,8 @@ class SyndicationAPIClient
                        "{$hashedData}\n".
                        "{$canonicalizedHeaders}\n".
                        "{$canonicalizedResource}";
-      $computedHash  = base64_encode(hash_hmac('md5', $signingString, $this->api['key_shared'], true ));
+      $computedHash  = base64_encode(hash_hmac('md5', $signingString, $this->api['key_secret'], true ));
+
       /// share public key are our hash
       return "{$this->api['key_public']}:{$computedHash}";# \n\n header order: $h \n\n Signing String:\n $signingString";
     }
