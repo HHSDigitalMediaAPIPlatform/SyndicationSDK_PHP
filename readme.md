@@ -35,21 +35,25 @@ Installing the SDK
 
 There are three php class files required to use Syndication. They exist for use immediately and available under the src/ directory. They must simply be moved into php's include path.
 
-```composer test```
-
-Testing requires access to a live Syndication Server configured in the test/config.php file
-
 ```composer install``` 
 
-Since php is not a compiled language, the install procedure just runs the tests, and if completed successfully, copies the src/ files into dist/. So during development you can be sure the dist/ dir contains the last set of functioning code. 
+Since php is not a compiled language, the install procedure just includes the dependencies for runs the tests and generating documents
+
+```bin/unit_test.sh```
+
+Testing requires access to a live Syndication Server and is configured in the test/config.php file
+
+```bin/dist.sh```
+
+Building a distribution puts includable class files into the ```dist/classes``` directory, and combines the file into one includable library in the ```dist/lib``` directory 
 
 Documentation
 --------------
-	Detailed [per-function documentation](https://bitbucket.org/ctacdevteam/syndicationsdk_php/docs/) can be found within the docs/ directory of this repository
+Detailed [per-function documentation](https://bitbucket.org/ctacdevteam/syndicationsdk_php/docs/) can be found within the docs/ directory of this repository
 
 Example Application
 --------------
-	A Small [example application](https://bitbucket.org/ctacdevteam/syndicationsdk_php/examples/) can be found within the examples/ directory of this repository
+A Small [example application](https://bitbucket.org/ctacdevteam/syndicationsdk_php/examples/) can be found within the examples/ directory of this repository
 
 Configuration
 --------------
