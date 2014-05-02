@@ -294,7 +294,6 @@ class Syndication extends SyndicationApiClient
 
     /**
      * Gets a list of Media MetaData.
-     * Makes a different API call depending on $query. 
      * 
      * @param mixed $query if string or params with q: all-column text search. if array: per-column search params 
      *      max                          : int
@@ -375,18 +374,29 @@ class Syndication extends SyndicationApiClient
     {
         try
         {
-            if ( is_array($query) )
-            {
-              if ( isset($query['q']) )
-              {
-                $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/searchResults.json",$query);
-              } else {  
-                $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media.json",$query);
-              }
-            } else if ( is_string($query) ) {  
-              $params = array( 'q' => $query );
-              $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/searchResults.json",$params);
-            }
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media.json",$query);
+            return $this->createResponse($result,'search Media MetaData','Search Criteria');
+        } catch ( Exception $e ) {
+            return $this->createResponse($e,'API Call');
+        }
+    }
+
+    /**
+     * Gets a list of Resources organized by MediaType.
+     * 
+     * @param mixed $q string for all-column text search
+     * 
+     * @access public
+     * @return SyndicationResponse ->results[mediaType][]
+     *      id                      : int
+     *      name                    : string
+     */
+    function searchResources( $q )
+    {
+        try
+        {
+            $params = ( is_array($q) && isset($q['q']) ) ? $q : array( 'q' => $q );
+            $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources.json",$params);
             return $this->createResponse($result,'search Resources','Search Criteria');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
@@ -395,9 +405,8 @@ class Syndication extends SyndicationApiClient
 
     /**
      * Gets a list of Media MetaData.
-     * Makes a different API call depending on $query. 
      * 
-     * @param mixed $q string for all-column text search
+     * @param mixed $q string for all-column text search or array with key 'q'
      * 
      * @access public
      * @return SyndicationResponse ->results[]
@@ -430,8 +439,9 @@ class Syndication extends SyndicationApiClient
     {
         try
         {
-            $params = array( 'q' => $q );
+            $params = ( is_array($q) && isset($q['q']) ) ? $q : array( 'q' => $q );
             $result = $this->apiCall('get',"{$this->api['syndication_url']}/resources/media/searchResults.json",$params);
+            return $this->createResponse($result,'search Media MetaData','q');
         } catch ( Exception $e ) {
             return $this->createResponse($e,'API Call');
         }

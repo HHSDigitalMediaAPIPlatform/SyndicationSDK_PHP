@@ -167,6 +167,7 @@ class LiveTest extends PHPUnit_Framework_TestCase
     );
 
     $resp = self::$syndication->publishMedia($params);
+    if ( ! $resp->success ) { print_r($resp); }
 
     /// good publish
     $this->assertNotEmpty($resp);
@@ -186,6 +187,8 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertNotEmpty($resp);
     $this->assertObjectHasAttribute(   'status', $resp,                  'Response requires "status" attribute'); 
     $this->assertEquals(                  '400', $resp->status );
+    $this->assertObjectHasAttribute(  'success', $resp,                  'Response requires "success" attribute'); 
+    $this->assertEquals(                  false, $resp->success );
     $this->assertObjectHasAttribute( 'messages', $resp,                  'Response->meta requires "message" attribute'); 
     $this->assertGreaterThan(                 1, count($resp->messages), 'Response->meta has a message'); 
     $this->assertArrayHasKey(    'errorMessage', $resp->messages[1],     'Response->messages[1] requires "errorMessage" attribute'); 
@@ -231,7 +234,9 @@ class LiveTest extends PHPUnit_Framework_TestCase
 
   public function testSearch()
   {
-    $resp = self::$syndication->getMedia( array('q'=>'the') );
+    $searchString = 'health';
+
+    $resp = self::$syndication->getMedia( array('descriptionContains'=>$searchString) );
 
     $this->assertNotEmpty($resp);
     $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
@@ -239,13 +244,33 @@ class LiveTest extends PHPUnit_Framework_TestCase
     $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
     $this->assertGreaterThan(                0, count($resp->results),  'Results should have at least one result');
 
-    $resp = self::$syndication->getMedia( array('descriptionContains'=>'health') );
+    $resp = self::$syndication->searchResources( array('q'=>$searchString) );
 
     $this->assertNotEmpty($resp);
     $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
     $this->assertEquals(                 '200', $resp->status );
     $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
     $this->assertGreaterThan(                0, count($resp->results),  'Results should have at least one result');
+
+    $prev = $resp;
+    $resp = self::$syndication->searchResources( $searchString );
+
+    $this->assertNotEmpty($resp);
+    $this->assertEquals(        $prev->results, $resp->results, 'String parameter results should match array parameter results' );
+
+    $resp = self::$syndication->searchMedia( array('q'=>$searchString) );
+
+    $this->assertNotEmpty($resp);
+    $this->assertObjectHasAttribute(  'status', $resp, 'Response requires "status" attribute'); 
+    $this->assertEquals(                 '200', $resp->status );
+    $this->assertObjectHasAttribute( 'results', $resp,                  'Response requires has "results" key '); 
+    $this->assertGreaterThan(                0, count($resp->results),  'Results should have at least one result');
+
+    $prev = $resp;
+    $resp = self::$syndication->searchMedia( $searchString );
+
+    $this->assertNotEmpty($resp);
+    $this->assertEquals(        $prev->results, $resp->results, 'String parameter results should match array parameter results' );
 
   }
 
