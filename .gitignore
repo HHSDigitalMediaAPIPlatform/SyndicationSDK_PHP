@@ -5,3 +5,4 @@ vendor/
 .idea/
 dist/
 docs/phpdoc-cache-*
+composer.lock
