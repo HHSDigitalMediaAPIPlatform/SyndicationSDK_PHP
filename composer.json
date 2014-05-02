@@ -1,18 +1,16 @@
 {
   "name": "ctac/syndicationsdk_php/",
-  "version": "0.1",
+  "version": "1.0",
   "require-dev": {
     "phpunit/phpunit": "3.7.*",
     "phpdocumentor/phpdocumentor": "2.*"
   },
   "scripts": {
     "post-update-cmd": [
-      "./bin/unit_tests.sh",
       "./bin/gen_docs.sh",
       "./bin/dist.sh"
     ],
     "post-install-cmd": [
-      "./bin/unit_tests.sh",
       "./bin/gen_docs.sh",
       "./bin/dist.sh"
     ]
