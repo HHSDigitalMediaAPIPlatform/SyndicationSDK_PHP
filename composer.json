@@ -6,10 +6,13 @@
     "phpdocumentor/phpdocumentor": "2.*"
   },
   "scripts": {
-    "pre-install-cmd": [
-      "./bin/unit_tests.sh"
+    "post-update-cmd": [
+      "./bin/unit_tests.sh",
+      "./bin/gen_docs.sh",
+      "./bin/dist.sh"
     ],
     "post-install-cmd": [
+      "./bin/unit_tests.sh",
       "./bin/gen_docs.sh",
       "./bin/dist.sh"
     ]
