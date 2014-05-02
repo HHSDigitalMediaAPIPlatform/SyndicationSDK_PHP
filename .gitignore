@@ -6,3 +6,5 @@ vendor/
 dist/
 docs/phpdoc-cache-*
 composer.lock
+bin/auto_drupal_changes.sh
+bin/push_to_drupal_module.sh
