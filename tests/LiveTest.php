@@ -167,7 +167,6 @@ class LiveTest extends PHPUnit_Framework_TestCase
     );
 
     $resp = self::$syndication->publishMedia($params);
-    if ( ! $resp->success ) { print_r($resp); }
 
     /// good publish
     $this->assertNotEmpty($resp);
