@@ -711,8 +711,7 @@ class Syndication extends SyndicationApiClient
         {
             $type_path = strtolower($params['mediaType']);
             // dirty pluralization
-            if( !in_array($type_path,array('socialmedia','audio')) ) { $type_path .= 's'; }
-            //$type_path{0} = strtolower($type_path{0});
+            if( !in_array($type_path,array('socialmedia','audio')) && substr($type_path,-1)!='s' ) { $type_path .= 's'; }
             $result = $this->apiCall('post',"{$this->api['syndication_url']}/resources/media/$type_path",$params,'json','json');
             return $this->createResponse($result,'Publish');
         } catch ( Exception $e ) {
